@@ -40,5 +40,9 @@ install:
 
 script:
 - cd tests
-- pytest -s
+- pytest -v --cov
+
+after_success:
+- codecov
+
 

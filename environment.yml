@@ -9,6 +9,8 @@ dependencies:
   - pyparsing
   - black
   - pytest
+  - pytest-cov
+  - codecov
   - pip
   - pip:
     - "--editable=."
