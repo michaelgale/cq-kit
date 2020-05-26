@@ -34,7 +34,7 @@ from datetime import datetime, date, time
 
 import cadquery as cq
 
-# hacky way of determining whether we're using python-occ or OCP 
+# hacky way of determining whether we're using python-occ or OCP
 # under the hood
 
 try:
@@ -56,52 +56,56 @@ except:
     )
     from OCP.IGESControl import *
     from OCP.Interface import *
+
     # from OCP.Extend.DataExchange import *
     from OCP.BRepMesh import BRepMesh_IncrementalMesh
     from OCP.StlAPI import StlAPI_Writer
+
     Interface_Static_SetIVal = Interface_Static.SetIVal_s
     Interface_Static_SetCVal = Interface_Static.SetCVal_s
 
+
 class suppress_stdout_stderr(object):
-    '''
+    """
     A context manager for doing a "deep suppression" of stdout and stderr in
     Python, i.e. will suppress all print, even if the print originates in a
     compiled C/Fortran sub-function.
        This will not suppress raised exceptions, since exceptions are printed
     to stderr just before a script exits, and after the context manager has
     exited (at least, I think that is why it lets exceptions through).
-    '''
+    """
+
     def __init__(self):
         # Open a pair of null files
-        self.null_fds =  [os.open(os.devnull,os.O_RDWR) for x in range(2)]
+        self.null_fds = [os.open(os.devnull, os.O_RDWR) for x in range(2)]
         # Save the actual stdout (1) and stderr (2) file descriptors.
         self.save_fds = [os.dup(1), os.dup(2)]
 
     def __enter__(self):
         # Assign the null pointers to stdout and stderr.
-        os.dup2(self.null_fds[0],1)
-        os.dup2(self.null_fds[1],2)
+        os.dup2(self.null_fds[0], 1)
+        os.dup2(self.null_fds[1], 2)
 
     def __exit__(self, *_):
         # Re-assign the real stdout/stderr back to (1) and (2)
-        os.dup2(self.save_fds[0],1)
-        os.dup2(self.save_fds[1],2)
+        os.dup2(self.save_fds[0], 1)
+        os.dup2(self.save_fds[1], 2)
         # Close all file descriptors
         for fd in self.null_fds + self.save_fds:
             os.close(fd)
 
+
 def better_float_str(x, tolerance=12):
     """ local function to convert a floating point coordinate string representation
     into a more optimum (quantized with Decimal) string representation """
-    xs = x.replace("(", "")
-    xs = xs.replace(")", "")
-    xs = xs.replace(";", "")
+    xs = x.replace("(", "").replace(")", "").replace(";", "")
     ns = str(decimal.Decimal(xs.strip()).quantize(decimal.Decimal(10) ** -tolerance))
     estr = "0E-%d" % tolerance
     ns = ns.replace(estr, "0.")
     if "E" not in ns:
         ns = ns.rstrip("0")
     return ns
+
 
 def replace_delimited_floats(x, token, subtoken, tolerance):
     """ A local function to identify a string of several delimited floating point
@@ -128,14 +132,17 @@ def replace_delimited_floats(x, token, subtoken, tolerance):
     ls.pop(-1)
     return "".join(ls)
 
+
 def better_float_line(x, tolerance):
     """ replaces a line / string group of floating point values """
     s = replace_delimited_floats(x, "(", ",", tolerance=tolerance)
     s = replace_delimited_floats(s, ")", ",", tolerance=tolerance)
     return s
 
+
 class LineToken(Enum):
     """ A simple class representing STEP file tokens useful for parsing """
+
     PRODUCT = 1
     CARTESIAN_POINT = 2
     DIRECTION = 3
@@ -152,13 +159,14 @@ class LineToken(Enum):
     @classmethod
     def get_line_token(cls, line):
         for name, member in LineToken.__members__.items():
-            if line[:len(name)].upper() == name:
+            if line[: len(name)].upper() == name:
                 return member
             if str(name + "(") in line:
                 return member
         return None
 
-class StepFileExporter():
+
+class StepFileExporter:
     """
     A configurable STEP file exporter class for a CadQuery shape object.
     """
@@ -249,7 +257,9 @@ class StepFileExporter():
         if shape is None:
             raise ValueError("StepFileExporter requires a valid CQ shape object")
         if filename is None:
-            raise ValueError("StepFileExporter requires a file path/name for exported object")
+            raise ValueError(
+                "StepFileExporter requires a file path/name for exported object"
+            )
         self.shape = shape
         self.filename = filename
         _, self.tail = os.path.split(self.filename)
@@ -311,7 +321,9 @@ class StepFileExporter():
             if i == self._filemap[LineToken.HEADER]:
                 lines.append("/* 3D STEP model */")
                 lines.append("")
-            if i >= self._filemap[LineToken.DATA] and i < (self._filemap[LineToken.FILE_NAME] - 1):
+            if i >= self._filemap[LineToken.DATA] and i < (
+                self._filemap[LineToken.FILE_NAME] - 1
+            ):
                 descstr += self._flines[i].strip()
             if i == (self._filemap[LineToken.FILE_SCHEMA] - 1):
                 lines.append("FILE_DESCRIPTION(")
@@ -326,15 +338,15 @@ class StepFileExporter():
                 ts = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
                 lines.append("/* time_stamp */ '" + ts + "',")
                 lines.append(
-                        "/* author */ ('"
-                        + self.metadata["author"]
-                        + "','"
-                        + self.metadata["email"]
-                        + "'),"
-                    ),
+                    "/* author */ ('"
+                    + self.metadata["author"]
+                    + "','"
+                    + self.metadata["email"]
+                    + "'),"
+                ),
                 lines.append(
-                        "/* organization */ ('" + self.metadata["organization"] + "'),"
-                    )
+                    "/* organization */ ('" + self.metadata["organization"] + "'),"
+                )
                 lines.append(
                     "/* preprocessor_version */ '"
                     + self.metadata["preprocessor"]
@@ -343,9 +355,13 @@ class StepFileExporter():
                 lines.append(
                     "/* originating_system */ '" + self.metadata["origin"] + "',"
                 )
-                lines.append("/* authorization */ '" + self.metadata["authorization"] + "');")
+                lines.append(
+                    "/* authorization */ '" + self.metadata["authorization"] + "');"
+                )
                 lines.append("")
-            if i >= (self._filemap[LineToken.FILE_SCHEMA] - 1) and i <= (self._filemap[LineToken.ENDSEC] - 1):
+            if i >= (self._filemap[LineToken.FILE_SCHEMA] - 1) and i <= (
+                self._filemap[LineToken.ENDSEC] - 1
+            ):
                 schemastr += self._flines[i].strip()
             if i == (self._filemap[LineToken.ENDSEC] - 1):
                 schemastr = (
@@ -393,13 +409,25 @@ class StepFileExporter():
                             )
                             fp.write(ls.rstrip() + "\n")
                             pempty, parsing = True, False
-                        elif token == LineToken.CARTESIAN_POINT or token == LineToken.DIRECTION:
+                        elif (
+                            token == LineToken.CARTESIAN_POINT
+                            or token == LineToken.DIRECTION
+                        ):
                             pline = pstr.split(",")
                             pts = []
                             for i in range(len(pline) - 1):
-                                pts.append(better_float_str(pline[i + 1], tolerance=self.tolerance))
+                                pts.append(
+                                    better_float_str(
+                                        pline[i + 1], tolerance=self.tolerance
+                                    )
+                                )
                             if len(pline) == 4:
-                                ls = "%s,(%s,%s,%s));" % (pline[0], pts[0], pts[1], pts[2])
+                                ls = "%s,(%s,%s,%s));" % (
+                                    pline[0],
+                                    pts[0],
+                                    pts[1],
+                                    pts[2],
+                                )
                             elif len(pline) == 3:
                                 ls = "%s,(%s,%s));" % (pline[0], pts[0], pts[1])
                             else:
@@ -408,7 +436,6 @@ class StepFileExporter():
                             pempty, parsing = True, False
                 else:
                     fp.write(better_float_line(line, self.tolerance).rstrip() + "\n")
-                
 
 
 def export_step_file(shape, filename, title=None, author=None, organization=None):
@@ -420,5 +447,3 @@ def export_step_file(shape, filename, title=None, author=None, organization=None
     if organization is not None:
         e.metadata["organization"] = organization
     e.export()
-
-

@@ -15,7 +15,12 @@ matrix:
   - name: "Python 3.7 - linux"
     env: PYTHON_VERSION=3.7
     os: linux
-
+  - name: "Lint"
+    env: PYTHON_VERSION=3.7
+    os: linux
+    script:
+    - black . --diff --check
+    
 before_install:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       OS=Linux ;

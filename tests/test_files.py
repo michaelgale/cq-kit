@@ -11,20 +11,24 @@ from cadquery import *
 from cadquery.selectors import *
 from cqkit import *
 
+
 def make_cube(size):
     r = CQ(Solid.makeBox(size, size, size))
     return r
 
+
 FILENAME = "./stepfiles/box.step"
+
 
 def test_step_export_init():
     with pytest.raises(ValueError):
         e = StepFileExporter(None, None)
     with pytest.raises(ValueError):
-        e = StepFileExporter(None, "box.step")        
+        e = StepFileExporter(None, "box.step")
     r = make_cube(2)
     e = StepFileExporter(r, "box.step")
     assert e.filename == "box.step"
+
 
 def _validate_step_file(fn):
     assert os.path.isfile(fn)
@@ -40,18 +44,23 @@ def _validate_step_file(fn):
         if "END-ISO-10303-21;" in lines[-2]:
             ok = True
     assert ok
-    tokens = [ "HEADER", "FILE_DESCRIPTION", "FILE_NAME", "FILE_SCHEMA", "ENDSEC", "DATA"]
-    token_dict = {}
+    tokens = [
+        "HEADER",
+        "FILE_DESCRIPTION",
+        "FILE_NAME",
+        "FILE_SCHEMA",
+        "ENDSEC",
+        "DATA",
+    ]
+    token_dict = defaultdict(int)
     for line in lines:
         for token in tokens:
             if token in line:
-                if token in token_dict:
-                    token_dict[token] += 1
-                else:
-                    token_dict[token] = 1
+                token_dict[token] += 1
                 break
     assert len(tokens) == len(token_dict)
     assert token_dict["ENDSEC"] == token_dict["HEADER"] + token_dict["DATA"]
+
 
 def test_step_export_simple():
     if os.path.isfile(FILENAME):
@@ -63,6 +72,7 @@ def test_step_export_simple():
     e.export()
     assert os.path.isfile(FILENAME)
     _validate_step_file(FILENAME)
+
 
 def test_step_export():
     if os.path.isfile(FILENAME):
@@ -77,6 +87,7 @@ def test_step_export():
     e.export()
     assert os.path.isfile(FILENAME)
     _validate_step_file(FILENAME)
+
 
 def test_export_function():
     if os.path.isfile(FILENAME):

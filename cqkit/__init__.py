@@ -2,10 +2,12 @@
 
 import os
 
+# fmt: off
 __project__ = 'cqkit'
 __version__ = '0.1.0'
+# fmt: on
 
-VERSION = __project__ + '-' + __version__
+VERSION = __project__ + "-" + __version__
 
 script_dir = os.path.dirname(__file__)
 
