@@ -34,8 +34,9 @@ from datetime import datetime, date, time
 
 import cadquery as cq
 
-# hacky way of determining whether we're using python-occ or OCP
-# under the hood
+# Hacky way of determining whether we're using python-occ or OCP
+# under the hood. A better way of assigning OCCT_VERSION could
+# be done as well.
 
 try:
     from OCC.Core.STEPControl import (
@@ -48,6 +49,8 @@ try:
     from OCC.Extend.DataExchange import *
     from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
     from OCC.Core.StlAPI import StlAPI_Writer
+
+    OCCT_VERSION = "6.9"
 except:
     from OCP.STEPControl import (
         STEPControl_Writer,
@@ -63,6 +66,7 @@ except:
 
     Interface_Static_SetIVal = Interface_Static.SetIVal_s
     Interface_Static_SetCVal = Interface_Static.SetCVal_s
+    OCCT_VERSION = "7.4"
 
 
 class suppress_stdout_stderr(object):
@@ -278,7 +282,7 @@ class StepFileExporter:
             "author": "",
             "email": "",
             "organization": "",
-            "preprocessor": "Open CASCADE STEP processor 7.4",
+            "preprocessor": "Open CASCADE STEP processor %s" % (OCCT_VERSION),
             "origin": "python-cadquery",
             "authorization": "",
         }
