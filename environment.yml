@@ -1,0 +1,14 @@
+name: cadquery
+channels:
+  - cadquery
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.6
+  - cadquery::pythonocc-core
+  - pyparsing
+  - black
+  - pytest
+  - pip
+  - pip:
+    - "--editable=."
