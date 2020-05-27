@@ -25,7 +25,7 @@
 
 import copy
 import math
-from math import sin, cos, radians, sqrt, atan, degrees, atan2, hypot
+from math import sin, cos, radians, sqrt, atan, degrees, atan2
 from numbers import Number
 from functools import reduce
 
@@ -340,6 +340,11 @@ class Vector2D(object):
     def __hash__(self):
         return hash((self.x, self.y))
 
+    def __eq__(self, other):
+        if not isinstance(other, Vector2D):
+            return False
+        return self.x == other.x and self.y == other.y
+
     def __add__(self, other):
         x = self.x + other.x
         y = self.y + other.y
@@ -536,9 +541,9 @@ class Point:
         The new position is returned as a new Point.
         """
         result = self.clone()
-        result.slide(-p.x, -p.y)
+        result.slide_xy(-p.x, -p.y)
         result.rotate(theta)
-        result.slide(p.x, p.y)
+        result.slide_xy(p.x, p.y)
         return result
 
 
@@ -885,7 +890,7 @@ class RadialPoint:
         o = (self.origin[0] + x, self.origin[1] + y, 0)
         self.origin = o
 
-    def _swapped(x, y):
+    def _swapped(self, x, y):
         return y, x
 
     def slide_polar(self, r, theta):
@@ -901,7 +906,7 @@ class RadialPoint:
         )
 
     def inner_yx(self, radial_offset=0.0):
-        return _swapped(self.inner_xy(radial_offset))
+        return self._swapped(self.inner_xy(radial_offset))
 
     def inner_3d(self, radial_offset=0.0):
         p = self.inner_xy(radial_offset)
@@ -915,7 +920,7 @@ class RadialPoint:
         )
 
     def outer_yx(self, radial_offset=0.0):
-        return _swapped(self.outer_xy(radial_offset))
+        return self._swapped(self.outer_xy(radial_offset))
 
     def outer_3d(self, radial_offset=0.0):
         p = self.outer_xy(radial_offset)
@@ -929,7 +934,7 @@ class RadialPoint:
         )
 
     def mid_yx(self, radial_offset=0.0):
-        return _swapped(self.mid_xy(radial_offset))
+        return self._swapped(self.mid_xy(radial_offset))
 
     def mid_3d(self, radial_offset=0.0):
         p = self.mid_xy(radial_offset)

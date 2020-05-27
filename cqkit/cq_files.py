@@ -23,16 +23,14 @@
 #
 # Step File Exporter Class
 
-import sys, os
+import os
 import os.path
 import pyparsing
 import datetime
-import copy
 import decimal
 from enum import Enum
 from datetime import datetime, date, time
 
-import cadquery as cq
 
 # Hacky way of determining whether we're using python-occ or OCP
 # under the hood. A better way of assigning OCCT_VERSION could

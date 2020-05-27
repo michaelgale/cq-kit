@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+import os.path
 import sys
 import setuptools
-from os import path
 
 PACKAGE_NAME = "cqkit"
 MINIMUM_PYTHON_VERSION = "3.6"
 
-loc = path.abspath(path.dirname(__file__))
+loc = os.path.abspath(os.path.dirname(__file__))
 
 with open(loc + "/requirements.txt") as f:
     requirements = f.read().splitlines()

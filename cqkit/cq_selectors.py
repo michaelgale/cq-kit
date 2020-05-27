@@ -25,11 +25,10 @@
 
 import sys
 import copy
-from math import radians, sin, cos, tan
+from math import radians
 import cadquery as cq
 
 from cadquery import *
-from cadquery import selectors
 from cqkit.cq_geometry import Point, Vector, Rect
 
 valid_objects = [
@@ -53,7 +52,6 @@ def is_valid_edge(obj):
         if obj_type == "CIRCLE":
             circ = obj._geomAdaptor().Circle()
             radius = circ.Radius()
-            length = circ.Length()
             if radius > 1.0:
                 return True
             return False
