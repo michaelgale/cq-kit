@@ -23,13 +23,13 @@
 #
 # CadQuery selectors
 
-import sys
 import copy
+import sys
 from math import radians
-import cadquery as cq
 
+import cadquery as cq
 from cadquery import *
-from cqkit.cq_geometry import Point, Vector, Rect
+from cqkit.cq_geometry import Point, Rect, Vector
 
 valid_objects = [
     "LINE",

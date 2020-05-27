@@ -23,14 +23,14 @@
 #
 # Step File Exporter Class
 
-import os
-import os.path
-import pyparsing
 import datetime
 import decimal
+import os
+import os.path
+from datetime import date, datetime, time
 from enum import Enum
-from datetime import datetime, date, time
 
+import pyparsing
 
 # Hacky way of determining whether we're using python-occ or OCP
 # under the hood. A better way of assigning OCCT_VERSION could

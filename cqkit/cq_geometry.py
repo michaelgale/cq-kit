@@ -25,9 +25,9 @@
 
 import copy
 import math
-from math import sin, cos, radians, sqrt, atan, degrees, atan2
-from numbers import Number
 from functools import reduce
+from math import atan, atan2, cos, degrees, radians, sin, sqrt
+from numbers import Number
 
 
 class MatrixError(Exception):

@@ -71,4 +71,4 @@ None yet. But hopefully a v.0.1.0 coinciding with a [pypi](https://pypi.org) pac
 
 ## Authors
 
-**CQ-Kit** was written by [Michael Gale](michael@fxbricks.com)
+**CQ-Kit** was written by [Michael Gale](https://github.com/michaelgale)
