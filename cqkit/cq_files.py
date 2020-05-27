@@ -147,9 +147,11 @@ def better_float_line(x, tolerance):
 class LineToken(Enum):
     """ A simple class representing STEP file tokens useful for parsing """
 
+    # tokens in the DATA section
     PRODUCT = 1
     CARTESIAN_POINT = 2
     DIRECTION = 3
+    # tokens in the HEADER section
     HEADER = 4
     ENDSEC = 5
     DATA = 6
@@ -167,6 +169,22 @@ class LineToken(Enum):
                 return member
             if str(name + "(") in line:
                 return member
+        return None
+
+    @classmethod
+    def get_header_token(cls, line):
+        for name, member in LineToken.__members__.items():
+            if line[: len(name)].upper() == name:
+                if member.value >= LineToken.HEADER.value:
+                    return member
+        return None
+
+    @classmethod
+    def get_data_token(cls, line):
+        for name, member in LineToken.__members__.items():
+            if line[: len(name)].upper() == name:
+                if member.value < LineToken.HEADER.value:
+                    return member
         return None
 
 
@@ -309,8 +327,8 @@ class StepFileExporter:
             self._flines = fp.readlines()
         self._filemap = {}
         for i, line in enumerate(self._flines, 1):
-            t = LineToken.get_line_token(line)
-            if t is not None and t.value >= LineToken.HEADER.value:
+            t = LineToken.get_header_token(line)
+            if t is not None:
                 self._filemap[t] = i
                 if t == LineToken.DATA:
                     break
@@ -391,10 +409,7 @@ class StepFileExporter:
             pempty, parsing = True, False
             token = None
             for line in self._flines[(self._filemap[LineToken.DATA] - 1) :]:
-                line_token = LineToken.get_line_token(line)
-                if line_token is not None:
-                    if line_token.value >= LineToken.HEADER.value:
-                        line_token = None
+                line_token = LineToken.get_data_token(line)
                 if line_token is not None and pempty and not parsing:
                     pstr = ""
                     pempty, parsing = False, True
