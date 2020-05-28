@@ -54,6 +54,83 @@ An example of the package can be seen below
     export_step_file(r, "mybox.step", title="My Awesome Box", author="Michael Gale")
 ```
 
+## Selector Classes
+
+CQ-Kit extends CadQuery's powerful `Selector` base class with some additional utility classes.  They are described below and are grouped by Selectors for edges and faces.  Almost all of these custom selector classes can be passed a `tolerance` keyword argument to control the numerical tolerance of filtering operations (usually based on length).
+
+### Edge Selectors
+
+- `EdgeLengthSelector` Selects edges based on their length. Lengths can be specified in several different ways.
+
+| <img src=./images/edgelen2.png width=200> | <img src=./images/edgelen3-14.png width=200>  | <img src=./images/edgelen-35.png width=200> |
+| --- | --- | --- |
+
+
+```python
+# selects edges from solid with length 3.0
+es = EdgeLengthSelector(3.0)
+r = solid.edges(es)
+# selects edges with a list of edge lengths
+es = EdgeLengthSelector([3.0, 1.4])
+# selects edges using string rules with >, <, >=, <=
+es = EdgeLengthSelector([">3.5"])
+# selects edges which are 4.0 +/- 0.5 long
+es = EdgeLengthSelector(4.0, tolerance=1.0)
+```
+
+- `VerticalEdgeSelector` Is a convenience selector which selects "vertical" edges, i.e edges with `Z` coordinate difference which exceed a tolerance (default tolerance is 0.1).
+
+| <img src=./images/vertedges.png width=200> | <img src=./images/vertedge3.png width=200> |
+| --- | --- |
+
+```python
+# selects all vertical edges
+vs = VerticalEdgeSelector()
+r = solid.edges(vs)
+# selects all vertical edges 3.2 and 2.0 mm tall
+vs = VerticalEdgeSelector([3.0, 2.0])
+```
+
+- `PlanarAtHeightSelector` Selects all edges which lie "flat" at a certain `Z` axis height.
+```python
+# selects edges 
+```
+| <img src=./images/planaratheight1.png width=200> | 
+| --- | 
+
+```python
+# select all edges at height = 1.0
+es = PlanarAtHeightSelector(1.0)
+# select all edges at heights 2, 5
+es = PlanarAtHeightSelector([2, 5])
+```
+
+- `HasXCoordinateSelector`
+- `HasYCoordinateSelector`
+- `HasZCoordinateSelector` - selects edges which have specific coordinate values.  The `both_ends` keyword can specify whether both vertices of the edge conform to the coordinate requirement (`True`) or at least one vertex (`False`) 
+
+| <img src=./images/xcoord3both.png width=200> | <img src=./images/xcoord3.png width=200> |
+| --- | --- |
+
+- `RotatedBoxSelector` - a box selector which is rotated about the `Z` axis
+
+- `QuadrantSelector` - selects edges which are contained in the "`+X`", "`-X`", "`+Y`", "`-Y`", "`+Z`", "`-Z`" quadrants.
+
+- `SharedVertexSelector` - selects edges which have either of their end points in common with a specified vertex
+
+- `InRadialSectorSelector` - selects edges which lie within a radial sector specified by radius bounds and sector angle
+
+- `CommonVerticesWithFaceSelector` -
+
+- `CommonVerticesWithWireSelector`
+
+### Face Selectors 
+
+- `PlanarFacesAtHeightSelector`
+- `ClosedWiresInFaceSelector`
+- `FaceSelectorWithVertex`
+
+
 ## To Do
 
 - More modules/functionality for the package extracted from previous work in different places

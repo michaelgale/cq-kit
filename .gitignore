@@ -4,6 +4,9 @@
 # intermediate and cached 3D solid files 
 /cache/*
 /tests/stepfiles/*.step
+*.graffle
+/images/docshapes.py
+/images/docshape.step
 
 # editors
 /.vscode
