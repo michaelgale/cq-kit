@@ -62,7 +62,7 @@ CQ-Kit extends CadQuery's powerful `Selector` base class with some additional ut
 
 - `EdgeLengthSelector` Selects edges based on their length. Lengths can be specified in several different ways.
 
-| <img src=./images/edgelen2.png width=200> | <img src=./images/edgelen3-14.png width=200>  | <img src=./images/edgelen-35.png width=200> |
+| <img src=./images/edgelen2.png width=220> | <img src=./images/edgelen3-14.png width=220>  | <img src=./images/edgelen-35.png width=220> |
 | --- | --- | --- |
 
 
@@ -80,7 +80,7 @@ es = EdgeLengthSelector(4.0, tolerance=1.0)
 
 - `VerticalEdgeSelector` Is a convenience selector which selects "vertical" edges, i.e edges with `Z` coordinate difference which exceed a tolerance (default tolerance is 0.1).
 
-| <img src=./images/vertedges.png width=200> | <img src=./images/vertedge3.png width=200> |
+| <img src=./images/vertedges.png width=220> | <img src=./images/vertedge3.png width=220> |
 | --- | --- |
 
 ```python
@@ -92,10 +92,8 @@ vs = VerticalEdgeSelector([3.0, 2.0])
 ```
 
 - `PlanarAtHeightSelector` Selects all edges which lie "flat" at a certain `Z` axis height.
-```python
-# selects edges 
-```
-| <img src=./images/planaratheight1.png width=200> | 
+
+| <img src=./images/planaratheight1.png width=220> | 
 | --- | 
 
 ```python
@@ -109,18 +107,43 @@ es = PlanarAtHeightSelector([2, 5])
 - `HasYCoordinateSelector`
 - `HasZCoordinateSelector` - selects edges which have specific coordinate values.  The `both_ends` keyword can specify whether both vertices of the edge conform to the coordinate requirement (`True`) or at least one vertex (`False`) 
 
-| <img src=./images/xcoord3both.png width=200> | <img src=./images/xcoord3.png width=200> |
+| <img src=./images/xcoord3both.png width=250> | <img src=./images/xcoord3.png width=250> |
 | --- | --- |
+
+```python
+# selects all edges which have X coordinate values = 3.0 at both ends
+es = HasXCoordinateSelector(3.0, both_ends=True)
+# selects all edges which have X coordinate values = 3.0 at least one end
+es = HasXCoordinateSelector(3.0, both_ends=False)
+```
+
+- `SharedVertexSelector` - selects edges which have either of their end points in common with a specified vertex
+
+| <img src=./images/sharedvertex.png width=250> | 
+| --- | 
+
+```python
+# selects all edges which have one of its end points common with a specific vertex
+es = SharedVertexSelector(Vector(1, 2, 1))
+```
+
+- `CommonVerticesWithFaceSelector` -
+
+| <img src=./images/commonvertface.png width=250> | 
+| --- | 
+
+```python
+# selects all edges which have any of its end points common with any vertex
+# belonging to a specified face
+face1 = solid.faces(PlanarFacesAtHeightSelector(1.0))
+es = CommonVerticesWithFaceSelector(face1)
+```
 
 - `RotatedBoxSelector` - a box selector which is rotated about the `Z` axis
 
 - `QuadrantSelector` - selects edges which are contained in the "`+X`", "`-X`", "`+Y`", "`-Y`", "`+Z`", "`-Z`" quadrants.
 
-- `SharedVertexSelector` - selects edges which have either of their end points in common with a specified vertex
-
 - `InRadialSectorSelector` - selects edges which lie within a radial sector specified by radius bounds and sector angle
-
-- `CommonVerticesWithFaceSelector` -
 
 - `CommonVerticesWithWireSelector`
 
