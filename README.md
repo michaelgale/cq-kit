@@ -119,7 +119,7 @@ es = HasXCoordinateSelector(3.0, both_ends=False)
 
 - `SharedVertexSelector` - selects edges which have either of their end points in common with a specified vertex
 
-| <img src=./images/sharedvertex.png width=250> | 
+| <img src=./images/sharedvertex.png width=280> | 
 | --- | 
 
 ```python
@@ -129,7 +129,7 @@ es = SharedVertexSelector(Vector(1, 2, 1))
 
 - `CommonVerticesWithFaceSelector` -
 
-| <img src=./images/commonvertface.png width=330> | 
+| <img src=./images/commonvertface.png width=390> | 
 | --- | 
 
 ```python
