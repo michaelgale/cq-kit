@@ -107,7 +107,7 @@ es = PlanarAtHeightSelector([2, 5])
 - `HasYCoordinateSelector`
 - `HasZCoordinateSelector` - selects edges which have specific coordinate values.  The `both_ends` keyword can specify whether both vertices of the edge conform to the coordinate requirement (`True`) or at least one vertex (`False`) 
 
-| <img src=./images/xcoord3both.png width=250> | <img src=./images/xcoord3.png width=250> |
+| <img src=./images/xcoord3both.png width=300> | <img src=./images/xcoord3.png width=300> |
 | --- | --- |
 
 ```python
@@ -129,7 +129,7 @@ es = SharedVertexSelector(Vector(1, 2, 1))
 
 - `CommonVerticesWithFaceSelector` -
 
-| <img src=./images/commonvertface.png width=250> | 
+| <img src=./images/commonvertface.png width=330> | 
 | --- | 
 
 ```python
