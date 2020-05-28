@@ -1,3 +1,5 @@
+![CQ-Kit Logo](./images/logo.png)
+
 # CQ-Kit 
 
 ![python version](https://img.shields.io/static/v1?label=python&message=3.6%2B&color=blue&style=flat&logo=python)
