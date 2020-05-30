@@ -1061,3 +1061,34 @@ def grid_points_at_height(length, width, height, div, width_div=None):
     a specified height"""
     pts = grid_points_2d(length, width, div, width_div)
     return points2d_at_height(pts, height)
+
+
+def end_points(obj):
+    """ Returns the end points of geometry object as a tuple. Each point is
+    a tuple of 3D coordinate values"""
+    return Vector(obj.startPoint().toTuple()), Vector(obj.endPoint().toTuple())
+
+
+def edge_length(edge):
+    """ Returns the length of an edge """
+    p0, p1 = end_points(edge)
+    return abs(p1 - p0)
+
+
+def wire_length(wire):
+    """ Returns the length of a wire by summing all of its edge lengths """
+    length = 0
+    edges = wire.Edges()
+    for e in edges:
+        length += edge_length(e)
+    return length
+
+
+def is_same_edge(e0, e1, tolerance):
+    a0, b0 = end_points(e0)
+    a1, b1 = end_points(e1)
+    if a0.almost_same_as(a1, tolerance) and b0.almost_same_as(b1, tolerance):
+        return True
+    if a0.almost_same_as(b1, tolerance) and b0.almost_same_as(a1, tolerance):
+        return True
+    return False

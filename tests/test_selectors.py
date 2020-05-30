@@ -12,106 +12,208 @@ from cadquery.selectors import *
 from cqkit import *
 
 
-def make_cube(size):
-    r = CQ(Solid.makeBox(size, size, size))
-    return r
+# - HasCoordinateSelector(Selector)
+#   - HasXCoordinateSelector()
+#   - HasYCoordinateSelector()
+#   - HasZCoordinateSelector()
+# - LengthSelector(Selector)
+#   - EdgeLengthSelector()
+#   - WireLengthSelector()
+#   - RadiusSelector()
+#   - DiameterSelector()
+# - AreaSelector(Selector)
 
 
-def test_edge_len():
-    c = make_cube(1.0)
-    bs = EdgeLengthSelector([1.0])
-    n_edges = c.edges(bs).size()
-    assert n_edges == 12
+def test_coord_selectors():
+    r = CQ(Solid.makeBox(1, 2, 3))
+    bs = HasXCoordinateSelector(1)
+    assert r.edges(bs).size() == 8
+    bs = HasXCoordinateSelector(1, min_points=2)
+    assert r.edges(bs).size() == 4
+
+    bs = HasYCoordinateSelector(2)
+    assert r.edges(bs).size() == 8
+    bs = HasYCoordinateSelector(2, min_points=2)
+    assert r.edges(bs).size() == 4
+
+    bs = HasZCoordinateSelector(3)
+    assert r.edges(bs).size() == 8
+    bs = HasZCoordinateSelector(3, min_points=2)
+    assert r.edges(bs).size() == 4
 
 
-def test_planar_height():
-    c = make_cube(1.0)
-    bs = PlanarAtHeightSelector(1.0)
-    n_edges = c.edges(bs).size()
-    assert n_edges == 4
+def test_length_selectors():
+    r = CQ(Solid.makeBox(1, 2, 3))
+    es = EdgeLengthSelector(lengths=2)
+    assert r.edges(es).size() == 4
+    es = EdgeLengthSelector(lengths=[3, 1])
+    assert r.edges(es).size() == 8
+
+    es = EdgeLengthSelector(lengths=["<2.5"])
+    assert r.edges(es).size() == 8
+    es = EdgeLengthSelector(lengths=">4")
+    assert r.edges(es).size() == 0
 
 
-def test_vert_edges():
-    c = make_cube(1.0)
-    bs = VerticalEdgeSelector([1.0])
-    n_edges = c.edges(bs).size()
-    assert n_edges == 4
+def test_wire_length_selectors():
+    r = CQ(Solid.makeBox(1, 2, 3))
+    ws = WireLengthSelector(lengths=6)
+    assert r.wires(ws).size() == 2
 
 
-def test_common_vertices_face():
-    c = make_cube(1.0)
-    faces = c.faces(">Z").vals()
-    f = faces[0]
-    bs = CommonVerticesWithFaceSelector(f)
-    n_edges = c.edges(bs).size()
-    assert n_edges == 8
+def test_circle_selectors():
+    r = cq.Workplane("XY").circle(2).workplane(offset=3).circle(3).loft()
+    rs = RadiusSelector(2)
+    assert r.edges(rs).size() == 1
+    rs = RadiusSelector(3)
+    assert r.edges(rs).size() == 1
+    rs = RadiusSelector(2.5)
+    assert r.edges(rs).size() == 0
+    ds = DiameterSelector(4)
+    assert r.edges(ds).size() == 1
+    ds = DiameterSelector(5)
+    assert r.edges(ds).size() == 0
 
 
-def test_planar_faces():
-    c = make_cube(1.0)
-    faces = c.faces(">Z").vals()
-    f = faces[0]
-    bs = PlanarFacesAtHeightSelector(1.0, 4)
-    n_faces = c.faces(bs).size()
-    assert n_faces == 1
-    bs = PlanarFacesAtHeightSelector(1.0, 5)
-    n_faces = c.faces(bs).size()
-    assert n_faces == 0
+# - ObjectCountSelector(Selector)
+#   - VertexCountSelector()
+#   - EdgeCountSelector()
+#   - WireCountSelector()
+#   - FaceCountSelector()
 
 
-def test_height_sel():
-    c = make_cube(1.0)
-    bs = WithinHeightSelector([1.0])
-    n_edges = c.edges(bs).size()
-    assert n_edges == 4
-    bs = WithinHeightSelector([0.5])
-    n_edges = c.edges(bs).size()
-    assert n_edges == 0
+def test_object_count_selectors():
+    r = CQ(Solid.makeBox(1, 2, 3))
+    cs = VertexCountSelector(8)
+    assert r.solids(cs).size() == 1
+    assert r.faces(cs).size() == 0
+    cs = VertexCountSelector(4)
+    assert r.faces(cs).size() == 6
+
+    cs = EdgeCountSelector(12)
+    assert r.solids(cs).size() == 1
+    assert r.faces(cs).size() == 0
+    cs = EdgeCountSelector(4)
+    assert r.faces(cs).size() == 6
+
+    cs = WireCountSelector(1)
+    assert r.faces(cs).size() == 6
+
+    cs = FaceCountSelector(6)
+    assert r.solids(cs).size() == 1
 
 
-def test_get_corner_vertex():
-    c = make_cube(1.0)
-    edges = c.faces(">Z").edges()
-    vertex = GetCornerVertex(edges, "TR")
-    v0 = Vector(1.0, 1.0, 1.0)
-    assert vertex.almost_same_as(v0)
-    vertex = GetCornerVertex(edges, "BL")
-    v0 = Vector(0.0, 0.0, 1.0)
-    assert vertex.almost_same_as(v0)
-    vertex = GetCornerVertex(edges, "TL")
-    v0 = Vector(0.0, 1.0, 1.0)
-    assert vertex.almost_same_as(v0)
-    vertex = GetCornerVertex(edges, "BR")
-    v0 = Vector(1.0, 0.0, 1.0)
-    assert vertex.almost_same_as(v0)
+#
+# Orientation Selectors
+#
+# Grouped as follows:
+#
+# - VerticalSelector()
+#   - VerticalEdgeSelector()
+#   - VerticalWireSelector()
+#   - VerticalFaceSelector()
+# - FlatSelector()
+#   - FlatEdgeSelector()
+#   - FlatWireSelector()
+#   - FlatFaceSelector()
 
 
-def test_shared_vertex_sel():
-    c = make_cube(1.0)
-    v0 = Vector(1.0, 1.0, 1.0)
-    bs = SharedVertexSelector(v0)
-    n_edges = c.edges(bs).size()
-    assert n_edges == 3
-    v0 = Vector(0.0, 1.0, 0.0)
-    bs = SharedVertexSelector(v0)
-    n_edges = c.edges(bs).size()
-    assert n_edges == 3
+def test_vertical_selectors():
+    r = CQ(Solid.makeBox(1, 2, 3))
+    vs = VerticalEdgeSelector(heights=3)
+    assert r.edges(vs).size() == 4
+    vs = VerticalEdgeSelector(heights=1)
+    assert r.edges(vs).size() == 0
+    vs = VerticalEdgeSelector(heights="<5")
+    assert r.edges(vs).size() == 4
+    vs = VerticalWireSelector(3)
+    assert r.wires(vs).size() == 4
+    vs = VerticalFaceSelector(3)
+    assert r.faces(vs).size() == 4
+    vs = VerticalFaceSelector(6)
+    assert r.faces(vs).size() == 0
+    vs = VerticalFaceSelector(heights=[2, 9, 3.05])
+    assert r.faces(vs).size() == 4
 
 
-def test_quadrant_sel():
-    c = make_cube(1.0).translate((0, -0.5, 0))
-    bs = QuadrantSelector("+Y")
-    edges = c.faces(">Z").edges(bs)
-    n_edges = edges.size()
-    assert n_edges == 1
-    bs = QuadrantSelector("-Y")
-    edges = c.faces("<Y").edges(bs)
-    n_edges = edges.size()
-    assert n_edges == 4
+def test_flat_selectors():
+    r = CQ(Solid.makeBox(1, 2, 3))
+    fs = FlatEdgeSelector(at_heights=0)
+    assert r.edges(fs).size() == 4
+    fs = FlatEdgeSelector(at_heights=5)
+    assert r.edges(fs).size() == 0
+    fs = FlatEdgeSelector(at_heights=[0, 3.05, 9])
+    assert r.edges(fs).size() == 8
+    fs = FlatEdgeSelector(at_heights="<4")
+    assert r.edges(fs).size() == 8
+    fs = FlatWireSelector(at_heights=3)
+    assert r.wires(fs).size() == 1
+    fs = FlatWireSelector(at_heights=[0, 3])
+    assert r.wires(fs).size() == 2
+    fs = FlatFaceSelector(at_heights=3)
+    assert r.faces(fs).size() == 1
+    fs = FlatFaceSelector()
+    assert r.faces(fs).size() == 2
+
+
+# Selectors which filter by Association
+#
+# Grouped as follows:
+#
+# - SharedVerticesWithObjectSelector()
+# - SameLengthAsObjectSelector
+# - SameHeightAsObjectSelector
+# - SameVertexCountAsObjectSelector
+# - SameEdgeCountAsObjectSelector
+
+
+def test_shared_vertices_selector():
+    r = CQ(Solid.makeBox(1, 2, 3))
+    f = r.faces(">Z").val()
+    vs = SharedVerticesWithObjectSelector(obj=f)
+    assert r.faces(vs).size() == 5
+    assert r.edges(vs).size() == 8
+
+    e = r.faces("<Z").edges(">X").val()
+    vs = SharedVerticesWithObjectSelector(obj=e)
+    assert r.faces(vs).size() == 4
+    vs = SharedVerticesWithObjectSelector(obj=e, min_points=2)
+    assert r.faces(vs).size() == 2
+
+    vs = SharedVerticesWithObjectSelector(obj=Vertex.makeVertex(1, 2, 3))
+    assert r.edges(vs).size() == 3
+
+
+def test_same_object_selectors():
+    r = CQ(Solid.makeBox(1, 2, 3))
+    e = r.faces("<Z").edges(">X").val()
+    ls = SameLengthAsObjectSelector(obj=e)
+    assert ls.length == 2
+    assert r.edges(ls).size() == 4
+    assert r.faces(">Z").edges(ls).size() == 2
+
+    e = r.faces(">X").edges(">Y").val()
+    hs = SameHeightAsObjectSelector(obj=e)
+    assert hs.height == 3
+    assert r.edges(hs).size() == 4
+    assert r.faces(">Z").edges(hs).size() == 0
+
+    vs = SameVertexCountAsObjectSelector(obj=e)
+    assert vs.vtx_count == 2
+    assert r.edges(vs).size() == 12
+    assert r.faces(">Z").edges(vs).size() == 4
+    assert r.faces(vs).size() == 0
+
+    e = r.faces("<Z").val()
+    es = SameEdgeCountAsObjectSelector(obj=e)
+    assert es.edge_count == 4
+    assert r.edges(es).size() == 0
+    assert r.faces(">Z").faces(es).size() == 1
+    assert r.solids().faces(es).size() == 6
 
 
 def test_rotated_box_sel():
-    c = make_cube(1.0).rotate((0, 0, 0), (0, 0, 1), 45)
+    c = CQ(Solid.makeBox(1, 1, 1)).rotate((0, 0, 0), (0, 0, 1), 45)
     bs = RotatedBoxSelector((0.707, 0.707, 0.5), (0.2, 2.0, 1.0), 45)
     n_edges = c.edges(bs).size()
     assert n_edges == 4
@@ -120,45 +222,4 @@ def test_rotated_box_sel():
     assert n_edges == 1
     bs = RotatedBoxSelector((0.6, 0.6, 0.5), (0.2, 0.2, 1.0))
     n_edges = c.edges(bs).size()
-    assert n_edges == 0
-
-
-def test_xcoord_selector():
-    c = make_cube(3.0)
-    bs = HasXCoordinateSelector([3.0])
-    n_edges = c.edges(bs).size()
-    assert n_edges == 4
-    bs = HasXCoordinateSelector(["<1.0"])
-    n_edges = c.edges(bs).size()
-    assert n_edges == 4
-    bs = HasXCoordinateSelector([">4.0"])
-    n_edges = c.edges(bs).size()
-    assert n_edges == 0
-
-
-def _printpt(p):
-    s = []
-    s.append("(%6.2lf, %6.2lf)" % (p.x, p.y))
-    return "".join(s)
-
-
-def test_closed_loops():
-    r = cq.Workplane("XY").rect(3, 3).extrude(1)
-    rc = cq.Workplane("XY").polygon(6, 0.5).extrude(1)
-    r = r.cut(rc.translate((0, 0, 0.5)))
-
-    f = r.faces(PlanarFacesAtHeightSelector(1)).val()
-    bs = ClosedWiresInFaceSelector(f, min_edges=6)
-    re = r.edges(bs).vals()
-    n_edges = len(re)
-    assert n_edges == 6
-
-    bs = ClosedWiresInFaceSelector(f, min_edges=4)
-    re = r.edges(bs).vals()
-    n_edges = len(re)
-    assert n_edges == 4
-
-    bs = ClosedWiresInFaceSelector(f, min_edges=5)
-    re = r.edges(bs).vals()
-    n_edges = len(re)
     assert n_edges == 0
