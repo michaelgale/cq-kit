@@ -31,6 +31,7 @@ from datetime import date, datetime, time
 from enum import Enum
 
 import pyparsing
+import cadquery as cq
 
 # Hacky way of determining whether we're using python-occ or OCP
 # under the hood. A better way of assigning OCCT_VERSION could
@@ -97,10 +98,13 @@ class suppress_stdout_stderr(object):
             os.close(fd)
 
 
-def better_float_str(x, tolerance=12):
+def better_float_str(x, tolerance=12, pre_strip=True):
     """ local function to convert a floating point coordinate string representation
     into a more optimum (quantized with Decimal) string representation """
-    xs = x.replace("(", "").replace(")", "").replace(";", "")
+    if pre_strip:
+        xs = x.replace("(", "").replace(")", "").replace(";", "")
+    else:
+        xs = x
     ns = str(decimal.Decimal(xs.strip()).quantize(decimal.Decimal(10) ** -tolerance))
     estr = "0E-%d" % tolerance
     ns = ns.replace(estr, "0.")
@@ -121,7 +125,7 @@ def replace_delimited_floats(x, token, subtoken, tolerance):
         for s in xt1:
             if "." in s:
                 try:
-                    ns = better_float_str(s, tolerance=tolerance)
+                    ns = better_float_str(s, tolerance=tolerance, pre_strip=False)
                     ls.append(ns)
                     ls.append(subtoken)
                     continue
@@ -181,6 +185,9 @@ class LineToken(Enum):
     def get_data_token(cls, line):
         for name, member in LineToken.__members__.items():
             if line[: len(name)].upper() == name:
+                if member.value < LineToken.HEADER.value:
+                    return member
+            if str(name + "(") in line:
                 if member.value < LineToken.HEADER.value:
                     return member
         return None
@@ -464,3 +471,35 @@ def export_step_file(shape, filename, title=None, author=None, organization=None
     if organization is not None:
         e.metadata["organization"] = organization
     e.export()
+
+
+def import_step_file(filename):
+    """ Imports a STEP file as a new CQ shape object. """
+    return cq.occ_impl.importers.importStep(filename)
+
+
+def export_iges_file(shape, filename, author=None, organization=None):
+    """ Exports a shape to an IGES file.  """
+    # initialize iges writer in BRep mode
+    writer = IGESControl_Writer("MM", 1)
+    Interface_Static_SetIVal("write.iges.brep.mode", 1)
+    # write surfaces with iges 5.3 entities
+    Interface_Static_SetIVal("write.convertsurface.mode", 1)
+    Interface_Static_SetIVal("write.precision.mode", 1)
+    if author is not None:
+        Interface_Static_SetCVal("write.iges.header.author", author)
+    if organization is not None:
+        Interface_Static_SetCVal("write.iges.header.company", organization)
+    writer.AddShape(shape.val().wrapped)
+    writer.ComputeModel()
+    writer.Write(filename)
+
+
+def export_stl_file(shape, filename, tolerance=1e-4):
+    """ Exports a shape to a STL mesh file.  The mesh is automatically
+    computed prior to export and the resolution/tolerance of the mesh
+    can optionally be changed from the default of 1e-4 """
+    mesh = BRepMesh_IncrementalMesh(shape.val().wrapped, tolerance, True)
+    mesh.Perform()
+    writer = StlAPI_Writer()
+    writer.Write(shape.val().wrapped, filename)

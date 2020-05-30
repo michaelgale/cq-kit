@@ -18,6 +18,8 @@ def make_cube(size):
 
 
 FILENAME = "./stepfiles/box.step"
+IGES_FILENAME = "./stepfiles/box.iges"
+STL_FILENAME = "./stepfiles/box.stl"
 
 
 def test_step_export_init():
@@ -97,3 +99,36 @@ def test_export_function():
     export_step_file(r, FILENAME)
     assert os.path.isfile(FILENAME)
     _validate_step_file(FILENAME)
+
+
+def test_step_import():
+    if os.path.isfile(FILENAME):
+        os.remove(FILENAME)
+    assert not os.path.isfile(FILENAME)
+    r = make_cube(2)
+    export_step_file(r, FILENAME)
+    assert os.path.isfile(FILENAME)
+    _validate_step_file(FILENAME)
+    r2 = import_step_file(FILENAME)
+    assert r2.solids().size() == 1
+    assert r2.faces().size() == 6
+    assert r2.edges().size() == 12
+    assert r2.edges(EdgeLengthSelector(2)).size() == 12
+
+
+def test_export_iges():
+    if os.path.isfile(IGES_FILENAME):
+        os.remove(IGES_FILENAME)
+    assert not os.path.isfile(IGES_FILENAME)
+    r = make_cube(3)
+    export_iges_file(r, IGES_FILENAME)
+    assert os.path.isfile(IGES_FILENAME)
+
+
+def test_export_stl():
+    if os.path.isfile(STL_FILENAME):
+        os.remove(STL_FILENAME)
+    assert not os.path.isfile(STL_FILENAME)
+    r = make_cube(5)
+    export_stl_file(r, STL_FILENAME)
+    assert os.path.isfile(STL_FILENAME)

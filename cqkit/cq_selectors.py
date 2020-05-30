@@ -30,7 +30,21 @@ from math import radians
 import cadquery as cq
 from cadquery import *
 from cqkit.cq_geometry import Point, Rect, Vector, edge_length, wire_length
+import OCP.TopAbs as ta  # Tolopolgy type enum
+from OCP.TopExp import TopExp_Explorer  # Toplogy explorer
 
+shape_LUT = {
+    ta.TopAbs_VERTEX: "Vertex",
+    ta.TopAbs_EDGE: "Edge",
+    ta.TopAbs_WIRE: "Wire",
+    ta.TopAbs_FACE: "Face",
+    ta.TopAbs_SHELL: "Shell",
+    ta.TopAbs_SOLID: "Solid",
+    ta.TopAbs_COMPOUND: "Compound",
+}
+
+inverse_shape_LUT = {v: k for k, v in shape_LUT.items()}
+HASH_CODE_MAX = 2147483647
 valid_objects = [
     "LINE",
     "BSPLINE",
@@ -336,6 +350,7 @@ class VertexCountSelector(ObjectCountSelector):
         super().__init__(counts=counts)
 
     def filter(self, objectList):
+
         r = []
         for o, vertices in object_vertices(objectList):
             if is_valid_length(len(vertices), self.counts, tolerance=0.1):
@@ -681,7 +696,7 @@ class RotatedBoxSelector(Selector):
         return r
 
 
-def MakeBoxSelector(pt=(0, 0, 0), dp=(1, 1, 1)):
+def get_box_selector(pt=(0, 0, 0), dp=(1, 1, 1)):
     """ Makes a CQ selector object which is simply a cube in space """
     pX, pY, pZ = pt[0], pt[1], pt[2]
     dX, dY, dZ = dp[0], dp[1], dp[2]
@@ -692,7 +707,7 @@ def MakeBoxSelector(pt=(0, 0, 0), dp=(1, 1, 1)):
     return sel
 
 
-def ShiftedBoxSelector(from_selector, offset_by):
+def get_shifted_box_selector(from_selector, offset_by):
     """ Returns a CQ BoxSelector which is simply translated version of an
     existing BoxSelector. """
     np0 = from_selector.p0
@@ -702,7 +717,7 @@ def ShiftedBoxSelector(from_selector, offset_by):
     return cq.selectors.BoxSelector(np0, np1)
 
 
-def BoxSelectorArray(pts, dp=(1, 1, 1)):
+def get_box_selector_array(pts, dp=(1, 1, 1)):
     """ Returns a selector which is the sum of many BoxSelectors centred
     on each of the supplied list of points """
     bs = MakeBoxSelector(pts[0], dp)

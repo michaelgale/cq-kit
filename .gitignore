@@ -4,6 +4,8 @@
 # intermediate and cached 3D solid files 
 /cache/*
 /tests/stepfiles/*.step
+/tests/stepfiles/*.iges
+/tests/stepfiles/*.stl
 *.graffle
 /images/docshapes.py
 /images/docshape.step

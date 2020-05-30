@@ -12,4 +12,10 @@ VERSION = __project__ + "-" + __version__
 script_dir = os.path.dirname(__file__)
 
 from .cq_selectors import *
-from .cq_files import StepFileExporter, export_step_file
+from .cq_files import (
+    StepFileExporter,
+    export_step_file,
+    import_step_file,
+    export_iges_file,
+    export_stl_file,
+)

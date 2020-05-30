@@ -54,11 +54,96 @@ An example of the package can be seen below
     export_step_file(r, "mybox.step", title="My Awesome Box", author="Michael Gale")
 ```
 
+## File I/O
+
+CQ-Kit adds some convenient file import and export functions to a few supported formats.
+
+- `export_iges_file(shape, filename, author=None, organization=None)` - Export CQ shape to IGES file. The IGES file can optionally include an author and organization name written to the IGES file meta data.
+
+- `export_stl_file(shape, filename, tolerance=1e-4)` - Export CQ shape to STL mesh file format. The shape is automatically meshed by the OCCT kernel and the resolution/tolerance of the mesh can be optionally specified.
+
+- `import_step_file(filename)` - Imports the content of a STEP file and returns a new CQ object.
+
+ - `export_step_file(shape, filename, title=None, author=None, organization=None)` - Convenient function to use the CQ-Kit enhanced `StepFileExporter` class.  The CQ-Kit STEP file exporter offers the following features:
+
+   - **Better Floating Point Representation** - The number of significant figures for floating point coordinate data in the STEP file can be specified.  Reducing the tolerance
+        can significantly reduce the file size by stripping away redundant and
+        often inconsequential residue and round-off quantities from points.  For
+        example, it is not uncommon to find values such as "1E-19" or "3.99999999999"
+        in a STEP file which can re-written as "0." and "4.0" respectively.  The
+        round off behaviour is performed by the sophisticated and robust
+        Decimal python built in type.
+   - **Enable/Disable P-Curve Entities** - 
+        The default behaviour of the OCCT STEP file writer is to add redundant
+        P-Curve entities to the STEP file.  This can often double the size of the
+        resulting STEP file.  Turning off P-Curves can save file size and almost 
+        never impacts the quality of the STEP file.
+   - **Precision Mode** - The precision mode parameter coresponds to the OCCT STEP file precision
+        for writing geometric data.  The default value of 1 for maximum precision
+        is used by can be changed if desired.
+   - **Enhanced Meta Data** - Adding rich meta data to the STEP file allows for better identification
+        of the geometric entity when imported into other applications.  It also
+        allows information about the author, organization, copyright, etc. to be
+        added to the header for better configuration management.
+
+
 ## Selector Classes
 
 CQ-Kit extends CadQuery's powerful `Selector` base class with some additional utility classes.  They are described below and are grouped by Selectors for edges and faces.  Almost all of these custom selector classes can be passed a `tolerance` keyword argument to control the numerical tolerance of filtering operations (usually based on length).
 
-### Edge Selectors
+The CQ-Kit Selector classes are categorized as follows:
+
+1. Geometric Property Selectors
+2. Orientation Selectors
+3. Association Selectors
+4. Location Selectors
+
+### 1. Geometric Property Selectors
+
+Grouped as follows:
+- `HasCoordinateSelector(Selector)` - Filters entities with one or more of its vertices having a desired coordinate value.
+  - `HasXCoordinateSelector()`
+  - `HasYCoordinateSelector()`
+  - `HasZCoordinateSelector()`
+- `LengthSelector(Selector)` - Filters entities by their length. One or more values of length can be specified as the filter criteria, including string constraints such as ">2.5"
+  - `EdgeLengthSelector()`
+  - `WireLengthSelector()`
+  - `RadiusSelector()`
+  - `DiameterSelector()`
+- `AreaSelector(Selector)`
+- `ObjectCountSelector(Selector)` - Filters entities by the quantity of one its geometric attributes.
+  - `VertexCountSelector()`
+  - `EdgeCountSelector()`
+  - `WireCountSelector()`
+  - `FaceCountSelector()`
+
+### 2. Orientation Selectors
+
+- `VerticalSelector(Selector)` - Filters entities which are more or less "vertical" or "standing up" with respect to the XY-plane.  Optional length criteria can be specified to filter entities even more.
+  - `VerticalEdgeSelector()`
+  - `VerticalWireSelector()`
+  - `VerticalFaceSelector()`
+- `FlatSelector(Selector)`- Filters entities which are more or less "lying flat" with respect to the XY-plane. Optional length criteria can be specified to filter entities even more.
+  - `FlatEdgeSelector()`
+  - `FlatWireSelector()`
+  - `FlatFaceSelector()`
+
+### 3. Association Selectors
+
+- `SharedVerticesWithObjectSelector(Selector)` - Filters entities which have one or more points in common with a specified reference object.  The reference object can be any individual solid, face, wire, edge or vertex.
+- `SameLengthAsObjectSelector(Selector)` - Filters entities which have the same length as the reference object.  The reference object can either be a an edge or wire.
+- `SameHeightAsObjectSelector(Selector)` - Filters entities which have the same vertical "height" as a reference object.
+- `SameVertexCountAsObjectSelector(Selector)` - Filters entities which have the same number of vertices as a reference object.
+- `SameEdgeCountAsObjectSelector(Selector)` - Filters entities with the same number of edges as a reference object.
+
+### 4. Location Selectors
+
+- `RotatedBoxSelector(Selector)` - Filters entities which fall inside a box which is rotated along the Z axis.
+- `get_box_selector(pt=(0, 0, 0), dp=(1, 1, 1))` - convenience function which returns a CQ `BoxSelector` based on a centre coordinate and a tuple of X,Y,Z size
+- `def get_shifted_box_selector(from_selector, offset_by)` - returns a new `BoxSelector` translated to a new location using an offset from its current position.
+- `get_box_selector_array(pts, dp=(1, 1, 1))` - returns a composite `Selector` which is the sum of an array of `BoxSelector` each centred at centre points defined by `pts` and each have the same size specified by `dp`.
+
+### Selector Examples
 
 - `EdgeLengthSelector` Selects edges based on their length. Lengths can be specified in several different ways.
 
@@ -73,7 +158,7 @@ r = solid.edges(es)
 # selects edges with a list of edge lengths
 es = EdgeLengthSelector([3.0, 1.4])
 # selects edges using string rules with >, <, >=, <=
-es = EdgeLengthSelector([">3.5"])
+es = EdgeLengthSelector(">3.5")
 # selects edges which are 4.0 +/- 0.5 long
 es = EdgeLengthSelector(4.0, tolerance=0.5)
 ```
@@ -91,16 +176,16 @@ r = solid.edges(vs)
 vs = VerticalEdgeSelector([3.2, 2.0])
 ```
 
-- `PlanarAtHeightSelector` Selects all edges which lie "flat" at a certain `Z` axis height.
+- `FlatEdgeSelector` Selects all edges which lie "flat" at a certain `Z` axis height.
 
 | <img src=./images/planaratheight1.png width=220> | 
 | --- | 
 
 ```python
 # select all edges at height = 1.0
-es = PlanarAtHeightSelector(1.0)
+es = FlatEdgeSelector(1.0)
 # select all edges at heights 2, 5
-es = PlanarAtHeightSelector([2, 5])
+es = FlatEdgeSelector([2, 5])
 ```
 
 - `HasXCoordinateSelector`
@@ -112,22 +197,20 @@ es = PlanarAtHeightSelector([2, 5])
 
 ```python
 # selects all edges which have X coordinate values = 3.0 at both ends
-es = HasXCoordinateSelector(3.0, both_ends=True)
+es = HasXCoordinateSelector(3.0, min_points=2)
 # selects all edges which have X coordinate values = 3.0 at least one end
-es = HasXCoordinateSelector(3.0, both_ends=False)
+es = HasXCoordinateSelector(3.0, min_points=1)
 ```
 
-- `SharedVertexSelector` - selects edges which have either of their end points in common with a specified vertex
+- `SharedVerticesWithObjectSelector` - selects entities which have common vertices with a reference object.  The reference object can be either a solid, face, wire, edge or vertex.
 
 | <img src=./images/sharedvertex.png width=280> | 
 | --- | 
 
 ```python
 # selects all edges which have one of its end points common with a specific vertex
-es = SharedVertexSelector(Vector(1, 2, 1))
+es = SharedVerticesWithObjectSelector(Vector(1, 2, 1))
 ```
-
-- `CommonVerticesWithFaceSelector` -
 
 | <img src=./images/commonvertface.png width=390> | 
 | --- | 
@@ -135,29 +218,15 @@ es = SharedVertexSelector(Vector(1, 2, 1))
 ```python
 # selects all edges which have any of its end points common with any vertex
 # belonging to a specified face
-face1 = solid.faces(PlanarFacesAtHeightSelector(1.0)).val()
-es = CommonVerticesWithFaceSelector(face1)
+face1 = solid.faces(FlatFaceSelector(1.0)).val()
+es = SharedVerticesWithObjectSelector(face1)
 ```
-
-- `RotatedBoxSelector` - a box selector which is rotated about the `Z` axis
-
-- `QuadrantSelector` - selects edges which are contained in the "`+X`", "`-X`", "`+Y`", "`-Y`", "`+Z`", "`-Z`" quadrants.
-
-- `InRadialSectorSelector` - selects edges which lie within a radial sector specified by radius bounds and sector angle
-
-- `CommonVerticesWithWireSelector`
-
-### Face Selectors 
-
-- `PlanarFacesAtHeightSelector`
-- `ClosedWiresInFaceSelector`
-- `FaceSelectorWithVertex`
 
 
 ## To Do
 
 - More modules/functionality for the package extracted from previous work in different places
-  - File I/O: add IGES, STL and LDraw
+  - File I/O: LDraw
   - Shape construction: cross-sections, paths
   - Solids: solid construction classes
   - Others TBD
