@@ -75,7 +75,7 @@ es = EdgeLengthSelector([3.0, 1.4])
 # selects edges using string rules with >, <, >=, <=
 es = EdgeLengthSelector([">3.5"])
 # selects edges which are 4.0 +/- 0.5 long
-es = EdgeLengthSelector(4.0, tolerance=1.0)
+es = EdgeLengthSelector(4.0, tolerance=0.5)
 ```
 
 - `VerticalEdgeSelector` Is a convenience selector which selects "vertical" edges, i.e edges with `Z` coordinate difference which exceed a tolerance (default tolerance is 0.1).
@@ -88,7 +88,7 @@ es = EdgeLengthSelector(4.0, tolerance=1.0)
 vs = VerticalEdgeSelector()
 r = solid.edges(vs)
 # selects all vertical edges 3.2 and 2.0 mm tall
-vs = VerticalEdgeSelector([3.0, 2.0])
+vs = VerticalEdgeSelector([3.2, 2.0])
 ```
 
 - `PlanarAtHeightSelector` Selects all edges which lie "flat" at a certain `Z` axis height.
@@ -135,7 +135,7 @@ es = SharedVertexSelector(Vector(1, 2, 1))
 ```python
 # selects all edges which have any of its end points common with any vertex
 # belonging to a specified face
-face1 = solid.faces(PlanarFacesAtHeightSelector(1.0))
+face1 = solid.faces(PlanarFacesAtHeightSelector(1.0)).val()
 es = CommonVerticesWithFaceSelector(face1)
 ```
 
