@@ -30,21 +30,7 @@ from math import radians
 import cadquery as cq
 from cadquery import *
 from cqkit.cq_geometry import Point, Rect, Vector, edge_length, wire_length
-import OCP.TopAbs as ta  # Tolopolgy type enum
-from OCP.TopExp import TopExp_Explorer  # Toplogy explorer
 
-shape_LUT = {
-    ta.TopAbs_VERTEX: "Vertex",
-    ta.TopAbs_EDGE: "Edge",
-    ta.TopAbs_WIRE: "Wire",
-    ta.TopAbs_FACE: "Face",
-    ta.TopAbs_SHELL: "Shell",
-    ta.TopAbs_SOLID: "Solid",
-    ta.TopAbs_COMPOUND: "Compound",
-}
-
-inverse_shape_LUT = {v: k for k, v in shape_LUT.items()}
-HASH_CODE_MAX = 2147483647
 valid_objects = [
     "LINE",
     "BSPLINE",
