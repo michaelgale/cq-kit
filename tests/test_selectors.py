@@ -62,7 +62,13 @@ def test_wire_length_selectors():
 
 
 def test_circle_selectors():
-    r = cq.Workplane("XY").circle(2).workplane(offset=3, centerOption="ProjectedOrigin").circle(3).loft()
+    r = (
+        cq.Workplane("XY")
+        .circle(2)
+        .workplane(offset=3, centerOption="ProjectedOrigin")
+        .circle(3)
+        .loft()
+    )
     rs = RadiusSelector(2)
     assert r.edges(rs).size() == 1
     rs = RadiusSelector(3)
