@@ -50,14 +50,14 @@ except:
     from OCP.BRepLProp import BRepLProp_CLProps
     from OCP.GCPnts import GCPnts_AbscissaPoint, GCPnts_QuasiUniformAbscissa
     from OCP.gp import gp_Dir
-
+    BRep_Tool.Triangulation = BRep_Tool.Triangulation_s
     GCPnts_AbscissaPoint.Length = GCPnts_AbscissaPoint.Length_s
     OCCT_VERSION = "7.4"
 
 
 def discretize_edge(edge, resolution=16):
-    """ Uniformly samples an edge with specified resolution (number of points)
-    and returns an array of discrete (approximated) 3D points. """
+    """Uniformly samples an edge with specified resolution (number of points)
+    and returns an array of discrete (approximated) 3D points."""
     if isinstance(edge, Edge):
         curve = BRepAdaptor_Curve(edge.wrapped)
     else:
@@ -74,7 +74,7 @@ def discretize_edge(edge, resolution=16):
 
 
 def triangle_mesh_solid(solid, lin_tol=1e-2, ang_tol=0.5):
-    """ Computes a triangular mesh for a solid using BRepMesh.
+    """Computes a triangular mesh for a solid using BRepMesh.
     The resolution or quality of the mesh approximation can be
     adjusted with lin_tol and ang_tol (linear and angular tolerances).
     The computed mesh is returned as a tuple of lists:
@@ -96,7 +96,7 @@ def triangle_mesh_solid(solid, lin_tol=1e-2, ang_tol=0.5):
     for mesh_face in mesh_faces:
         face = mesh_face.wrapped
         location = TopLoc_Location()
-        facing = bt.Triangulation_s(face, location)
+        facing = bt.Triangulation(face, location)
         tri = facing.Triangles()
         num_tri = facing.NbTriangles()
         vtx = facing.Nodes()

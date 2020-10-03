@@ -75,7 +75,7 @@ def object_edges_ends(objs):
 
 
 def object_vertices(objs, obj_type=None):
-    """ Generator which returns objects and their vertices
+    """Generator which returns objects and their vertices
     Optionally, the objects can be filtered by type"""
     for o in objs:
         if obj_type is None:
@@ -115,7 +115,7 @@ def valid_faces(objs):
 
 
 def str_constraint(constraint, length, tolerance=0.1):
-    """ Validates a numeric constraint described by a string.  The string
+    """Validates a numeric constraint described by a string.  The string
     can specify fixed value constraints such as "0.0" or range constraints
     such as "<3.0" or ">=10.0"
     """
@@ -143,7 +143,7 @@ def str_constraint(constraint, length, tolerance=0.1):
 
 
 def is_valid_length(length, length_constraints, tolerance):
-    """ Validates a length value against one or more constraints.  The
+    """Validates a length value against one or more constraints.  The
     constraints are specified either as fixed values or with strings which
     specify more complex criteria such as ">2.0".  Multiple constraints are
     specified as a list such as [">0.0", "<15.0"]
@@ -184,8 +184,8 @@ def is_valid_length(length, length_constraints, tolerance):
 
 
 class HasCoordinateSelector(Selector):
-    """ A CQ Selector class which filters objects which have specified
-    values for a coordinate """
+    """A CQ Selector class which filters objects which have specified
+    values for a coordinate"""
 
     def __init__(self, coords=None, min_points=1, tolerance=0.1):
         self.coords = coords
@@ -207,8 +207,8 @@ class HasCoordinateSelector(Selector):
 
 
 class HasXCoordinateSelector(HasCoordinateSelector):
-    """ A CQ Selector class which filters edges which have specified values
-    for their X coordinate """
+    """A CQ Selector class which filters edges which have specified values
+    for their X coordinate"""
 
     def __init__(self, coords=None, min_points=1, tolerance=0.1):
         super().__init__(coords=coords, min_points=min_points, tolerance=tolerance)
@@ -222,8 +222,8 @@ class HasXCoordinateSelector(HasCoordinateSelector):
 
 
 class HasYCoordinateSelector(HasCoordinateSelector):
-    """ A CQ Selector class which filters edges which have specified values
-    for their Y coordinate """
+    """A CQ Selector class which filters edges which have specified values
+    for their Y coordinate"""
 
     def __init__(self, coords=None, min_points=1, tolerance=0.1):
         super().__init__(coords=coords, min_points=min_points, tolerance=tolerance)
@@ -237,8 +237,8 @@ class HasYCoordinateSelector(HasCoordinateSelector):
 
 
 class HasZCoordinateSelector(HasCoordinateSelector):
-    """ A CQ Selector class which filters edges which have specified values
-    for their Z coordinate """
+    """A CQ Selector class which filters edges which have specified values
+    for their Z coordinate"""
 
     def __init__(self, coords=None, min_points=1, tolerance=0.1):
         super().__init__(coords=coords, min_points=min_points, tolerance=tolerance)
@@ -252,7 +252,7 @@ class HasZCoordinateSelector(HasCoordinateSelector):
 
 
 class LengthSelector(Selector):
-    """ A CQ Selector class which filters objects with lengths which satisfy one
+    """A CQ Selector class which filters objects with lengths which satisfy one
     or more length constraints."""
 
     def __init__(self, lengths=None, tolerance=0.1):
@@ -405,9 +405,9 @@ class FaceCountSelector(ObjectCountSelector):
 
 
 class VerticalSelector(Selector):
-    """ A CQ Selector class which filters objects which have vertical orientation.
+    """A CQ Selector class which filters objects which have vertical orientation.
     That is, orientation whereby its vertices are spacially separated by the
-    Z coordinate """
+    Z coordinate"""
 
     def __init__(self, heights=None, max_height=None, tolerance=0.1):
         self.heights = heights
@@ -436,9 +436,9 @@ class VerticalSelector(Selector):
 
 
 class VerticalEdgeSelector(VerticalSelector):
-    """ A VerticalSelector class which filters edges which have end points separated
+    """A VerticalSelector class which filters edges which have end points separated
     vertically in the Z axis, i.e. not planar but nearly vertical.  The edges can
-    be further filtered by height constraints. """
+    be further filtered by height constraints."""
 
     def __init__(self, heights=None, max_height=None, tolerance=0.1):
         super().__init__(heights=heights, max_height=max_height, tolerance=tolerance)
@@ -448,8 +448,8 @@ class VerticalEdgeSelector(VerticalSelector):
 
 
 class VerticalWireSelector(VerticalSelector):
-    """ A VerticalSelector class which filters wires which more or less occupy
-    a predominantly vertical orientation in space. """
+    """A VerticalSelector class which filters wires which more or less occupy
+    a predominantly vertical orientation in space."""
 
     def __init__(self, heights=None, max_height=None, tolerance=0.1):
         super().__init__(heights=heights, max_height=max_height, tolerance=tolerance)
@@ -459,8 +459,8 @@ class VerticalWireSelector(VerticalSelector):
 
 
 class VerticalFaceSelector(VerticalSelector):
-    """ A VerticalSelector class which filters faces which more or less occupy
-    a predominantly vertical orientation in space. """
+    """A VerticalSelector class which filters faces which more or less occupy
+    a predominantly vertical orientation in space."""
 
     def __init__(self, heights=None, max_height=None, tolerance=0.1):
         super().__init__(heights=heights, max_height=max_height, tolerance=tolerance)
@@ -470,8 +470,8 @@ class VerticalFaceSelector(VerticalSelector):
 
 
 class FlatSelector(Selector):
-    """ A CQ Selector class which filters objects which are more or less "flat"
-    or have differences in their Z coordinates near to zero. """
+    """A CQ Selector class which filters objects which are more or less "flat"
+    or have differences in their Z coordinates near to zero."""
 
     def __init__(self, at_heights=None, tolerance=0.1):
         self.at_heights = at_heights
@@ -543,8 +543,8 @@ class FlatFaceSelector(FlatSelector):
 
 
 class SharedVerticesWithObjectSelector(Selector):
-    """ A CQ Selector class which filters objects which have one or more vertices
-    in common with another reference object """
+    """A CQ Selector class which filters objects which have one or more vertices
+    in common with another reference object"""
 
     def __init__(self, obj, min_points=1, tolerance=0.1):
         self.obj_vertices = obj.Vertices()
@@ -570,8 +570,8 @@ class SharedVerticesWithObjectSelector(Selector):
 
 
 class SameLengthAsObjectSelector(Selector):
-    """ A CQ Selector class which filter objects which have the same length
-    as a reference object """
+    """A CQ Selector class which filter objects which have the same length
+    as a reference object"""
 
     def __init__(self, obj, tolerance=0.1):
         self.length = 0
@@ -594,8 +594,8 @@ class SameLengthAsObjectSelector(Selector):
 
 
 class SameHeightAsObjectSelector(Selector):
-    """ A CQ Selector class which filter objects which have the same height
-    as a reference object """
+    """A CQ Selector class which filter objects which have the same height
+    as a reference object"""
 
     def __init__(self, obj, tolerance=0.1):
         self.height = self._z_coordinate_range(obj.Vertices())
@@ -617,8 +617,8 @@ class SameHeightAsObjectSelector(Selector):
 
 
 class SameVertexCountAsObjectSelector(Selector):
-    """ A CQ Selector class which filter objects which have the same number
-    of vertices as a reference object """
+    """A CQ Selector class which filter objects which have the same number
+    of vertices as a reference object"""
 
     def __init__(self, obj):
         self.vtx_count = len(obj.Vertices())
@@ -632,8 +632,8 @@ class SameVertexCountAsObjectSelector(Selector):
 
 
 class SameEdgeCountAsObjectSelector(Selector):
-    """ A CQ Selector class which filter objects which have the same number
-    of edges as a reference object """
+    """A CQ Selector class which filter objects which have the same number
+    of edges as a reference object"""
 
     def __init__(self, obj):
         self.edge_count = len(obj.Edges())
@@ -652,7 +652,7 @@ class SameEdgeCountAsObjectSelector(Selector):
 
 
 class RotatedBoxSelector(Selector):
-    """ A CQ Selector class which filters objects which fall inside a box in 
+    """A CQ Selector class which filters objects which fall inside a box in
     3D space specified by its position and rotation about the Z axis.
     """
 
@@ -694,8 +694,8 @@ def get_box_selector(pt=(0, 0, 0), dp=(1, 1, 1)):
 
 
 def get_shifted_box_selector(from_selector, offset_by):
-    """ Returns a CQ BoxSelector which is simply translated version of an
-    existing BoxSelector. """
+    """Returns a CQ BoxSelector which is simply translated version of an
+    existing BoxSelector."""
     np0 = from_selector.p0
     np1 = from_selector.p1
     np0 += offset_by
@@ -704,8 +704,8 @@ def get_shifted_box_selector(from_selector, offset_by):
 
 
 def get_box_selector_array(pts, dp=(1, 1, 1)):
-    """ Returns a selector which is the sum of many BoxSelectors centred
-    on each of the supplied list of points """
+    """Returns a selector which is the sum of many BoxSelectors centred
+    on each of the supplied list of points"""
     bs = MakeBoxSelector(pts[0], dp)
     if len(pts) > 1:
         for pt in pts[1:]:

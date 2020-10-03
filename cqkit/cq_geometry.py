@@ -808,7 +808,7 @@ def GetBestRectMetrics(fromWidth, fromHeight, inWidth, inHeight):
 
 
 class RadialPoint:
-    """ Symmetric Radial Points
+    """Symmetric Radial Points
 
     A specialized class for computing symmetrically offset points
     on a circle at a specified angluar offset.  The point on the circle
@@ -1032,7 +1032,7 @@ def points2d_at_height(pts, height):
 
 
 def grid_points_2d(length, width, div, width_div=None):
-    """ Returns a regularly spaced grid of points occupying a rectangular
+    """Returns a regularly spaced grid of points occupying a rectangular
     region of length x width partitioned into div intervals.  If different
     spacing is desired in width, then width_div can be specified, otherwise
     it will default to div. If div < 2 in either x or y, then the corresponding
@@ -1057,14 +1057,14 @@ def grid_points_2d(length, width, div, width_div=None):
 
 
 def grid_points_at_height(length, width, height, div, width_div=None):
-    """ A convenience method to return 2D grid points as 3D points at
+    """A convenience method to return 2D grid points as 3D points at
     a specified height"""
     pts = grid_points_2d(length, width, div, width_div)
     return points2d_at_height(pts, height)
 
 
 def end_points(obj):
-    """ Returns the end points of geometry object as a tuple. Each point is
+    """Returns the end points of geometry object as a tuple. Each point is
     a tuple of 3D coordinate values"""
     return Vector(obj.startPoint().toTuple()), Vector(obj.endPoint().toTuple())
 
