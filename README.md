@@ -86,6 +86,16 @@ CQ-Kit adds some convenient file import and export functions to a few supported 
         allows information about the author, organization, copyright, etc. to be
         added to the header for better configuration management.
 
+## Discrete Geometry
+
+CQ-Kit includes functions to discretize either edges or solids:
+
+- `discretize_edge(edge, resolution)` - samples an edge with the specified resolution into discrete line segments approximating the edge.  This function returns a list of 3D points corresponding to the approximate line segment endpoints.
+
+- `triangle_mesh_solid(solid, lin_tol, ang_tol)` - computes a triangular mesh approximation for a solid. The quality/resolution of the mesh can be controlled with both the linear and angular deviation tolerance parameters.  Smaller values yield a better mesh approximation at the expense of larger mesh size.  The computed mesh is returned as a tuple of lists:
+
+  * `triangles` - a list of each triangles' 3x vertices represented as indexes into the vertices list
+  * `vertices` - a list of the mesh's 3D vertices
 
 ## Selector Classes
 
@@ -237,7 +247,7 @@ es = SharedVerticesWithObjectSelector(face1)
 
 ## Releases
 
-None yet. But hopefully a v.0.1.0 coinciding with a [pypi](https://pypi.org) package.
+None yet. But hopefully a v.0.2.0 coinciding with a [pypi](https://pypi.org) package.
 
 
 ## Authors
