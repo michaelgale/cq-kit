@@ -268,6 +268,9 @@ class Vector(object):
             return Vector(self.x / other, self.y / other, self.z / other)
         raise ValueError("Cannot divide %s with %s" % (self.__class__, type(other)))
 
+    def as_tuple(self):
+        return (self.x, self.y, self.z)
+
     def copy(self):
         """vector = copy(self)
         Copy the vector so that new vectors containing the same values

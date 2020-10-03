@@ -23,9 +23,6 @@
 #
 # Discrete Geometry Utilities
 
-import cadquery as cq
-from cadquery.occ_impl.shapes import Edge, Solid, Shape
-
 try:
     from OCC.Core.BRep import BRep_Tool
     from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
@@ -53,23 +50,56 @@ except:
     BRep_Tool.Triangulation = BRep_Tool.Triangulation_s
     GCPnts_AbscissaPoint.Length = GCPnts_AbscissaPoint.Length_s
 
+import cadquery as cq
+from cadquery import *
+
 
 def discretize_edge(edge, resolution=16):
-    """Uniformly samples an edge with specified resolution (number of points)
-    and returns an array of discrete (approximated) 3D points."""
+    """Uniformly samples an edge with specified resolution (number of segments)
+    and returns an array (segments + 1) of discrete (approximated) 3D points."""
     if isinstance(edge, Edge):
         curve = BRepAdaptor_Curve(edge.wrapped)
     else:
         curve = BRepAdaptor_Curve(edge)
-    gt = GCPnts_QuasiUniformAbscissa(curve, resolution)
+    gt = GCPnts_QuasiUniformAbscissa(curve, resolution + 1)
     pts = []
-    for p in range(resolution):
+    for p in range(resolution + 1):
         pt = gt.Parameter(p + 1)
         curve_props = BRepLProp_CLProps(curve, 1, 1e-6)
         curve_props.SetParameter(pt)
         vpt = curve_props.Value()
         pts.append((vpt.X(), vpt.Y(), vpt.Z()))
     return pts
+
+
+def discretize_all_edges(edges, curve_res=16, circle_res=36, as_pts=False):
+    """Processes all edges into discrete/sampled line segments approximating
+    each of the provided edges. Straight line segments resolve exactly as
+    is, curved/splined edges resolve into curve_res number of segments, and
+    circles resolve into circle_res number of segments.
+    A list of Edge objects is returned by default; however, if as_pts=True,
+    then a list of (start, end) point tuples is returned instead."""
+    discrete_edges = []
+    for edge in edges:
+        et = edge.geomType()
+        if et == "LINE":
+            discrete_edges.append((edge.startPoint(), edge.endPoint()))
+        else:
+            if et == "CIRCLE":
+                nseg = circle_res + 1
+            else:
+                nseg = curve_res + 1
+            pts = discretize_edge(edge, resolution=nseg)
+            for i in range(nseg - 1):
+                discrete_edges.append((pts[i], pts[i + 1]))
+    if not as_pts:
+        edge_list = []
+        for e in discrete_edges:
+            v0 = Vector(e[0])
+            v1 = Vector(e[1])
+            edge_list.append(Edge.makeLine(v0, v1))
+        return edge_list
+    return discrete_edges
 
 
 def triangle_mesh_solid(solid, lin_tol=1e-2, ang_tol=0.5):

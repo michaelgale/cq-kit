@@ -90,12 +90,47 @@ CQ-Kit adds some convenient file import and export functions to a few supported 
 
 CQ-Kit includes functions to discretize either edges or solids:
 
-- `discretize_edge(edge, resolution)` - samples an edge with the specified resolution into discrete line segments approximating the edge.  This function returns a list of 3D points corresponding to the approximate line segment endpoints.
+- `discretize_edge(edge, resolution)` - samples an edge with the specified resolution into discrete line segments approximating the edge.  This function returns a list of 3D points corresponding to the approximate line segment endpoints.  Therefore, `resolution + 1` points are returned representing `resolution` number of line segments.
+
+- `discretize_all_edges(edges, curve_res, circle_res, as_pts=False)` - Processes all edges into discrete/sampled line segments approximating each of the provided edges. Unlike `discretize_edge`, straight line segments resolve exactly as one segment, curved/splined edges resolve into `curve_res` number of segments, and circles resolve into `circle_res` number of segments.  A list of `Edge` objects is returned by default; however, if `as_pts=True`, then a list of (start, end) point tuples is returned instead.
 
 - `triangle_mesh_solid(solid, lin_tol, ang_tol)` - computes a triangular mesh approximation for a solid. The quality/resolution of the mesh can be controlled with both the linear and angular deviation tolerance parameters.  Smaller values yield a better mesh approximation at the expense of larger mesh size.  The computed mesh is returned as a tuple of lists:
 
   * `triangles` - a list of each triangles' 3x vertices represented as indexes into the vertices list
   * `vertices` - a list of the mesh's 3D vertices
+
+## Pretty Printers for Objects
+
+CQ-Kit offers useful functions which return a string representing a geometric object. The string representation is automatically determined by the type of object.  Objects which are containers for multiple other objects are automatically expanded, e.g. a `Wire` will expand its `Edges` and those edges will expand into coordinate tuples. 
+
+- `obj_str(obj, show_type=False)` - returns a pretty string of the passed object
+- `pprint_str(obj, show_type=False, no_colour=False)` - returns a string similar to `obj_str` but also colourizes the string if the `crayons` module is imported.
+- `pprint_obj(obj, show_type=False)` - pretty prints the object string to the console.
+
+**Examples**
+
+```python
+pprint_obj((1, 2)) 
+# ( 1, 2)
+pprint_obj((3, 4, 5))
+# ( 3, 4, 5)
+pprint_obj(Vector(-2, -4, 0)) 
+# (-2,-4, 0)
+pprint_obj(Vertex.makeVertex(-1, 0, 2))
+# (-1, 0, 2)
+pprint_obj(gp_Vec(8, 9, 10))
+# ( 8, 9, 10)
+r = cq.Workplane("XY").rect(1, 2)
+pprint_obj(r.edges().vals())
+# 4x Edges
+# 1/4. LINE (-0.5,-1, 0) -> ( 0.5,-1, 0)
+# 2/4. LINE ( 0.5,-1, 0) -> ( 0.5, 1, 0)
+# 3/4. LINE ( 0.5, 1, 0) -> (-0.5, 1, 0)
+# 4/4. LINE (-0.5, 1, 0) -> (-0.5,-1, 0)
+```
+
+Note that you can pass in either `obj.edges().val()`, `obj.edges().vals()`, `obj.edges()` etc. and the correct string representation will automatically be inferred.
+
 
 ## Selector Classes
 
