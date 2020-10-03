@@ -35,4 +35,3 @@ def test_tri_mesh_solid():
     assert len(vtx) == 8
     assert [-0.5, -1.0, 0.0] in vtx
     assert [0.5, 1.0, 3.0] in vtx
-

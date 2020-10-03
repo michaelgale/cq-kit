@@ -20,4 +20,3 @@ from .cq_files import (
     export_stl_file,
 )
 from .cq_discrete import discretize_edge, triangle_mesh_solid
-

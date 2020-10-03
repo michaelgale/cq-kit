@@ -33,7 +33,7 @@ try:
     from OCC.Core.TopExp import TopExp_Explorer
     from OCC.Core.TopLoc import TopLoc_Location
     from OCC.Core.TopoDS import TopoDS_Face, TopoDS_Vertex, TopoDS_Iterator
-    from OCP.BRepAdaptor import BRepAdaptor_Curve
+    from OCC.Core.BRepAdaptor import BRepAdaptor_Curve
     from OCC.Core.BRepLProp import BRepLProp_CLProps
     from OCC.Core.GCPnts import GCPnts_AbscissaPoint, GCPnts_QuasiUniformAbscissa
     from OCC.Core.gp import gp_Dir
