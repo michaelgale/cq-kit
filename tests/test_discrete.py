@@ -10,17 +10,6 @@ from math import pi
 from cadquery import *
 from cqkit import *
 
-from OCP.BRep import BRep_Tool
-from OCP.BRepMesh import BRepMesh_IncrementalMesh
-from OCP.TopAbs import TopAbs_FACE, TopAbs_VERTEX
-from OCP.TopExp import TopExp_Explorer
-from OCP.TopLoc import TopLoc_Location
-from OCP.TopoDS import TopoDS_Face, TopoDS_Vertex, TopoDS_Iterator
-from OCP.BRepAdaptor import BRepAdaptor_Curve
-from OCP.BRepLProp import BRepLProp_CLProps
-from OCP.GCPnts import GCPnts_AbscissaPoint, GCPnts_QuasiUniformAbscissa
-from OCP.gp import gp_Dir
-
 
 def _almost_same_as(x, y):
     vx = Vector(x)
