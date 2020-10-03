@@ -38,7 +38,6 @@ try:
     from OCC.Core.GCPnts import GCPnts_AbscissaPoint, GCPnts_QuasiUniformAbscissa
     from OCC.Core.gp import gp_Dir
 
-    OCCT_VERSION = "6.9"
 except:
     from OCP.BRep import BRep_Tool
     from OCP.BRepMesh import BRepMesh_IncrementalMesh
@@ -50,9 +49,9 @@ except:
     from OCP.BRepLProp import BRepLProp_CLProps
     from OCP.GCPnts import GCPnts_AbscissaPoint, GCPnts_QuasiUniformAbscissa
     from OCP.gp import gp_Dir
+
     BRep_Tool.Triangulation = BRep_Tool.Triangulation_s
     GCPnts_AbscissaPoint.Length = GCPnts_AbscissaPoint.Length_s
-    OCCT_VERSION = "7.4"
 
 
 def discretize_edge(edge, resolution=16):
