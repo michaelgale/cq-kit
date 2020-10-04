@@ -96,7 +96,7 @@ def discretize_all_edges(edges, curve_res=16, circle_res=36, as_pts=False):
                 pts = discretize_edge(edge, resolution=nseg)
             if len(pts) > 0:
                 for i in range(nseg):
-                    j = (i + 1)
+                    j = i + 1
                     discrete_edges.append((pts[i], pts[j]))
     if not as_pts:
         edge_list = []
