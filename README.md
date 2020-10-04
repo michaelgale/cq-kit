@@ -104,7 +104,6 @@ CQ-Kit includes functions to discretize either edges or solids:
 CQ-Kit offers useful functions which return a string representing a geometric object. The string representation is automatically determined by the type of object.  Objects which are containers for multiple other objects are automatically expanded, e.g. a `Wire` will expand its `Edges` and those edges will expand into coordinate tuples. 
 
 - `obj_str(obj, show_type=False)` - returns a pretty string of the passed object
-- `pprint_str(obj, show_type=False, no_colour=False)` - returns a string similar to `obj_str` but also colourizes the string if the `crayons` module is imported.
 - `pprint_obj(obj, show_type=False)` - pretty prints the object string to the console.
 
 **Examples**

@@ -88,16 +88,11 @@ def discretize_all_edges(edges, curve_res=16, circle_res=36, as_pts=False):
         if et == "LINE":
             discrete_edges.append((edge.startPoint(), edge.endPoint()))
         else:
-            if et == "CIRCLE":
-                nseg = circle_res
-                pts = discretize_edge(edge, resolution=nseg)
-            else:
-                nseg = curve_res
-                pts = discretize_edge(edge, resolution=nseg)
+            nseg = circle_res if et == "CIRCLE" else curve_res
+            pts = discretize_edge(edge, resolution=nseg)
             if len(pts) > 0:
                 for i in range(nseg):
-                    j = i + 1
-                    discrete_edges.append((pts[i], pts[j]))
+                    discrete_edges.append((pts[i], pts[i + 1]))
     if not as_pts:
         edge_list = []
         for e in discrete_edges:

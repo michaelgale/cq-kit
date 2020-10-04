@@ -20,4 +20,4 @@ from .cq_files import (
     export_stl_file,
 )
 from .cq_discrete import discretize_edge, discretize_all_edges, triangle_mesh_solid
-from .cq_pprint import pprint_obj, pprint_str, obj_str
+from .cq_pprint import pprint_obj, obj_str

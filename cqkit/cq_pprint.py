@@ -140,19 +140,12 @@ def str_face(obj):
     return "".join(s)
 
 
-def obj_str(obj, show_type=False):
+def obj_str(obj, show_type=False, no_colour=True):
     """Returns a string representation of a geometric object.
     The representation is automatically determined by inferring
     the type of object and if it is a container for multiple other
     objects, e.g. a wire can contain multiple edges which in turn
     contain start and end points."""
-    return pprint_str(obj, show_type=show_type, no_colour=True)
-
-
-def pprint_str(obj, show_type=False, no_colour=False):
-    """Returns a pretty-ish string representation of a CQ, OCC, or
-    geometric object. Unlike obj_str, this function can represent the
-    string with colourized content using the crayons module."""
     global force_no_colour
     force_no_colour = True if no_colour else False
     s = []
@@ -196,4 +189,4 @@ def pprint_str(obj, show_type=False, no_colour=False):
 
 def pprint_obj(obj, show_type=False):
     """Prints a pretty-ish representation of a CQ, OCC, or geometric object."""
-    print(str(pprint_str(obj, show_type=show_type)))
+    print(str(obj_str(obj, show_type=show_type, no_colour=False)))
