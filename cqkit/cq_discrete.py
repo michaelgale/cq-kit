@@ -61,7 +61,10 @@ def discretize_edge(edge, resolution=16):
         curve = BRepAdaptor_Curve(edge.wrapped)
     else:
         curve = BRepAdaptor_Curve(edge)
-    gt = GCPnts_QuasiUniformAbscissa(curve, resolution + 1)
+    try:
+        gt = GCPnts_QuasiUniformAbscissa(curve, resolution + 1)
+    except:
+        return []
     pts = []
     for p in range(resolution + 1):
         pt = gt.Parameter(p + 1)
@@ -86,12 +89,15 @@ def discretize_all_edges(edges, curve_res=16, circle_res=36, as_pts=False):
             discrete_edges.append((edge.startPoint(), edge.endPoint()))
         else:
             if et == "CIRCLE":
-                nseg = circle_res + 1
+                nseg = circle_res
+                pts = discretize_edge(edge, resolution=nseg)
             else:
-                nseg = curve_res + 1
-            pts = discretize_edge(edge, resolution=nseg)
-            for i in range(nseg - 1):
-                discrete_edges.append((pts[i], pts[i + 1]))
+                nseg = curve_res
+                pts = discretize_edge(edge, resolution=nseg)
+            if len(pts) > 0:
+                for i in range(nseg):
+                    j = (i + 1)
+                    discrete_edges.append((pts[i], pts[j]))
     if not as_pts:
         edge_list = []
         for e in discrete_edges:
@@ -112,34 +118,37 @@ def triangle_mesh_solid(solid, lin_tol=1e-2, ang_tol=0.5):
        vertices - a list of the mesh's 3D vertices
     """
     if isinstance(solid, Solid):
-        obj = solid.wrapped
+        obj = [solid.wrapped]
+    elif isinstance(solid, list):
+        obj = [x.wrapped for x in solid]
     else:
-        obj = solid
-    mesh = BRepMesh_IncrementalMesh(obj, lin_tol, False, ang_tol)
-    mesh.Perform()
-    ms = Shape.cast(mesh.Shape())
+        obj = [solid]
     vertices = []
     triangles = []
-    bt = BRep_Tool()
-    mesh_faces = ms.Faces()
-    for mesh_face in mesh_faces:
-        face = mesh_face.wrapped
-        location = TopLoc_Location()
-        facing = bt.Triangulation(face, location)
-        tri = facing.Triangles()
-        num_tri = facing.NbTriangles()
-        vtx = facing.Nodes()
-        txf = face.Location().Transformation()
-        for i in range(1, num_tri + 1):
-            idx = list(tri.Value(i).Get())
-            for j in [0, 1, 2]:
-                pt = [
-                    vtx.Value(idx[j]).Transformed(txf).X(),
-                    vtx.Value(idx[j]).Transformed(txf).Y(),
-                    vtx.Value(idx[j]).Transformed(txf).Z(),
-                ]
-                if pt not in vertices:
-                    vertices.append(pt)
-                idx[j] = vertices.index(pt)
-            triangles.append(idx)
+    for o in obj:
+        mesh = BRepMesh_IncrementalMesh(o, lin_tol, False, ang_tol)
+        mesh.Perform()
+        ms = Shape.cast(mesh.Shape())
+        bt = BRep_Tool()
+        mesh_faces = ms.Faces()
+        for mesh_face in mesh_faces:
+            face = mesh_face.wrapped
+            location = TopLoc_Location()
+            facing = bt.Triangulation(face, location)
+            tri = facing.Triangles()
+            num_tri = facing.NbTriangles()
+            vtx = facing.Nodes()
+            txf = face.Location().Transformation()
+            for i in range(1, num_tri + 1):
+                idx = list(tri.Value(i).Get())
+                for j in [0, 1, 2]:
+                    pt = [
+                        vtx.Value(idx[j]).Transformed(txf).X(),
+                        vtx.Value(idx[j]).Transformed(txf).Y(),
+                        vtx.Value(idx[j]).Transformed(txf).Z(),
+                    ]
+                    if pt not in vertices:
+                        vertices.append(pt)
+                    idx[j] = vertices.index(pt)
+                triangles.append(idx)
     return triangles, vertices
