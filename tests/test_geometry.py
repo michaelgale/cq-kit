@@ -7,6 +7,7 @@ from math import pi
 # my modules
 
 from cqkit.cq_geometry import *
+from cqkit import *
 
 #
 # Tests for the Point class

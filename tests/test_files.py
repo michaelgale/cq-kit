@@ -1,6 +1,7 @@
 # File utility class tests
 
 # system modules
+from collections import defaultdict
 import math, os.path
 import sys
 import pytest

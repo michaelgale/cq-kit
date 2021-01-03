@@ -38,7 +38,7 @@ try:
 except:
     from OCP.BRep import BRep_Tool
     from OCP.BRepMesh import BRepMesh_IncrementalMesh
-    from OCP.TopAbs import TopAbs_FACE, TopAbs_VERTEX
+    from OCP.TopAbs import TopAbs_FACE, TopAbs_VERTEX, TopAbs_Orientation
     from OCP.TopExp import TopExp_Explorer
     from OCP.TopLoc import TopLoc_Location
     from OCP.TopoDS import TopoDS_Face, TopoDS_Vertex, TopoDS_Iterator
@@ -86,7 +86,9 @@ def discretize_all_edges(edges, curve_res=16, circle_res=36, as_pts=False):
     for edge in edges:
         et = edge.geomType()
         if et == "LINE":
-            discrete_edges.append((edge.startPoint(), edge.endPoint()))
+            p0, p1 = edge.startPoint(), edge.endPoint()
+            p0, p1 = Vector(p0).toTuple(), Vector(p1).toTuple()
+            discrete_edges.append((p0, p1))
         else:
             nseg = circle_res if et == "CIRCLE" else curve_res
             pts = discretize_edge(edge, resolution=nseg)
@@ -134,9 +136,15 @@ def triangle_mesh_solid(solid, lin_tol=1e-2, ang_tol=0.5):
             num_tri = facing.NbTriangles()
             vtx = facing.Nodes()
             txf = face.Location().Transformation()
+            rev = (
+                True
+                if face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED
+                else False
+            )
             for i in range(1, num_tri + 1):
                 idx = list(tri.Value(i).Get())
-                for j in [0, 1, 2]:
+                ci = [0, 2, 1] if rev else [0, 1, 2]
+                for j in ci:
                     pt = [
                         vtx.Value(idx[j]).Transformed(txf).X(),
                         vtx.Value(idx[j]).Transformed(txf).Y(),
