@@ -40,6 +40,7 @@ except:
     show_colour = False
 
 from .cq_files import better_float_str
+from cqkit.cq_geometry import edge_length, wire_length
 
 force_no_colour = False
 
@@ -108,11 +109,24 @@ def str_obj_type(obj):
 def str_edge(obj):
     """Returns a string representing an edge's start and end coordinates."""
     s = []
-    s.append(obj.geomType())
-    s.append(" ")
-    s.append(_str_coord(obj.startPoint().toTuple()))
-    s.append(" -> ")
-    s.append(_str_coord(obj.endPoint().toTuple()))
+    obj_type = obj.geomType().capitalize()
+    use_colour = show_colour and not force_no_colour
+    s.append(obj_type)
+    s.append(": ")
+    if obj_type.upper() == "CIRCLE":
+        circle = obj._geomAdaptor().Circle()
+        radius = circle.Radius()
+        centre = circle.Location()
+        s.append("centre: ")
+        s.append(_str_coord(Vector(centre).toTuple()))
+        s.append(" radius: ")
+        s.append(_str_value(radius))
+    else:
+        s.append(_str_coord(obj.startPoint().toTuple()))
+        s.append(" -> ")
+        s.append(_str_coord(obj.endPoint().toTuple()))
+        s.append(" length: ")
+        s.append(_str_value(edge_length(obj)))
     return "".join(s)
 
 
@@ -120,9 +134,16 @@ def str_wire(obj):
     """Returns a string listing the edges of a wire."""
     s = []
     edges = obj.Edges()
-    s.append("Wire (%dx Edges)\n" % (len(edges)))
+    edge_count = len(edges)
+    if edge_count == 1:
+        s.append("Wire (1x Edge)\n")
+    else:        
+        s.append("Wire (%dx Edges) " % (edge_count))
+        s.append("length: ")
+        s.append(_str_value(wire_length(obj)))
+        s.append("\n")
     for i, e in enumerate(edges):
-        s.append(" %d. %s\n" % (i + 1, str_edge(e)))
+        s.append("    %d/%d %s\n" % (i + 1, edge_count, str_edge(e)))
     return "".join(s)
 
 
@@ -130,13 +151,14 @@ def str_face(obj):
     """Returns a string listing the wires or edges of a face."""
     s = []
     wires = obj.Wires()
-    if len(wires) == 1:
+    wire_count = len(wires)
+    if wire_count == 1:
         s.append("Face (1x Wire), ")
         s.append(str_wire(wires[0]))
     else:
-        s.append("Face (%dx Wires)\n" % (len(wires)))
+        s.append("Face (%dx Wires)\n" % (wire_count))
         for i, e in enumerate(wires):
-            s.append(" %d. %s\n" % (i + 1, str_wire(e)))
+            s.append("  %d/%d %s\n" % (i + 1, wire_count, str_wire(e)))
     return "".join(s)
 
 
@@ -165,7 +187,7 @@ def obj_str(obj, show_type=False, no_colour=True):
     n_objs = len(objs)
     for i, o in enumerate(objs):
         if multi:
-            s.append("%d/%d. " % (i + 1, n_objs))
+            s.append("%d/%d " % (i + 1, n_objs))
         if isinstance(o, (Vertex)):
             s.append(_str_coord(o.toTuple()))
         elif "geom.Vector" in str(type(o)):

@@ -26,13 +26,13 @@ def test_pprint():
     r = cq.Workplane("XY").rect(1, 2)
     s1 = obj_str(r.edges().vals())
     assert "4x Edge" in s1
-    assert "LINE" in s1
+    assert "Line" in s1
     assert "(-0.5,-1, 0)" in s1
     assert "( 0.5, 1, 0)" in s1
     s2 = obj_str(r.wires().vals())
     assert "Wire" in s2
     assert "4x Edges" in s2
-    assert "4. LINE" in s2
+    assert "4/4 Line" in s2
     assert "(-0.5,-1, 0)" in s2
     assert "( 0.5, 1, 0)" in s2
 
