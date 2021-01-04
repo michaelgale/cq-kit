@@ -137,7 +137,7 @@ def str_wire(obj):
     edge_count = len(edges)
     if edge_count == 1:
         s.append("Wire (1x Edge)\n")
-    else:        
+    else:
         s.append("Wire (%dx Edges) " % (edge_count))
         s.append("length: ")
         s.append(_str_value(wire_length(obj)))
