@@ -25,11 +25,23 @@ This repository contains utility classes and functions to extend the features an
 
 The **CQ-Kit** package can be installed directly from the source code:
 
-```shell
-    $ git clone https://github.com/michaelgale/cq-kit.git
-    $ cd cq-kit
-    $ python setup.py install
+```bash
+  $ git clone https://github.com/michaelgale/cq-kit.git
+  $ cd cq-kit
+  $ python setup.py install
 ```
+
+If you want to create a fresh anaconda environment with **CadQuery** and **CQ-Kit**:
+
+```bash
+  $ cd cq-kit
+  $ conda env create -f environment.yml --name $MY_NAME
+  $ conda activate $MY_NAME
+  $ conda install -c conda-forge -c defaults -c cadquery python=$VERSION cadquery=master
+  $ python setup.py install
+ ```
+
+ Substitute your desired python `$VERSION` with 3.6, 3.7, or 3.8 and optionally replace `$MY_NAME` with a different desired environment name than the default of `cadquery` specified in `environment.yml`.
 
 (pip/pypi installer coming soon)
 
@@ -184,7 +196,7 @@ Grouped as follows:
 
 - `RotatedBoxSelector(Selector)` - Filters entities which fall inside a box which is rotated along the Z axis.
 - `get_box_selector(pt=(0, 0, 0), dp=(1, 1, 1))` - convenience function which returns a CQ `BoxSelector` based on a centre coordinate and a tuple of X,Y,Z size
-- `def get_shifted_box_selector(from_selector, offset_by)` - returns a new `BoxSelector` translated to a new location using an offset from its current position.
+- `get_shifted_box_selector(from_selector, offset_by)` - returns a new `BoxSelector` translated to a new location using an offset from its current position.
 - `get_box_selector_array(pts, dp=(1, 1, 1))` - returns a composite `Selector` which is the sum of an array of `BoxSelector` each centred at centre points defined by `pts` and each have the same size specified by `dp`.
 
 ### Selector Examples
