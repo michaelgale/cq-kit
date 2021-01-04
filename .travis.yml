@@ -33,8 +33,7 @@ before_install:
 - conda config --set always_yes yes --set changeps1 no;
 - conda env create -f environment.yml
 - source ~/miniconda/bin/activate cadquery
-- conda install -c conda-forge -c cadquery cadquery=2 python=$PYTHON_VERSION
-# - conda install -c conda-forge -c defaults -c cadquery python=$PYTHON_VERSION mypy
+- conda install -c conda-forge -c defaults -c cadquery python=$PYTHON_VERSION
 - pip install git+https://github.com/CadQuery/OCP-stubs.git
 
 install:
