@@ -35,9 +35,9 @@ except:
 try:
     import crayons
 
-    show_colour = True
+    has_crayons = True
 except:
-    show_colour = False
+    has_crayons = False
 
 from .cq_files import better_float_str
 from cqkit.cq_geometry import edge_length, wire_length
@@ -45,33 +45,91 @@ from cqkit.cq_geometry import edge_length, wire_length
 force_no_colour = False
 
 
-def _str_value(v, prec=3):
+def _str_value(v, prec=3, colour="cyan"):
     """Prints a single value as an optimal decimal valued string.
     If the crayons module is detected, then it will show the value in
     colour (unless the global force_no_colour is True)."""
     s = better_float_str(str(v), tolerance=prec, pre_strip=False).rstrip(".")
     if len(s):
         if s[0] != "-":
+            s = "  " + s
+        else:
             s = " " + s
-    if show_colour and not force_no_colour:
-        return str(crayons.cyan(s))
+    if has_crayons and not force_no_colour:
+        if colour.lower() == "red":
+            return str(crayons.red(s))
+        elif colour.lower() == "green":
+            return str(crayons.green(s))
+        elif colour.lower() == "blue":
+            return str(crayons.blue(s))
+        elif colour.lower() == "yellow":
+            return str(crayons.yellow(s))
+        elif colour.lower() == "magenta":
+            return str(crayons.magenta(s))
+        elif colour.lower() == "white":
+            return str(crayons.white(s))
+        else:
+            return str(crayons.cyan(s))
     else:
         return s
 
 
-def _str_coord(obj, show_brackets=True):
+def _str_diff_coord(obj1, obj2, show_brackets=True, tolerance=1e-3):
+    """Prints a pair of coordinate values with special highlighting for axis values
+    which differ, e.g. (1, 2, 3) and (1, 2, 5) would show the 3 and 5 highlighted
+    differently than the 1 and 2 values. Note, the highlighting is only shown if
+    only one axis value is different. If 2 or more axis values differ, then no
+    special highlighting is shown."""
+    s = []
+    v1, v2 = obj1, obj2
+    if not isinstance(obj1, (tuple, list)):
+        v1 = Vector(obj1).toTuple()
+    if not isinstance(obj2, (tuple, list)):
+        v2 = Vector(obj2).toTuple()
+    diff_count = 0
+    diff_x = diff_y = diff_z = "cyan"
+    if abs(v1[0] - v2[0]) > tolerance:
+        diff_x = "red"
+        diff_count += 1
+    if abs(v1[1] - v2[1]) > tolerance:
+        diff_y = "green"
+        diff_count += 1
+    if len(v1) > 2 and len(v2) > 2:
+        if abs(v1[2] - v2[2]) > tolerance:
+            diff_z = "blue"
+            diff_count += 1
+    if diff_count > 1:
+        diff_x = diff_y = diff_z = "cyan"
+    s.append(
+        _str_coord(
+            obj1, show_brackets=show_brackets, coord_colours=[diff_x, diff_y, diff_z]
+        )
+    )
+    s.append(" -> ")
+    s.append(
+        _str_coord(
+            obj2, show_brackets=show_brackets, coord_colours=[diff_x, diff_y, diff_z]
+        )
+    )
+    return "".join(s)
+
+
+def _str_coord(obj, show_brackets=True, colour="cyan", coord_colours=None):
     """Prints a coordinate value. Automatically determines 2D/3D."""
     s = []
     if show_brackets:
         s.append("(")
     if isinstance(obj, (tuple, list)):
         if len(obj) == 2 or len(obj) == 3:
-            s.append(_str_value(obj[0]))
+            xcolour = coord_colours[0] if coord_colours is not None else colour
+            s.append(_str_value(obj[0], colour=xcolour))
             s.append(",")
-            s.append(_str_value(obj[1]))
+            ycolour = coord_colours[1] if coord_colours is not None else colour
+            s.append(_str_value(obj[1], colour=ycolour))
         if len(obj) == 3:
             s.append(",")
-            s.append(_str_value(obj[2]))
+            zcolour = coord_colours[2] if coord_colours is not None else colour
+            s.append(_str_value(obj[2], colour=zcolour))
         if show_brackets:
             s.append(")")
     return "".join(s)
@@ -110,8 +168,10 @@ def str_edge(obj):
     """Returns a string representing an edge's start and end coordinates."""
     s = []
     obj_type = obj.geomType().capitalize()
-    use_colour = show_colour and not force_no_colour
-    s.append(obj_type)
+    if has_crayons and not force_no_colour:
+        s.append(str(crayons.yellow(obj_type)))
+    else:
+        s.append(obj_type)
     s.append(": ")
     if obj_type.upper() == "CIRCLE":
         circle = obj._geomAdaptor().Circle()
@@ -119,14 +179,12 @@ def str_edge(obj):
         centre = circle.Location()
         s.append("centre: ")
         s.append(_str_coord(Vector(centre).toTuple()))
-        s.append(" radius: ")
-        s.append(_str_value(radius))
+        s.append(" radius:")
+        s.append(_str_value(radius, colour="yellow"))
     else:
-        s.append(_str_coord(obj.startPoint().toTuple()))
-        s.append(" -> ")
-        s.append(_str_coord(obj.endPoint().toTuple()))
-        s.append(" length: ")
-        s.append(_str_value(edge_length(obj)))
+        s.append(_str_diff_coord(obj.startPoint().toTuple(), obj.endPoint().toTuple()))
+        s.append(" length:")
+        s.append(_str_value(edge_length(obj), colour="yellow"))
     return "".join(s)
 
 
@@ -139,8 +197,8 @@ def str_wire(obj):
         s.append("Wire (1x Edge)\n")
     else:
         s.append("Wire (%dx Edges) " % (edge_count))
-        s.append("length: ")
-        s.append(_str_value(wire_length(obj)))
+        s.append("length:")
+        s.append(_str_value(wire_length(obj), colour="yellow"))
         s.append("\n")
     for i, e in enumerate(edges):
         s.append("    %d/%d %s\n" % (i + 1, edge_count, str_edge(e)))
