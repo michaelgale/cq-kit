@@ -237,7 +237,11 @@ def obj_str(obj, show_type=False, no_colour=True):
         obj = obj.vals()
     if isinstance(obj, (list)):
         if len(obj) > 1:
-            s.append("%dx %ss\n" % (len(obj), str_obj_type(obj[0])))
+            objtype = str_obj_type(obj[0])
+            if "vertex" in objtype.lower():
+                s.append("%dx Vertices\n" % (len(obj)))
+            else:
+                s.append("%dx %ss\n" % (len(obj), objtype))
         objs = obj
     else:
         objs = [obj]

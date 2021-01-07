@@ -52,7 +52,7 @@ def is_valid_edge(obj):
         if obj_type == "CIRCLE":
             circ = obj._geomAdaptor().Circle()
             radius = circ.Radius()
-            if radius > 1.0:
+            if radius > 1e-3:
                 return True
             return False
 
