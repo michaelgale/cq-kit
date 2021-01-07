@@ -140,7 +140,9 @@ pprint_obj(r.edges().vals())
 # 4/4. LINE (-0.5, 1, 0) -> (-0.5,-1, 0)
 ```
 
-Note that you can pass in either `obj.edges().val()`, `obj.edges().vals()`, `obj.edges()` etc. and the correct string representation will automatically be inferred.
+Note that you can pass in either `obj.edges().val()`, `obj.edges().vals()`, `obj.edges()` etc. and the correct string representation will automatically be inferred.  For more complex or compound objects, `pprint_obj` will unwrap shapes and extract length, radius, and coordinate data with colour highlighting.
+
+<img src=./images/pprintsample.png>
 
 
 ## Selector Classes
