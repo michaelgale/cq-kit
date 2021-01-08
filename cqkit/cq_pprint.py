@@ -45,7 +45,7 @@ from cqkit.cq_geometry import edge_length, wire_length
 force_no_colour = False
 
 
-def _str_value(v, prec=3, colour="cyan"):
+def _str_value(v, prec=3, colour="white"):
     """Prints a single value as an optimal decimal valued string.
     If the crayons module is detected, then it will show the value in
     colour (unless the global force_no_colour is True)."""
@@ -87,7 +87,7 @@ def _str_diff_coord(obj1, obj2, show_brackets=True, tolerance=1e-3):
     if not isinstance(obj2, (tuple, list)):
         v2 = Vector(obj2).toTuple()
     diff_count = 0
-    diff_x = diff_y = diff_z = "cyan"
+    diff_x = diff_y = diff_z = "white"
     if abs(v1[0] - v2[0]) > tolerance:
         diff_x = "red"
         diff_count += 1
@@ -96,10 +96,10 @@ def _str_diff_coord(obj1, obj2, show_brackets=True, tolerance=1e-3):
         diff_count += 1
     if len(v1) > 2 and len(v2) > 2:
         if abs(v1[2] - v2[2]) > tolerance:
-            diff_z = "blue"
+            diff_z = "cyan"
             diff_count += 1
     if diff_count > 1:
-        diff_x = diff_y = diff_z = "cyan"
+        diff_x = diff_y = diff_z = "white"
     s.append(
         _str_coord(
             obj1, show_brackets=show_brackets, coord_colours=[diff_x, diff_y, diff_z]
@@ -114,7 +114,7 @@ def _str_diff_coord(obj1, obj2, show_brackets=True, tolerance=1e-3):
     return "".join(s)
 
 
-def _str_coord(obj, show_brackets=True, colour="cyan", coord_colours=None):
+def _str_coord(obj, show_brackets=True, colour="white", coord_colours=None):
     """Prints a coordinate value. Automatically determines 2D/3D."""
     s = []
     if show_brackets:
@@ -161,6 +161,10 @@ def str_obj_type(obj):
         return "Wire"
     elif isinstance(obj, Face):
         return "Face"
+    elif isinstance(obj, Solid):
+        return "Solid"
+    elif isinstance(obj, Compound):
+        return "Compound"
     return ""
 
 
@@ -201,7 +205,7 @@ def str_wire(obj):
         s.append(_str_value(wire_length(obj), colour="yellow"))
         s.append("\n")
     for i, e in enumerate(edges):
-        s.append("    %d/%d %s\n" % (i + 1, edge_count, str_edge(e)))
+        s.append("      %d/%d %s\n" % (i + 1, edge_count, str_edge(e)))
     return "".join(s)
 
 
@@ -216,7 +220,33 @@ def str_face(obj):
     else:
         s.append("Face (%dx Wires)\n" % (wire_count))
         for i, e in enumerate(wires):
-            s.append("  %d/%d %s\n" % (i + 1, wire_count, str_wire(e)))
+            s.append("    %d/%d %s\n" % (i + 1, wire_count, str_wire(e)))
+    return "".join(s)
+
+
+def str_solid(obj):
+    """Returns a string description of a solid object."""
+    s = []
+    faces = obj.Faces()
+    face_count = len(faces)
+    s.append("Solid (%dx Faces)\n" % (face_count))
+    for i, e in enumerate(faces):
+        s.append("  %d/%d %s\n" % (i + 1, face_count, str_face(e)))
+    return "".join(s)
+
+
+def str_compound(obj):
+    """Returns a string description of a compound object."""
+    s = []
+    solids = obj.Solids()
+    solid_count = len(solids)
+    if solid_count == 1:
+        s.append("Compound (1x Solid), ")
+        s.append(str_solid(solids[0]))
+    else:
+        s.append("Compound (%dx Solids)\n" % (solid_count))
+        for i, e in enumerate(solids):
+            s.append("%d/%d %s\n" % (i + 1, solid_count, str_solid(e)))
     return "".join(s)
 
 
@@ -248,7 +278,7 @@ def obj_str(obj, show_type=False, no_colour=True):
         multi = False
     n_objs = len(objs)
     for i, o in enumerate(objs):
-        if multi:
+        if multi and n_objs > 1:
             s.append("%d/%d " % (i + 1, n_objs))
         if isinstance(o, (Vertex)):
             s.append(_str_coord(o.toTuple()))
@@ -266,6 +296,10 @@ def obj_str(obj, show_type=False, no_colour=True):
             s.append(str_wire(o))
         elif isinstance(o, Face):
             s.append(str_face(o))
+        elif isinstance(o, Solid):
+            s.append(str_solid(o))
+        elif isinstance(o, Compound):
+            s.append(str_compound(o))
         if multi:
             s.append("\n")
     return "".join(s)
