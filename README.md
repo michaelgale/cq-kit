@@ -134,13 +134,52 @@ pprint_obj(gp_Vec(8, 9, 10))
 r = cq.Workplane("XY").rect(1, 2)
 pprint_obj(r.edges().vals())
 # 4x Edges
-# 1/4. LINE (-0.5,-1, 0) -> ( 0.5,-1, 0)
-# 2/4. LINE ( 0.5,-1, 0) -> ( 0.5, 1, 0)
-# 3/4. LINE ( 0.5, 1, 0) -> (-0.5, 1, 0)
-# 4/4. LINE (-0.5, 1, 0) -> (-0.5,-1, 0)
+# 1/4 Line: ( -0.5, -1,  0) -> (  0.5, -1,  0) length:  1
+# 2/4 Line: (  0.5, -1,  0) -> (  0.5,  1,  0) length:  2
+# 3/4 Line: (  0.5,  1,  0) -> ( -0.5,  1,  0) length:  1
+# 4/4 Line: ( -0.5,  1,  0) -> ( -0.5, -1,  0) length:  2
+r = cq.Workplane("XY").rect(1, 2).extrude(5)
+pprint_obj(r)
+# Compound (1x Solid), Solid (6x Faces)
+#   1/6 Face (1x Wire), Wire (4x Edges) length:  12
+#       1/4 Line: ( -0.5, -1,  0) -> ( -0.5, -1,  5) length:  5
+#       2/4 Line: (  0.5, -1,  0) -> (  0.5, -1,  5) length:  5
+#       3/4 Line: ( -0.5, -1,  0) -> (  0.5, -1,  0) length:  1
+#       4/4 Line: ( -0.5, -1,  5) -> (  0.5, -1,  5) length:  1
+
+#   2/6 Face (1x Wire), Wire (4x Edges) length:  14
+#       1/4 Line: (  0.5, -1,  0) -> (  0.5, -1,  5) length:  5
+#       2/4 Line: (  0.5,  1,  0) -> (  0.5,  1,  5) length:  5
+#       3/4 Line: (  0.5, -1,  0) -> (  0.5,  1,  0) length:  2
+#       4/4 Line: (  0.5, -1,  5) -> (  0.5,  1,  5) length:  2
+
+#   3/6 Face (1x Wire), Wire (4x Edges) length:  12
+#       1/4 Line: (  0.5,  1,  0) -> (  0.5,  1,  5) length:  5
+#       2/4 Line: ( -0.5,  1,  0) -> ( -0.5,  1,  5) length:  5
+#       3/4 Line: (  0.5,  1,  0) -> ( -0.5,  1,  0) length:  1
+#       4/4 Line: (  0.5,  1,  5) -> ( -0.5,  1,  5) length:  1
+
+#   4/6 Face (1x Wire), Wire (4x Edges) length:  14
+#       1/4 Line: ( -0.5,  1,  0) -> ( -0.5,  1,  5) length:  5
+#       2/4 Line: ( -0.5, -1,  0) -> ( -0.5, -1,  5) length:  5
+#       3/4 Line: ( -0.5,  1,  0) -> ( -0.5, -1,  0) length:  2
+#       4/4 Line: ( -0.5,  1,  5) -> ( -0.5, -1,  5) length:  2
+
+#   5/6 Face (1x Wire), Wire (4x Edges) length:  6
+#       1/4 Line: ( -0.5, -1,  0) -> (  0.5, -1,  0) length:  1
+#       2/4 Line: (  0.5, -1,  0) -> (  0.5,  1,  0) length:  2
+#       3/4 Line: (  0.5,  1,  0) -> ( -0.5,  1,  0) length:  1
+#       4/4 Line: ( -0.5,  1,  0) -> ( -0.5, -1,  0) length:  2
+
+#   6/6 Face (1x Wire), Wire (4x Edges) length:  6
+#       1/4 Line: ( -0.5, -1,  5) -> (  0.5, -1,  5) length:  1
+#       2/4 Line: (  0.5, -1,  5) -> (  0.5,  1,  5) length:  2
+#       3/4 Line: (  0.5,  1,  5) -> ( -0.5,  1,  5) length:  1
+#       4/4 Line: ( -0.5,  1,  5) -> ( -0.5, -1,  5) length:  2
+
 ```
 
-Note that you can pass in either `obj.edges().val()`, `obj.edges().vals()`, `obj.edges()` etc. and the correct string representation will automatically be inferred.  For more complex or compound objects, `pprint_obj` will unwrap shapes and extract length, radius, and coordinate data with colour highlighting.  You will need install the **[`crayons`](https://pypi.org/project/crayons/)** python module in order to see colour highlighting, otherwise it will use your terminal default style.  `crayons` is optional and CQ-Kit will detect its availability.
+Note that you can pass in either `obj.edges().val()`, `obj.edges().vals()`, `obj.edges()` etc. and the correct string representation will automatically be inferred.  For more complex or compound objects, `pprint_obj` will recursively unwrap the hierarchy of shapes as well as computing length, radius, and coordinate data where applicable. Additionally, coordinate values are represented with colour highlighting.  You will need install the **[crayons](https://pypi.org/project/crayons/)** python module in order to see colour highlighting, otherwise it will use your terminal default style.  **crayons** is optional and CQ-Kit will detect its availability.
 
 <img src=./images/pprintsample.png>
 
