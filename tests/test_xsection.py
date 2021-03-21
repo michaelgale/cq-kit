@@ -83,7 +83,7 @@ def test_xsection_outline():
     xc = XSection(triangle_pts, "XZ", symmetric=True, mirror_axis="Z")
     pts = xc.get_points()
 
-    r = xc.get_outline_obj()
+    r = xc.render()
     wires = r.wires().vals()
     assert len(wires) == 1
     edges = r.edges().vals()
@@ -111,7 +111,7 @@ def test_xsection_outline():
 def test_xsection_solid():
 
     xc = XSection(triangle_pts, "XZ", symmetric=True, mirror_axis="Z")
-    r = xc.get_extruded_obj(depth=7)
+    r = xc.render().extrude(7)
 
     faces = r.faces().vals()
     assert len(faces) == 5
@@ -126,7 +126,7 @@ def test_xsection_solid():
     assert (0, -7, 3) in tpts
 
     xc = XSection(triangle_pts, "XZ", symmetric=True, mirror_axis="Z")
-    r = xc.get_extruded_obj(depth=-7)
+    r = xc.render().extrude(-7)
 
     faces = r.faces().vals()
     assert len(faces) == 5

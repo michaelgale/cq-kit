@@ -23,16 +23,16 @@ def test_ribbon_init():
     rb = Ribbon()
     with pytest.raises(ValueError):
         rb.render()
-    rb = Ribbon(cq.Workplane("XY"))
+    rb = Ribbon("XY")
     with pytest.raises(ValueError):
         rb.render()
-    rb = Ribbon(cq.Workplane("XY"), path)
-    assert isinstance(rb.cq, Workplane)
+    rb = Ribbon("XY", path)
+    assert isinstance(rb.workplane, str)
     assert len(rb.commands) == 6
 
 
 def test_ribbon_render():
-    rb = Ribbon(cq.Workplane("XY"), path)
+    rb = Ribbon("XY", path)
     r = rb.render()
     edges = r.edges().vals()
     assert len(edges) == 12

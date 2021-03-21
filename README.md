@@ -209,9 +209,7 @@ A list of points can involve a mix of types such as:
 
 - `get_points(self, flipped=False, scaled=None, translated=None, only_tuples=False)` - returns a list of points in `XSection` with optional scaling, mirroring, or translation.
 
-- `get_outline_obj(self, flipped=False, scaled=None, translated=None)` - returns a CQ object representing the closed wire path of the cross-section.
-
-- `get_extruded_obj(self, depth=0, flipped=False, scaled=None, translated=None)` - returns a CQ object of an extruded solid with desired cross-sectional profile.
+- `render(self, flipped=False, scaled=None, translated=None)` - returns a CQ object representing the closed wire path of the cross-section.
 
 - `get_bounding_outline(self, flipped=False, scaled=None, translated=None)` - returns a CQ object the rectangular bounding box of the cross-section.
   
@@ -221,11 +219,11 @@ A list of points can involve a mix of types such as:
     # half a triangle on XY plane
     xc = XSection([(0,0), (1,0), (0, 3)], "XY", symmetric=True, mirror_axis="Y")
     # get the outline object
-    r = xc.get_outline_obj()
+    r = xc.render()
     # get an upside down outline object
-    r = xc.get_outline_obj(flipped=True)
+    r = xc.render(flipped=True)
     # get an extruded version 2x taller:
-    r = xc.get_extruded_obj(depth=10, scaled=(1, 2))
+    r = xc.render(scaled=(1, 2)).extrude(10)
 ```
 
 <img src=./images/xsection.png>
@@ -260,7 +258,7 @@ path = [
 ]
 ```
 
-A `Ribbon` object is initialized with CadQuery workplane object representing the 2D plane which the ribbon is constructed and a command list.  The `render` method is called to construct the ribbon object and it is returned as a closed wire path CadQuery workplane object.  This object can then be chained as any other CQ workplane object, e.g. using `extrude()` to transform the ribbon object into a 3D solid.
+A `Ribbon` object is initialized with CadQuery workplane specification representing the 2D plane which the ribbon is constructed and a command list.  The `render` method is called to construct the ribbon object and it is returned as a closed wire path CadQuery workplane object.  This object can then be chained as any other CQ workplane object, e.g. using `extrude()` to transform the ribbon object into a 3D solid.
 
 <img src=./images/ribbon.png>
 

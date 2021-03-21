@@ -72,11 +72,11 @@ class XSection(object):
     # half a triangle on XY plane
     xc = XSection([(0,0), (1,0), (0, 3)], "XY", symmetric=True, mirror_axis="Y")
     # get the outline object
-    r = xc.get_outline_obj()
+    r = xc.render()
     # get an upside down outline object
-    r = xc.get_outline_obj(flipped=True)
+    r = xc.render(flipped=True)
     # get an extruded version 2x taller:
-    r = xc.get_extruded_obj(depth=10, scaled=(1, 2))
+    r = xc.render(scaled=(1, 2)).extrude(10)
     """
 
     def __init__(self, pts=None, workplane="XY", symmetric=False, mirror_axis="Y"):
@@ -210,7 +210,7 @@ class XSection(object):
 
         return rpts
 
-    def get_outline_obj(self, flipped=False, scaled=None, translated=None):
+    def render(self, flipped=False, scaled=None, translated=None):
         """Returns a workplane object representing a cross-section wire outline.
         The returned wire can also be flipped, scaled, and/or translated
         variants of the original points."""
@@ -227,13 +227,6 @@ class XSection(object):
                 r = r.lineTo(*pt)
         r = r.close()
         return r
-
-    def get_extruded_obj(self, depth=0, flipped=False, scaled=None, translated=None):
-        """Returns a workplane object representing a cross-section extruded by some depth.
-        The returned solid can also be flipped, scaled, and/or translated
-        variants of the original points."""
-        r = self.get_outline_obj(flipped=flipped, scaled=scaled, translated=translated)
-        return r.extrude(depth)
 
     def get_bounding_rect(self, flipped=False, scaled=None, translated=None):
         """Returns a Rect object representing a rectanglar outline which

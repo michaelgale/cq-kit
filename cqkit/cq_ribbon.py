@@ -62,14 +62,14 @@ class Ribbon:
         ]
 
     Arguments:
-    :param cq : CadQuery workplane object
+    :param workplane : CadQuery workplane object identifier, e.g. "XY"
     :param commands : list of plotting commands
     Returns:
-    :returns: cq : CadQuery workplane object with closed wire
+    :returns: CadQuery workplane object with closed wire
     """
 
-    def __init__(self, cq=None, commands=None):
-        self.cq = cq
+    def __init__(self, workplane=None, commands=None):
+        self.workplane = workplane
         self.commands = commands
         self.current_x = 0
         self.current_y = 0
@@ -120,7 +120,9 @@ class Ribbon:
         qmx, qmy = self._rotate(vx, vy, rx, ry, turn_degrees / 2)
         return qmx, qmy, qex, qey, rx, ry
 
-    def _parse_commands(self, commands, offset, direction_multiplier, debug=False):
+    def _parse_commands(
+        self, cqobj, commands, offset, direction_multiplier, debug=False
+    ):
         """Adds edges to a CadQuery object based on a list of "turtle graphics" style
         plotting commands.
         Arguments:
@@ -139,7 +141,7 @@ class Ribbon:
                 vy = c[1]["length"] * sin(radians(self.direction))
                 self.current_x += vx
                 self.current_y += vy
-                self.cq = self.cq.lineTo(self.current_x, self.current_y)
+                cqobj = cqobj.lineTo(self.current_x, self.current_y)
                 if debug:
                     print(
                         "line to {0} {1} {2}".format(
@@ -156,7 +158,7 @@ class Ribbon:
                 mid_x, mid_y, turn_x, turn_y, centre_x, centre_y = self._turn(
                     self.current_x, self.current_y, self.direction, radius, angle
                 )
-                self.cq = self.cq.threePointArc((mid_x, mid_y), (turn_x, turn_y))
+                cqobj = cqobj.threePointArc((mid_x, mid_y), (turn_x, turn_y))
                 self.direction += angle
                 self.current_x, self.current_y = turn_x, turn_y
                 if debug:
@@ -174,7 +176,7 @@ class Ribbon:
                     "Unrecognized command '%s' in Ribbon command list" % (c)
                 )
 
-        return self.cq
+        return cqobj
 
     def render(self, debug=False, close_path=True):
         """Generates a closed wire path of constant width.
@@ -189,7 +191,7 @@ class Ribbon:
 
         :returns: CQ workplane object representing the constructed wire path
         """
-        if self.cq is None:
+        if self.workplane is None:
             raise ValueError(
                 "Ribbon requires a valid CadQuery workplane object to render to"
             )
@@ -208,25 +210,25 @@ class Ribbon:
             self.current_y = self.commands[0][1]["position"][1] + half_width * sin(
                 radians(self.direction + 90)
             )
-            self.cq = self.cq.moveTo(self.current_x, self.current_y)
+            r = cq.Workplane(self.workplane).moveTo(self.current_x, self.current_y)
             if debug:
                 print("start at {0} {1}".format(self.current_x, self.current_y))
         else:
             raise ValueError("'start' command was not provided in Ribbon command list")
 
-        self.cq = self._parse_commands(self.commands[1:], half_width, 1, debug)
+        r = self._parse_commands(r, self.commands[1:], half_width, 1, debug)
         self.direction += 180
         self.current_x += 2 * half_width * cos(radians(self.direction + 90))
         self.current_y += 2 * half_width * sin(radians(self.direction + 90))
-        self.cq = self.cq.lineTo(self.current_x, self.current_y)
+        r = r.lineTo(self.current_x, self.current_y)
         if debug:
             print(
                 "line to {0} {1} {2}".format(
                     self.current_x, self.current_y, self.direction
                 )
             )
-        self.cq = self._parse_commands(self.commands[:0:-1], half_width, -1, debug)
+        r = self._parse_commands(r, self.commands[:0:-1], half_width, -1, debug)
         if close_path:
-            self.cq = self.cq.close()
+            r = r.close()
 
-        return self.cq
+        return r
