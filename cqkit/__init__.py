@@ -21,3 +21,5 @@ from .cq_files import (
 )
 from .cq_discrete import discretize_edge, discretize_all_edges, triangle_mesh_solid
 from .cq_pprint import pprint_obj, obj_str
+from .cq_xsection import XSection
+from .cq_geometry import vertices_to_tuples

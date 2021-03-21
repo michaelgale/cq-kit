@@ -1095,3 +1095,11 @@ def is_same_edge(e0, e1, tolerance):
     if a0.almost_same_as(b1, tolerance) and b0.almost_same_as(a1, tolerance):
         return True
     return False
+
+
+def vertices_to_tuples(vpts):
+    """ Returns list of vertex tuples from a list of Vertex objects """
+    tpts = []
+    for pt in vpts:
+        tpts.append(pt.toTuple())
+    return tpts
