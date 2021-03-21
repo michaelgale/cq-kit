@@ -4,7 +4,7 @@ import os
 
 # fmt: off
 __project__ = 'cqkit'
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 # fmt: on
 
 VERSION = __project__ + "-" + __version__
@@ -23,3 +23,4 @@ from .cq_discrete import discretize_edge, discretize_all_edges, triangle_mesh_so
 from .cq_pprint import pprint_obj, obj_str
 from .cq_xsection import XSection
 from .cq_geometry import vertices_to_tuples
+from .cq_ribbon import Ribbon
