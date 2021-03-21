@@ -19,6 +19,7 @@ matrix:
     env: PYTHON_VERSION=3.7
     os: linux
     script:
+    - pip install black==19.10b0
     - black . --diff --check
     
 before_install:
@@ -35,7 +36,7 @@ before_install:
 - source ~/miniconda/bin/activate cadquery
 - conda install -c conda-forge -c defaults -c cadquery python=$PYTHON_VERSION
 - conda install -c conda-forge -c cadquery cadquery=master
-- pip install git+https://github.com/CadQuery/OCP-stubs.git
+- pip install git+https://github.com/CadQuery/OCP-stubs.git@7.5.1
 
 install:
 - python setup.py install
