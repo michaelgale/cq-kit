@@ -183,6 +183,86 @@ Note that you can pass in either `obj.edges().val()`, `obj.edges().vals()`, `obj
 
 <img src=./images/pprintsample.png>
 
+## `XSection` Class
+
+The `XSection` object is a convenience container for points which represent a closed path cross-section.  The points can be supplied either as-is or as the mirror-half of all the points.  If provided as a mirrored/symmetric half, then only one half of the points need be specified and the other opposite (mirrored) points will automatically be generated.
+
+This container object is useful for storing cross-sectional profiles which are used for extruded/lofted solid objects.  It is also useful for obtaining variants of the cross-section such as:
+- flipped : mirrored in the opposite axis, e.g. upside down version of a left-right symmetric profile)
+- scaled : rescaled by some scalar for bigger/smaller variants. Scale can be a single scalar for uniform scaling in both axes or a tuple of scalars representing different scale factors for each axis.
+- translated : a translated variant offset by a fixed coordinate pair
+
+The cross-section is initialized with the workplane ("XY", "XZ", "YZ", etc.), its 2D points (all points for unsymmetric, or half the points for symmetric), and if symmetric, then a specification of the mirror axis, e.g. for points in the XY plane, mirror_axis=X means that either the upper or lower half of the points are specified and mirror_axis=Y means that either the left or right half of the points are specified.
+
+Points are usually supplied as 2D tuples; however, special points which result in curved lines can be specified with a simple dictionary:
+
+```python
+- { "radiusArc": ((2, 3), 1) }
+- { "tangentArc": (2, 3) }
+```
+
+A list of points can involve a mix of types such as:
+
+```python
+  [ (0, 0), (3, 0), (2.5, 0.5), (2.5, 4), {"radiusArc": ((2, 4.5), -0.5)}, (0, 4.5) ]
+```
+
+- `get_points(self, flipped=False, scaled=None, translated=None, only_tuples=False)` - returns a list of points in `XSection` with optional scaling, mirroring, or translation.
+
+- `get_outline_obj(self, flipped=False, scaled=None, translated=None)` - returns a CQ object representing the closed wire path of the cross-section.
+
+- `get_extruded_obj(self, depth=0, flipped=False, scaled=None, translated=None)` - returns a CQ object of an extruded solid with desired cross-sectional profile.
+
+- `get_bounding_outline(self, flipped=False, scaled=None, translated=None)` - returns a CQ object the rectangular bounding box of the cross-section.
+  
+### Examples
+
+```python
+    # half a triangle on XY plane
+    xc = XSection([(0,0), (1,0), (0, 3)], "XY", symmetric=True, mirror_axis="Y")
+    # get the outline object
+    r = xc.get_outline_obj()
+    # get an upside down outline object
+    r = xc.get_outline_obj(flipped=True)
+    # get an extruded version 2x taller:
+    r = xc.get_extruded_obj(depth=10, scaled=(1, 2))
+```
+
+<img src=./images/xsection.png>
+
+
+## `Ribbon` Class
+
+The `Ribbon` class generates an arbitrary closed wire path of constant width.  The path of ribbon/wire is described by a list of "turtle graphics" style
+plotting commands.  From the starting position, one side of of the ribbon is drawn by parsing the commmands from start to finish. The opposite side of the ribbon is then drawn by parsing the commands in reverse order.
+
+The commands describing the path are contained in a list of 2 element tuples.  The first item of each tuple is a command, and the second item is a dictionary.
+  
+- `"start"` - a mandatory first (and only instance of) command. It specifies the start point, trajectory direction, and width of the ribbon path as a dictionary.  Its keys are:
+  - `"position"` - starting coordinate of ribbon path
+  - `"direction"` - initial trajectory of ribbon path in degrees
+  - `"width"` - ribbon width
+- `"line"` - specifies a simple straight line segment with one dictionary key called `"length"`
+- `"arc"` - specifies a fixed radius curve segment scribing a sector angle.  Its keys are:
+  - `"radius"` - radius of arc segment
+  - `"angle"` - sector angle scribed by the arc relative to the current trajectory of the ribbon path in degrees.
+
+An example command list is as follows:
+
+```python
+path = [
+    ("start", {"position": (10.0, 0.0), "direction": 30.0, "width": 0.5}),
+    ("line", {"length": 2.0}),
+    ("arc", {"radius": 2.0, "angle": 145.0}),
+    ("line", {"length": 2}),
+    ("arc", {"radius": 0.5, "angle": -170}),
+    ("line", {"length": 3}),
+]
+```
+
+A `Ribbon` object is initialized with CadQuery workplane object representing the 2D plane which the ribbon is constructed and a command list.  The `render` method is called to construct the ribbon object and it is returned as a closed wire path CadQuery workplane object.  This object can then be chained as any other CQ workplane object, e.g. using `extrude()` to transform the ribbon object into a 3D solid.
+
+<img src=./images/ribbon.png>
 
 ## Selector Classes
 
@@ -334,7 +414,7 @@ es = SharedVerticesWithObjectSelector(face1)
 
 ## Releases
 
-None yet. But hopefully a v.0.2.0 coinciding with a [pypi](https://pypi.org) package.
+None yet. But hopefully a v.0.5.0 coinciding with a [pypi](https://pypi.org) package.
 
 
 ## Authors

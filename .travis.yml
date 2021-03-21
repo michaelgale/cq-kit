@@ -15,6 +15,9 @@ matrix:
   - name: "Python 3.7 - linux"
     env: PYTHON_VERSION=3.7
     os: linux
+  - name: "Python 3.8 - linux"
+    env: PYTHON_VERSION=3.8
+    os: linux
   - name: "Lint"
     env: PYTHON_VERSION=3.7
     os: linux

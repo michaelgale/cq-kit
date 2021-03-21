@@ -150,7 +150,9 @@ class XSection(object):
             new_pt = self._transform_pt(pt, (-1, 1))
         return new_pt
 
-    def get_points(self, flipped=False, scaled=None, translated=None):
+    def get_points(
+        self, flipped=False, scaled=None, translated=None, only_tuples=False
+    ):
         """Returns a list of 2D points representing a cross-section.
         The returned points can also be flipped, scaled, and/or translated
         variants of the original points."""
@@ -195,7 +197,14 @@ class XSection(object):
                     fPts.append(self._transform_pt(pt, (-1, 1)))
                 else:
                     fPts.append(self._transform_pt(pt, (1, -1)))
-            return fPts
+            rpts = fPts
+
+        if only_tuples:
+            tpts = []
+            for pt in rpts:
+                tpts.append(self._pt_tuple(pt))
+            return tpts
+
         return rpts
 
     def get_outline_obj(self, flipped=False, scaled=None, translated=None):
@@ -228,7 +237,9 @@ class XSection(object):
         encloses the cross-section profile.
         The returned rectangle can also be flipped, scaled, and/or translated
         variants of the original points."""
-        pts = self.get_points(flipped=flipped, scaled=scaled, translated=translated)
+        pts = self.get_points(
+            flipped=flipped, scaled=scaled, translated=translated, only_tuples=True
+        )
         br = Rect()
         br.bounding_rect(pts)
         return br
