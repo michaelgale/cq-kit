@@ -121,11 +121,14 @@ class XSection(object):
         else:
             return (pt[0] * scale[0] + offset[0], pt[1] * scale[1] + offset[1])
 
-    def _transform_pt(self, pt, scale, offset=(0, 0)):
+    def _transform_pt(self, pt, scale, offset=(0, 0), flip=False):
         """ Converts a dictionary described point or tuple point to a tuple point. """
         if isinstance(pt, dict):
             if "radiusArc" in pt:
-                xp = (self._pt_tuple(pt, scale, offset), pt["radiusArc"][1])
+                radius = pt["radiusArc"][1]
+                if flip:
+                    radius *= -1
+                xp = (self._pt_tuple(pt, scale, offset), radius)
                 return {"radiusArc": xp}
             elif "tangentArc" in pt:
                 return {"tangentArc": self._pt_tuple(pt, scale, offset)}
@@ -194,9 +197,9 @@ class XSection(object):
             fPts = []
             for pt in rpts:
                 if self.mirror_axis == self.workplane[0]:
-                    fPts.append(self._transform_pt(pt, (-1, 1)))
+                    fPts.append(self._transform_pt(pt, (-1, 1), flip=True))
                 else:
-                    fPts.append(self._transform_pt(pt, (1, -1)))
+                    fPts.append(self._transform_pt(pt, (1, -1), flip=True))
             rpts = fPts
 
         if only_tuples:

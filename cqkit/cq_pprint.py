@@ -205,7 +205,7 @@ def str_wire(obj):
         s.append(_str_value(wire_length(obj), colour="yellow"))
         s.append("\n")
     for i, e in enumerate(edges):
-        s.append("      %d/%d %s\n" % (i + 1, edge_count, str_edge(e)))
+        s.append("      %3d/%3d %s\n" % (i + 1, edge_count, str_edge(e)))
     return "".join(s)
 
 
@@ -220,7 +220,7 @@ def str_face(obj):
     else:
         s.append("Face (%dx Wires)\n" % (wire_count))
         for i, e in enumerate(wires):
-            s.append("    %d/%d %s\n" % (i + 1, wire_count, str_wire(e)))
+            s.append("    %3d/%3d %s\n" % (i + 1, wire_count, str_wire(e)))
     return "".join(s)
 
 
@@ -231,7 +231,7 @@ def str_solid(obj):
     face_count = len(faces)
     s.append("Solid (%dx Faces)\n" % (face_count))
     for i, e in enumerate(faces):
-        s.append("  %d/%d %s\n" % (i + 1, face_count, str_face(e)))
+        s.append("  %3d/%3d %s\n" % (i + 1, face_count, str_face(e)))
     return "".join(s)
 
 
@@ -246,7 +246,7 @@ def str_compound(obj):
     else:
         s.append("Compound (%dx Solids)\n" % (solid_count))
         for i, e in enumerate(solids):
-            s.append("%d/%d %s\n" % (i + 1, solid_count, str_solid(e)))
+            s.append("%3d/%3d %s\n" % (i + 1, solid_count, str_solid(e)))
     return "".join(s)
 
 
@@ -279,7 +279,7 @@ def obj_str(obj, show_type=False, no_colour=True):
     n_objs = len(objs)
     for i, o in enumerate(objs):
         if multi and n_objs > 1:
-            s.append("%d/%d " % (i + 1, n_objs))
+            s.append("%3d/%3d " % (i + 1, n_objs))
         if isinstance(o, (Vertex)):
             s.append(_str_coord(o.toTuple()))
         elif "geom.Vector" in str(type(o)):

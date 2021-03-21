@@ -32,7 +32,7 @@ def test_pprint():
     s2 = obj_str(r.wires().vals())
     assert "Wire" in s2
     assert "4x Edges" in s2
-    assert "4/4" in s2
+    assert "  4/  4" in s2
     assert "Line" in s2
     assert "( -0.5, -1,  0)" in s2
     assert "(  0.5,  1,  0)" in s2
