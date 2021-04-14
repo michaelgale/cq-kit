@@ -11,6 +11,25 @@ VERSION = __project__ + "-" + __version__
 
 script_dir = os.path.dirname(__file__)
 
+
+def INCHES(x):
+    return x * 25.4
+
+
+def MILS(x):
+    return INCHES(x / 1000)
+
+
+def MICRONS(x):
+    return x / 1000
+
+
+def DEGREES(r):
+    return 180 * r / math.pi
+
+
+from .refdim import WASHER_METRIC, WASHER_SAE, WASHER_USS, NUT_METRIC, NUT_US
+
 from .cq_selectors import *
 from .cq_files import (
     StepFileExporter,
@@ -24,3 +43,4 @@ from .cq_pprint import pprint_obj, obj_str
 from .cq_xsection import XSection
 from .cq_geometry import vertices_to_tuples
 from .cq_ribbon import Ribbon
+from .cq_fasteners import CQWasher, CQNut
