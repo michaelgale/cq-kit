@@ -403,19 +403,15 @@ es = SharedVerticesWithObjectSelector(face1)
 ## To Do
 
 - More modules/functionality for the package extracted from previous work in different places
-  - File I/O: LDraw
-  - Shape construction: cross-sections, paths
   - Solids: solid construction classes
   - Others TBD
 - Documentation (possibly with sphinx, but in this README as a minimum)
-- pip bundle
 - Deployment notes
-- Include both [python-occ](https://github.com/CadQuery/pythonocc-core) and [OCP](https://github.com/CadQuery/OCP) CI pipelines (to ensure compatibility with OCCT 6.9+ and OCCT 7.4+)
+
 
 ## Releases
 
-None yet. But hopefully a v.0.5.0 coinciding with a [pypi](https://pypi.org) package.
-
+v.0.4.0 - First release on PyPI
 
 ## Authors
 

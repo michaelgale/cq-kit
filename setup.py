@@ -75,6 +75,7 @@ setuptools.setup(
     author_email="michael@fxbricks.com",
     packages=setuptools.find_packages(),
     long_description=build_description(),
+    long_description_content_type="text/markdown",
     license="MIT",
     classifiers=[
         "Development Status :: 3 - Alpha",
