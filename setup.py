@@ -7,7 +7,7 @@ import sys
 import setuptools
 
 PACKAGE_NAME = "cqkit"
-MINIMUM_PYTHON_VERSION = "3.7"
+MINIMUM_PYTHON_VERSION = "3.6"
 
 loc = os.path.abspath(os.path.dirname(__file__))
 
@@ -80,7 +80,7 @@ setuptools.setup(
         "Development Status :: 3 - Alpha",
         "Natural Language :: English",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.6",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
     ],
