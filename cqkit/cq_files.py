@@ -32,6 +32,7 @@ from enum import Enum
 
 import pyparsing
 import cadquery as cq
+from cadquery.occ_impl.shapes import Shape
 
 # Hacky way of determining whether we're using python-occ or OCP
 # under the hood. A better way of assigning OCCT_VERSION could
@@ -62,10 +63,11 @@ except:
     # from OCP.Extend.DataExchange import *
     from OCP.BRepMesh import BRepMesh_IncrementalMesh
     from OCP.StlAPI import StlAPI_Writer
+    import OCP.IFSelect
 
     Interface_Static_SetIVal = Interface_Static.SetIVal_s
     Interface_Static_SetCVal = Interface_Static.SetCVal_s
-    OCCT_VERSION = "7.4"
+    OCCT_VERSION = "7.5"
 
 
 class suppress_stdout_stderr(object):
@@ -474,7 +476,7 @@ def export_step_file(shape, filename, title=None, author=None, organization=None
 
 
 def import_step_file(filename):
-    """ Imports a STEP file as a new CQ shape object. """
+    """ Imports a STEP file as a new CQ Workplane object. """
     return cq.occ_impl.importers.importStep(filename)
 
 
@@ -493,6 +495,24 @@ def export_iges_file(shape, filename, author=None, organization=None):
     writer.AddShape(shape.val().wrapped)
     writer.ComputeModel()
     writer.Write(filename)
+
+
+def import_iges_file(filename):
+    """Imports a IGES file as a new CQ Workplane object."""
+    reader = IGESControl_Reader()
+    with suppress_stdout_stderr():
+        read_status = reader.ReadFile(filename)
+    if read_status != OCP.IFSelect.IFSelect_RetDone:
+        raise ValueError("IGES file %s could not be loaded" % (filename))
+    reader.TransferRoots()
+    occ_shapes = []
+    for i in range(reader.NbShapes()):
+        occ_shapes.append(reader.Shape(i + 1))
+    solids = []
+    for shape in occ_shapes:
+        solids.append(Shape.cast(shape))
+
+    return cq.Workplane("XY").newObject(solids)
 
 
 def export_stl_file(shape, filename, tolerance=1e-4):

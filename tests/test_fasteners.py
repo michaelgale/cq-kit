@@ -1,8 +1,5 @@
 # system modules
-import math, os.path
-import sys
 import pytest
-from math import pi
 
 # my modules
 from cadquery import *
@@ -18,6 +15,9 @@ def test_washers_init():
         r = CQWasher(family="metric", item="abc")
     with pytest.raises(ValueError):
         r = CQWasher(inner_diameter=0.5, outer_diameter=2.0)
+    r = CQWasher(family="metric 2mm")
+    assert r.inner_diameter == 2.2
+    assert r.outer_diameter == 5
 
 
 def test_washers():
@@ -29,6 +29,10 @@ def test_washers():
     r2 = CQWasher(inner_diameter=0.5, outer_diameter=2.0, thickness=0.3).render()
     assert r2.solids().size() == 1
     assert r2.edges().size() == 6
+
+    r = CQWasher(family="metric 2mm").render()
+    assert r.solids().size() == 1
+    assert r.edges().size() == 6
 
     r = CQWasher(family="SAE", item="#8").render()
     assert r.solids().size() == 1

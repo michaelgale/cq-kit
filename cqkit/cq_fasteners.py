@@ -37,6 +37,9 @@ ATTR_ALIASES = {
 
 
 def attr_match(key, kwargs):
+    """Convenience function which flexibly matches attribute names
+    with alias equivalent names.
+    """
     for k, v in kwargs.items():
         if k == key:
             return v
@@ -46,11 +49,23 @@ def attr_match(key, kwargs):
     return None
 
 
+def parse_item(family, item):
+    """Simple convenience function which allows a fastener item to be
+    specified either as family='metric 2mm' or family='metric' item='2mm' 
+    """
+    if family is not None and item is None:
+        fs = family.split()
+        if len(fs) == 2:
+            return fs[0], fs[1]
+    return family, item
+
+
 class CQWasher:
     def __init__(self, family=None, item=None, **kwargs):
         self.inner_diameter = None
         self.outer_diameter = None
         self.thickness = None
+        family, item = parse_item(family, item)
         if family is not None:
             self._find_dim(family, item)
         else:
@@ -107,6 +122,7 @@ class CQNut:
         self.diameter = None
         self.height = None
         self.inner_diameter = None
+        family, item = parse_item(family, item)
         if family is not None:
             self._find_dim(family, item)
         else:

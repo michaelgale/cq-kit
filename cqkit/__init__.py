@@ -4,7 +4,7 @@ import os
 
 # fmt: off
 __project__ = 'cqkit'
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 # fmt: on
 
 VERSION = __project__ + "-" + __version__
@@ -37,6 +37,7 @@ from .cq_files import (
     import_step_file,
     export_iges_file,
     export_stl_file,
+    import_iges_file,
 )
 from .cq_discrete import discretize_edge, discretize_all_edges, triangle_mesh_solid
 from .cq_pprint import pprint_obj, obj_str

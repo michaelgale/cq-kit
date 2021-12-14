@@ -2,10 +2,8 @@
 
 # system modules
 from collections import defaultdict
-import math, os.path
-import sys
+import os.path
 import pytest
-from math import pi
 
 # my modules
 from cadquery import *
@@ -20,6 +18,7 @@ def make_cube(size):
 
 FILENAME = "./stepfiles/box.step"
 IGES_FILENAME = "./stepfiles/box.iges"
+IGES_IMP_FILENAME = "./stepfiles/box5.iges"
 STL_FILENAME = "./stepfiles/box.stl"
 
 
@@ -124,6 +123,19 @@ def test_export_iges():
     r = make_cube(3)
     export_iges_file(r, IGES_FILENAME)
     assert os.path.isfile(IGES_FILENAME)
+
+
+def test_import_iges():
+    r1 = make_cube(5)
+    r2 = cq.Workplane("XY").circle(3).extrude(4).translate((20, 20, 0))
+    r3 = r1.union(r2)
+    export_iges_file(r3, IGES_IMP_FILENAME)
+    assert os.path.isfile(IGES_IMP_FILENAME)
+    r = import_iges_file(IGES_IMP_FILENAME)
+    assert r.solids().size() == 2
+    assert r.faces().size() == 9
+    assert r.edges().size() == 15
+    assert r.edges(EdgeLengthSelector(5)).size() == 12
 
 
 def test_export_stl():

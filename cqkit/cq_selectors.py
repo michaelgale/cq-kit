@@ -768,3 +768,67 @@ def print_edges(e, summary=False):
         i += 1
     if summary:
         print("    %d edges: vert: %d horz: %d floor: %d" % (ne, nvert, nhorz, nfloor))
+
+
+# Parking area for some nifty selectors contributed by
+# https://github.com/jdthorpe
+# on CadQuery Issue 371
+# https://github.com/CadQuery/cadquery/issues/371
+
+# import cadquery as cq
+# from cadquery import Workplane
+# from typing import Dict
+# from math import pi
+# from cadquery.occ_impl.shapes import TopAbs_Orientation, Shell, Edge
+
+
+# def edge_angle_map(shell: Shell, types=["CIRCLE", "LINE"]) -> Dict[Edge, float]:
+#     """returns a dictionary where the keys are edges and the values are angles
+#     between the adjoining faces, with negative interior angles and positive
+#     exterior angles
+
+#     Note that angles are not generally well defined for edges other than
+#     circles and lines. It may be well defined for some instances of other
+#     edge types depending on their construction.  This could be tested for
+#     heuristically, but for now I'm only returning edges for lines and
+#     circles by default.
+#     """
+#     if not shell.Closed():
+#         raise RuntimeError("Shell should be closed")
+#     d = shell._entitiesFrom("Edge", "Face")
+#     # seams in sphere's and cylinders only touch one face.  Also see note above:
+#     d = dict((k, v) for k, v in d.items() if len(v) == 2 and k.geomType() in types)
+#     out = {}
+#     for e, (f0, f1) in d.items():
+#         pt = e.positionAt(0)
+#         v0 = f0.normalAt(pt)
+#         v1 = f1.normalAt(pt)
+#         a = 180 * v0.getAngle(v1) / pi
+#         n = e.tangentAt(0)
+#         det = (
+#             n.x * (v0.y * v1.z - v0.z * v1.y)
+#             - n.y * (v0.x * v1.z - v0.z * v1.x)
+#             + n.z * (v0.x * v1.y - v0.y * v1.x)
+#         )
+#         if e.wrapped.Orientation() != TopAbs_Orientation.TopAbs_FORWARD:
+#             det *= -1
+#         out[e] = -a if det < 0 else a
+#     return out
+
+# def inside_edges(x: Workplane) -> List[Edge]:
+#     """select the edges with negative angles between the faces"""
+#     mappings = [edge_angle_map(s) for s in x.shells().objects if s.Closed()]
+#     edges = [[k for k, v in d.items() if v < 0] for d in mappings]
+#     return [e for el in edges for e in el]
+
+# def outside_edges(x: Workplane) -> List[Edge]:
+#     """select the edges with negative angles between the faces"""
+#     mappings = [edge_angle_map(s) for s in x.shells().objects if s.Closed()]
+#     edges = [[k for k, v in d.items() if v < 0] for d in mappings]
+#     return [e for el in edges for e in el]
+
+# def select_edges_by_angle(x: Workplane, min=-180, max=180) -> List[Edge]:
+#     """select the edges with negative angles between the faces"""
+#     mappings = [edge_angle_map(s) for s in x.shells().objects if s.Closed()]
+#     edges = [[k for k, v in d.items() if min < v < max] for d in mappings]
+#     return [e for el in edges for e in el]

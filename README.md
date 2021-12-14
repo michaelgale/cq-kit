@@ -72,9 +72,11 @@ CQ-Kit adds some convenient file import and export functions to a few supported 
 
 - `export_iges_file(shape, filename, author=None, organization=None)` - Export CQ shape to IGES file. The IGES file can optionally include an author and organization name written to the IGES file meta data.
 
+- `import_iges_file(filename)` - Imports the content of a IGES file and returns a new CQ Workplane object.
+
 - `export_stl_file(shape, filename, tolerance=1e-4)` - Export CQ shape to STL mesh file format. The shape is automatically meshed by the OCCT kernel and the resolution/tolerance of the mesh can be optionally specified.
 
-- `import_step_file(filename)` - Imports the content of a STEP file and returns a new CQ object.
+- `import_step_file(filename)` - Imports the content of a STEP file and returns a new CQ Workplane object.
 
  - `export_step_file(shape, filename, title=None, author=None, organization=None)` - Convenient function to use the CQ-Kit enhanced `StepFileExporter` class.  The CQ-Kit STEP file exporter offers the following features:
 
