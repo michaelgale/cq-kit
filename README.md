@@ -2,6 +2,7 @@
 
 # CQ-Kit 
 
+![https://pypi.org/project/cqkit/](https://img.shields.io/pypi/v/cqkit.svg)
 ![python version](https://img.shields.io/static/v1?label=python&message=3.6%2B&color=blue&style=flat&logo=python)
 ![https://github.com/CadQuery/cadquery](https://img.shields.io/static/v1?label=dependencies&message=CadQuery%202.0%2B&color=blue&style=flat)
 ![https://github.com/michaelgale/cq-kit/blob/master/LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
