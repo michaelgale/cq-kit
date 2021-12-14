@@ -14,7 +14,7 @@ dependencies:
   - black=19.10b0
   - mypy
   - codecov
-  - pytest=6.2.3
+  - pytest
   - pytest-cov
   - ezdxf
   - ipython
