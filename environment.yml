@@ -14,7 +14,7 @@ dependencies:
   - black=19.10b0
   - mypy
   - codecov
-  - pytest
+  - pytest=6.2.3
   - pytest-cov
   - ezdxf
   - ipython
@@ -27,4 +27,4 @@ dependencies:
     - "--editable=."
     - sphinxcadquery
     - multimethod
-    
+
