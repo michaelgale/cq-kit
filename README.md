@@ -23,6 +23,12 @@ This repository contains utility classes and functions to extend the features an
 
 ## Installation
 
+Assuming **CadQuery** is installed, you can install **CQ-Kit** using a [PyPI package](https://pypi.org/project/cqkit/) as follows:
+
+```bash
+$ pip install cqkit
+```
+
 The **CQ-Kit** package can be installed directly from the source code:
 
 ```bash
@@ -42,8 +48,6 @@ If you want to create a fresh anaconda environment with **CadQuery** and **CQ-Ki
  ```
 
  Substitute your desired python `$VERSION` with 3.6, 3.7, or 3.8 and optionally replace `$MY_NAME` with a different desired environment name than the default of `cadquery` specified in `environment.yml`.
-
-(pip/pypi installer coming soon)
 
 ## Basic Usage
 
