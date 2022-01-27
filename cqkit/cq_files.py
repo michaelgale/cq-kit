@@ -42,22 +42,27 @@ try:
     from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
     from OCC.Core.IGESControl import *
     from OCC.Core.Interface import *
-    from OCC.Core.STEPControl import (STEPControl_AsIs,
-                                      STEPControl_ManifoldSolidBrep,
-                                      STEPControl_Writer)
+    from OCC.Core.STEPControl import (
+        STEPControl_AsIs,
+        STEPControl_ManifoldSolidBrep,
+        STEPControl_Writer,
+    )
     from OCC.Core.StlAPI import StlAPI_Writer
     from OCC.Extend.DataExchange import *
 
     OCCT_VERSION = "6.9"
 except:
     import OCP.IFSelect
+
     # from OCP.Extend.DataExchange import *
     from OCP.BRepMesh import BRepMesh_IncrementalMesh
     from OCP.IGESControl import *
     from OCP.Interface import *
-    from OCP.STEPControl import (STEPControl_AsIs,
-                                 STEPControl_ManifoldSolidBrep,
-                                 STEPControl_Writer)
+    from OCP.STEPControl import (
+        STEPControl_AsIs,
+        STEPControl_ManifoldSolidBrep,
+        STEPControl_Writer,
+    )
     from OCP.StlAPI import StlAPI_Writer
 
     Interface_Static_SetIVal = Interface_Static.SetIVal_s

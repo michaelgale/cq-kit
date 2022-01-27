@@ -28,8 +28,7 @@ try:
     from OCC.Core.BRepAdaptor import BRepAdaptor_Curve
     from OCC.Core.BRepLProp import BRepLProp_CLProps
     from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
-    from OCC.Core.GCPnts import (GCPnts_AbscissaPoint,
-                                 GCPnts_QuasiUniformAbscissa)
+    from OCC.Core.GCPnts import GCPnts_AbscissaPoint, GCPnts_QuasiUniformAbscissa
     from OCC.Core.gp import gp_Dir
     from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_VERTEX
     from OCC.Core.TopExp import TopExp_Explorer

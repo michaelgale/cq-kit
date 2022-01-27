@@ -17,8 +17,8 @@ repos:
   hooks:
   - id: check-yaml
 
-- repo: https://github.com/PyCQA/isort
-  rev: 5.10.1
-  hooks:
-  - id: isort
-    args: [--skip __init__.py]
+# - repo: https://github.com/PyCQA/isort
+#   rev: 5.10.1
+#   hooks:
+#   - id: isort
+#     args: [--skip __init__.py]

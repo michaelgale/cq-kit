@@ -5,6 +5,7 @@ import os.path
 from collections import defaultdict
 
 import pytest
+
 # my modules
 from cadquery import *
 from cadquery.selectors import *
