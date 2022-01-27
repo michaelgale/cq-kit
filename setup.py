@@ -4,6 +4,7 @@
 import os
 import os.path
 import sys
+
 import setuptools
 
 PACKAGE_NAME = "cqkit"

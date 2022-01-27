@@ -28,9 +28,9 @@ import cadquery as cq
 from cadquery import *
 
 try:
-    from OCC.Core.gp import gp_Vec, gp_Pnt, gp_Dir, gp_XYZ
+    from OCC.Core.gp import gp_Dir, gp_Pnt, gp_Vec, gp_XYZ
 except:
-    from OCP.gp import gp_Vec, gp_Pnt, gp_Dir, gp_XYZ
+    from OCP.gp import gp_Dir, gp_Pnt, gp_Vec, gp_XYZ
 
 try:
     import crayons
@@ -39,8 +39,9 @@ try:
 except:
     has_crayons = False
 
-from .cq_files import better_float_str
 from cqkit.cq_geometry import edge_length, wire_length
+
+from .cq_files import better_float_str
 
 force_no_colour = False
 

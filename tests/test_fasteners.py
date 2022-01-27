@@ -1,8 +1,8 @@
 # system modules
 import pytest
-
 # my modules
 from cadquery import *
+
 from cqkit import *
 
 

@@ -1,7 +1,7 @@
 # python intermediate files
 *.py[cod]
 
-# intermediate and cached 3D solid files 
+# intermediate and cached 3D solid files
 /cache/*
 /tests/stepfiles/*.step
 /tests/stepfiles/*.iges

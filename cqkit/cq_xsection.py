@@ -23,12 +23,9 @@
 #
 # XSection Class (planar cross section defined by a closed set of points)
 
-import copy
-import sys
-from math import radians
-
 import cadquery as cq
 from cadquery import *
+
 from cqkit.cq_geometry import Rect
 
 
@@ -165,10 +162,8 @@ class XSection(object):
                 scale = (scaled, scaled)
             elif isinstance(scaled, (list, tuple)):
                 scale = (scaled[0], scaled[1])
-        pts = []
         offset = translated if translated is not None else (0, 0)
-        for pt in self.pts:
-            pts.append(self._transform_pt(pt, scale))
+        pts = [self._transform_pt(pt, scale) for pt in self.pts]
 
         if self.symmetric:
             mpts = []
@@ -189,23 +184,17 @@ class XSection(object):
                     new_pt = self._replace_tuple(pt, next_pt)
                     pts.append(new_pt)
 
-        rpts = []
-        for pt in pts:
-            rpts.append(self._transform_pt(pt, (1, 1), offset=offset))
+        rpts = [self._transform_pt(pt, (1, 1), offset=offset) for pt in pts]
 
         if flipped:
-            fPts = []
-            for pt in rpts:
-                if self.mirror_axis == self.workplane[0]:
-                    fPts.append(self._transform_pt(pt, (-1, 1), flip=True))
-                else:
-                    fPts.append(self._transform_pt(pt, (1, -1), flip=True))
+            if self.mirror_axis == self.workplane[0]:
+                fPts = [self._transform_pt(pt, (-1, 1), flip=True) for pt in rpts]
+            else:
+                fPts = [self._transform_pt(pt, (1, -1), flip=True) for pt in rpts]
             rpts = fPts
 
         if only_tuples:
-            tpts = []
-            for pt in rpts:
-                tpts.append(self._pt_tuple(pt))
+            tpts = [self._pt_tuple(pt) for pt in rpts]
             return tpts
 
         return rpts

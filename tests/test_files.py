@@ -1,13 +1,14 @@
 # File utility class tests
 
 # system modules
-from collections import defaultdict
 import os.path
-import pytest
+from collections import defaultdict
 
+import pytest
 # my modules
 from cadquery import *
 from cadquery.selectors import *
+
 from cqkit import *
 
 

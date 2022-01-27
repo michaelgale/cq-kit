@@ -4,7 +4,7 @@ import os
 
 # fmt: off
 __project__ = 'cqkit'
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 # fmt: on
 
 VERSION = __project__ + "-" + __version__
@@ -28,20 +28,14 @@ def DEGREES(r):
     return 180 * r / math.pi
 
 
-from .refdim import WASHER_METRIC, WASHER_SAE, WASHER_USS, NUT_METRIC, NUT_US
-
-from .cq_selectors import *
-from .cq_files import (
-    StepFileExporter,
-    export_step_file,
-    import_step_file,
-    export_iges_file,
-    export_stl_file,
-    import_iges_file,
-)
-from .cq_discrete import discretize_edge, discretize_all_edges, triangle_mesh_solid
-from .cq_pprint import pprint_obj, obj_str
-from .cq_xsection import XSection
+from .cq_discrete import (discretize_all_edges, discretize_edge,
+                          triangle_mesh_solid)
+from .cq_fasteners import CQNut, CQWasher
+from .cq_files import (StepFileExporter, export_iges_file, export_step_file,
+                       export_stl_file, import_iges_file, import_step_file)
 from .cq_geometry import vertices_to_tuples
+from .cq_pprint import obj_str, pprint_obj
 from .cq_ribbon import Ribbon
-from .cq_fasteners import CQWasher, CQNut
+from .cq_selectors import *
+from .cq_xsection import XSection
+from .refdim import NUT_METRIC, NUT_US, WASHER_METRIC, WASHER_SAE, WASHER_USS

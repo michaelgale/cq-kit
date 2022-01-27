@@ -24,7 +24,7 @@ matrix:
     script:
     - pip install black==19.10b0
     - black . --diff --check
-    
+
 before_install:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       OS=Linux ;
@@ -49,5 +49,3 @@ script:
 
 after_success:
 - codecov
-
-

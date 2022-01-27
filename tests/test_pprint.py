@@ -1,18 +1,21 @@
 # Pretty print tests
 
 # system modules
-import math, os.path
+import math
+import os.path
 import sys
-import pytest
 from math import pi
 
+import pytest
+
 try:
-    from OCC.Core.gp import gp_Vec, gp_Pnt, gp_Dir, gp_XYZ
+    from OCC.Core.gp import gp_Dir, gp_Pnt, gp_Vec, gp_XYZ
 except:
-    from OCP.gp import gp_Vec, gp_Pnt, gp_Dir, gp_XYZ
+    from OCP.gp import gp_Dir, gp_Pnt, gp_Vec, gp_XYZ
 
 # my modules
 from cadquery import *
+
 from cqkit import *
 
 

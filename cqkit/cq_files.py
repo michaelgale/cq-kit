@@ -27,11 +27,11 @@ import datetime
 import decimal
 import os
 import os.path
-from datetime import date, datetime, time
+from datetime import datetime
 from enum import Enum
 
-import pyparsing
 import cadquery as cq
+import pyparsing
 from cadquery.occ_impl.shapes import Shape
 
 # Hacky way of determining whether we're using python-occ or OCP
@@ -39,31 +39,26 @@ from cadquery.occ_impl.shapes import Shape
 # be done as well.
 
 try:
-    from OCC.Core.STEPControl import (
-        STEPControl_Writer,
-        STEPControl_AsIs,
-        STEPControl_ManifoldSolidBrep,
-    )
+    from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
     from OCC.Core.IGESControl import *
     from OCC.Core.Interface import *
-    from OCC.Extend.DataExchange import *
-    from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
+    from OCC.Core.STEPControl import (STEPControl_AsIs,
+                                      STEPControl_ManifoldSolidBrep,
+                                      STEPControl_Writer)
     from OCC.Core.StlAPI import StlAPI_Writer
+    from OCC.Extend.DataExchange import *
 
     OCCT_VERSION = "6.9"
 except:
-    from OCP.STEPControl import (
-        STEPControl_Writer,
-        STEPControl_AsIs,
-        STEPControl_ManifoldSolidBrep,
-    )
-    from OCP.IGESControl import *
-    from OCP.Interface import *
-
+    import OCP.IFSelect
     # from OCP.Extend.DataExchange import *
     from OCP.BRepMesh import BRepMesh_IncrementalMesh
+    from OCP.IGESControl import *
+    from OCP.Interface import *
+    from OCP.STEPControl import (STEPControl_AsIs,
+                                 STEPControl_ManifoldSolidBrep,
+                                 STEPControl_Writer)
     from OCP.StlAPI import StlAPI_Writer
-    import OCP.IFSelect
 
     Interface_Static_SetIVal = Interface_Static.SetIVal_s
     Interface_Static_SetCVal = Interface_Static.SetCVal_s

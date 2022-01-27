@@ -28,7 +28,8 @@
 # All due credit to the original author.
 # This class is a derivative work with extra documentation.
 
-from math import radians, sin, cos, tan
+from math import cos, radians, sin
+
 import cadquery as cq
 
 
@@ -89,9 +90,7 @@ class Ribbon:
         theta = radians(theta_degrees)
         vex = cos(theta) * vsx - sin(theta) * vsy
         vey = sin(theta) * vsx + cos(theta) * vsy
-        ex = cx + vex
-        ey = cy + vey
-        return ex, ey
+        return cx + vex, cy + vey
 
     def _turn(self, vx, vy, direction_degrees, r, turn_degrees):
         """Calculate an arc from the current position and direction
@@ -118,7 +117,7 @@ class Ribbon:
             ry = vy - r * cos(direction)
         qex, qey = self._rotate(vx, vy, rx, ry, turn_degrees)
         qmx, qmy = self._rotate(vx, vy, rx, ry, turn_degrees / 2)
-        return qmx, qmy, qex, qey, rx, ry
+        return qmx, qmy, qex, qey
 
     def _parse_commands(
         self, cqobj, commands, offset, direction_multiplier, debug=False
@@ -155,7 +154,7 @@ class Ribbon:
                     radius -= offset
                 else:
                     radius += offset
-                mid_x, mid_y, turn_x, turn_y, centre_x, centre_y = self._turn(
+                mid_x, mid_y, turn_x, turn_y = self._turn(
                     self.current_x, self.current_y, self.direction, radius, angle
                 )
                 cqobj = cqobj.threePointArc((mid_x, mid_y), (turn_x, turn_y))

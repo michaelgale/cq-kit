@@ -23,9 +23,13 @@
 #
 # Simple Fastener classes
 
-from math import pi, sin, cos
+from math import cos, pi, sin
+
+import cadquery as cq
 
 from cqkit import *
+
+from .refdim import NUT_METRIC, NUT_US, WASHER_METRIC, WASHER_SAE, WASHER_USS
 
 ATTR_ALIASES = {
     "inner_diameter": ["inside", "inside_diameter", "inner"],
@@ -51,7 +55,7 @@ def attr_match(key, kwargs):
 
 def parse_item(family, item):
     """Simple convenience function which allows a fastener item to be
-    specified either as family='metric 2mm' or family='metric' item='2mm' 
+    specified either as family='metric 2mm' or family='metric' item='2mm'
     """
     if family is not None and item is None:
         fs = family.split()

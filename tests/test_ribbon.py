@@ -1,13 +1,14 @@
 # system modules
-import math, os.path
+import math
+import os.path
 import sys
-import pytest
 from math import pi
 
+import pytest
 # my modules
 from cadquery import *
-from cqkit import *
 
+from cqkit import *
 
 path = [
     ("start", {"position": (10.0, 0.0), "direction": 30.0, "width": 0.5}),

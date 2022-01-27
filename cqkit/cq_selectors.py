@@ -23,12 +23,12 @@
 #
 # CadQuery selectors
 
-import copy
 import sys
 from math import radians
 
 import cadquery as cq
 from cadquery import *
+
 from cqkit.cq_geometry import Point, Rect, Vector, edge_length, wire_length
 
 valid_objects = [
@@ -101,10 +101,9 @@ def object_wires_lengths(objs):
 def object_edges_radius(objs):
     """ Generator which returns circle edge objects and their radius """
     for o in objs:
-        if type(o) == Edge:
-            if o.geomType().upper() == "CIRCLE":
-                circle = o._geomAdaptor().Circle()
-                yield o, circle.Radius()
+        if type(o) == Edge and o.geomType().upper() == "CIRCLE":
+            circle = o._geomAdaptor().Circle()
+            yield o, circle.Radius()
 
 
 def valid_faces(objs):
@@ -193,17 +192,18 @@ class HasCoordinateSelector(Selector):
         self.tolerance = tolerance
 
     def count_matching_vertices(self, vertices, coord):
-        matched_vertices = 0
-        for v in vertices:
-            if coord == "X":
-                vc = v.X
-            elif coord == "Y":
-                vc = v.Y
-            else:
-                vc = v.Z
-            if is_valid_length(vc, self.coords, self.tolerance):
-                matched_vertices += 1
-        return matched_vertices
+        if coord.upper() == "X":
+            return sum(
+                int(is_valid_length(v.X, self.coords, self.tolerance)) for v in vertices
+            )
+        elif coord.upper() == "Y":
+            return sum(
+                int(is_valid_length(v.Y, self.coords, self.tolerance)) for v in vertices
+            )
+        else:
+            return sum(
+                int(is_valid_length(v.Z, self.coords, self.tolerance)) for v in vertices
+            )
 
 
 class HasXCoordinateSelector(HasCoordinateSelector):
@@ -417,9 +417,7 @@ class VerticalSelector(Selector):
         )
 
     def _z_coordinate_range(self, vertices):
-        zc = []
-        for v in vertices:
-            zc.append(v.Z)
+        zc = [v.Z for v in vertices]
         return max(zc) - min(zc), max(zc)
 
     def vert_filter(self, objectList, obj_type):
@@ -478,13 +476,8 @@ class FlatSelector(Selector):
         self.tolerance = tolerance
 
     def _z_coordinate_range(self, vertices):
-        zc = []
-        avg_z = 0
-        for v in vertices:
-            zc.append(v.Z)
-            avg_z += v.Z
-        if len(zc) > 0:
-            avg_z /= len(zc)
+        zc = [v.Z for v in vertices]
+        avg_z = sum(zc) / len(zc) if len(zc) > 0 else 0
         return max(zc) - min(zc), avg_z
 
     def flat_filter(self, objectList, obj_type):
@@ -560,10 +553,9 @@ class SharedVerticesWithObjectSelector(Selector):
     def filter(self, objectList):
         r = []
         for o, vertices in object_vertices(objectList):
-            shared_vtx_count = 0
-            for v in vertices:
-                if self._has_common_vertex(Vector(v.toTuple())):
-                    shared_vtx_count += 1
+            shared_vtx_count = sum(
+                int(self._has_common_vertex(Vector(v.toTuple()))) for v in vertices
+            )
             if shared_vtx_count >= self.min_points:
                 r.append(o)
         return r
@@ -602,9 +594,7 @@ class SameHeightAsObjectSelector(Selector):
         self.tolerance = tolerance
 
     def _z_coordinate_range(self, vertices):
-        zc = []
-        for v in vertices:
-            zc.append(v.Z)
+        zc = [v.Z for v in vertices]
         return max(zc) - min(zc)
 
     def filter(self, objectList):

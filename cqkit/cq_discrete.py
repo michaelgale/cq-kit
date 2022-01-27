@@ -25,27 +25,28 @@
 
 try:
     from OCC.Core.BRep import BRep_Tool
+    from OCC.Core.BRepAdaptor import BRepAdaptor_Curve
+    from OCC.Core.BRepLProp import BRepLProp_CLProps
     from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
+    from OCC.Core.GCPnts import (GCPnts_AbscissaPoint,
+                                 GCPnts_QuasiUniformAbscissa)
+    from OCC.Core.gp import gp_Dir
     from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_VERTEX
     from OCC.Core.TopExp import TopExp_Explorer
     from OCC.Core.TopLoc import TopLoc_Location
-    from OCC.Core.TopoDS import TopoDS_Face, TopoDS_Vertex, TopoDS_Iterator
-    from OCC.Core.BRepAdaptor import BRepAdaptor_Curve
-    from OCC.Core.BRepLProp import BRepLProp_CLProps
-    from OCC.Core.GCPnts import GCPnts_AbscissaPoint, GCPnts_QuasiUniformAbscissa
-    from OCC.Core.gp import gp_Dir
+    from OCC.Core.TopoDS import TopoDS_Face, TopoDS_Iterator, TopoDS_Vertex
 
 except:
     from OCP.BRep import BRep_Tool
-    from OCP.BRepMesh import BRepMesh_IncrementalMesh
-    from OCP.TopAbs import TopAbs_FACE, TopAbs_VERTEX, TopAbs_Orientation
-    from OCP.TopExp import TopExp_Explorer
-    from OCP.TopLoc import TopLoc_Location
-    from OCP.TopoDS import TopoDS_Face, TopoDS_Vertex, TopoDS_Iterator
     from OCP.BRepAdaptor import BRepAdaptor_Curve
     from OCP.BRepLProp import BRepLProp_CLProps
+    from OCP.BRepMesh import BRepMesh_IncrementalMesh
     from OCP.GCPnts import GCPnts_AbscissaPoint, GCPnts_QuasiUniformAbscissa
     from OCP.gp import gp_Dir
+    from OCP.TopAbs import TopAbs_FACE, TopAbs_Orientation, TopAbs_VERTEX
+    from OCP.TopExp import TopExp_Explorer
+    from OCP.TopLoc import TopLoc_Location
+    from OCP.TopoDS import TopoDS_Face, TopoDS_Iterator, TopoDS_Vertex
 
     BRep_Tool.Triangulation = BRep_Tool.Triangulation_s
     GCPnts_AbscissaPoint.Length = GCPnts_AbscissaPoint.Length_s
@@ -65,10 +66,10 @@ def discretize_edge(edge, resolution=16):
         gt = GCPnts_QuasiUniformAbscissa(curve, resolution + 1)
     except:
         return []
+    curve_props = BRepLProp_CLProps(curve, 1, 1e-6)
     pts = []
     for p in range(resolution + 1):
         pt = gt.Parameter(p + 1)
-        curve_props = BRepLProp_CLProps(curve, 1, 1e-6)
         curve_props.SetParameter(pt)
         vpt = curve_props.Value()
         pts.append((vpt.X(), vpt.Y(), vpt.Z()))
@@ -93,15 +94,9 @@ def discretize_all_edges(edges, curve_res=16, circle_res=36, as_pts=False):
             nseg = circle_res if et == "CIRCLE" else curve_res
             pts = discretize_edge(edge, resolution=nseg)
             if len(pts) > 0:
-                for i in range(nseg):
-                    discrete_edges.append((pts[i], pts[i + 1]))
+                discrete_edges.extend([(pts[i], pts[i + 1]) for i in range(nseg)])
     if not as_pts:
-        edge_list = []
-        for e in discrete_edges:
-            v0 = Vector(e[0])
-            v1 = Vector(e[1])
-            edge_list.append(Edge.makeLine(v0, v1))
-        return edge_list
+        return [Edge.makeLine(Vector(e[0]), Vector(e[1])) for e in discrete_edges]
     return discrete_edges
 
 

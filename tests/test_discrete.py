@@ -1,13 +1,15 @@
 # Discrete geometry tests
 
 # system modules
-import math, os.path
+import math
+import os.path
 import sys
-import pytest
 from math import pi
 
+import pytest
 # my modules
 from cadquery import *
+
 from cqkit import *
 
 

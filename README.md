@@ -1,12 +1,12 @@
 ![CQ-Kit Logo](./images/logo.png)
 
-# CQ-Kit 
+# CQ-Kit
 
 ![https://pypi.org/project/cqkit/](https://img.shields.io/pypi/v/cqkit.svg)
 ![python version](https://img.shields.io/static/v1?label=python&message=3.6%2B&color=blue&style=flat&logo=python)
 ![https://github.com/CadQuery/cadquery](https://img.shields.io/static/v1?label=dependencies&message=CadQuery%202.0%2B&color=blue&style=flat)
 ![https://github.com/michaelgale/cq-kit/blob/master/LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
-<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>  
+<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
 ![https://travis-ci.org/michaelgale/cq-kit](https://travis-ci.com/michaelgale/cq-kit.svg?branch=master)
 [![codecov](https://codecov.io/gh/michaelgale/cq-kit/branch/master/graph/badge.svg)](https://codecov.io/gh/michaelgale/cq-kit)
@@ -92,10 +92,10 @@ CQ-Kit adds some convenient file import and export functions to a few supported 
         in a STEP file which can re-written as "0." and "4.0" respectively.  The
         round off behaviour is performed by the sophisticated and robust
         Decimal python built in type.
-   - **Enable/Disable P-Curve Entities** - 
+   - **Enable/Disable P-Curve Entities** -
         The default behaviour of the OCCT STEP file writer is to add redundant
         P-Curve entities to the STEP file.  This can often double the size of the
-        resulting STEP file.  Turning off P-Curves can save file size and almost 
+        resulting STEP file.  Turning off P-Curves can save file size and almost
         never impacts the quality of the STEP file.
    - **Precision Mode** - The precision mode parameter coresponds to the OCCT STEP file precision
         for writing geometric data.  The default value of 1 for maximum precision
@@ -120,7 +120,7 @@ CQ-Kit includes functions to discretize either edges or solids:
 
 ## Pretty Printers for Objects
 
-CQ-Kit offers useful functions which return a string representing a geometric object. The string representation is automatically determined by the type of object.  Objects which are containers for multiple other objects are automatically expanded, e.g. a `Wire` will expand its `Edges` and those edges will expand into coordinate tuples. 
+CQ-Kit offers useful functions which return a string representing a geometric object. The string representation is automatically determined by the type of object.  Objects which are containers for multiple other objects are automatically expanded, e.g. a `Wire` will expand its `Edges` and those edges will expand into coordinate tuples.
 
 - `obj_str(obj, show_type=False)` - returns a pretty string of the passed object
 - `pprint_obj(obj, show_type=False)` - pretty prints the object string to the console.
@@ -128,11 +128,11 @@ CQ-Kit offers useful functions which return a string representing a geometric ob
 **Examples**
 
 ```python
-pprint_obj((1, 2)) 
+pprint_obj((1, 2))
 # ( 1, 2)
 pprint_obj((3, 4, 5))
 # ( 3, 4, 5)
-pprint_obj(Vector(-2, -4, 0)) 
+pprint_obj(Vector(-2, -4, 0))
 # (-2,-4, 0)
 pprint_obj(Vertex.makeVertex(-1, 0, 2))
 # (-1, 0, 2)
@@ -219,7 +219,7 @@ A list of points can involve a mix of types such as:
 - `render(self, flipped=False, scaled=None, translated=None)` - returns a CQ object representing the closed wire path of the cross-section.
 
 - `get_bounding_outline(self, flipped=False, scaled=None, translated=None)` - returns a CQ object the rectangular bounding box of the cross-section.
-  
+
 ### Examples
 
 ```python
@@ -242,7 +242,7 @@ The `Ribbon` class generates an arbitrary closed wire path of constant width.  T
 plotting commands.  From the starting position, one side of of the ribbon is drawn by parsing the commmands from start to finish. The opposite side of the ribbon is then drawn by parsing the commands in reverse order.
 
 The commands describing the path are contained in a list of 2 element tuples.  The first item of each tuple is a command, and the second item is a dictionary.
-  
+
 - `"start"` - a mandatory first (and only instance of) command. It specifies the start point, trajectory direction, and width of the ribbon path as a dictionary.  Its keys are:
   - `"position"` - starting coordinate of ribbon path
   - `"direction"` - initial trajectory of ribbon path in degrees
@@ -360,8 +360,8 @@ vs = VerticalEdgeSelector([3.2, 2.0])
 
 - `FlatEdgeSelector` Selects all edges which lie "flat" at a certain `Z` axis height.
 
-| <img src=./images/planaratheight1.png width=220> | 
-| --- | 
+| <img src=./images/planaratheight1.png width=220> |
+| --- |
 
 ```python
 # select all edges at height = 1.0
@@ -372,7 +372,7 @@ es = FlatEdgeSelector([2, 5])
 
 - `HasXCoordinateSelector`
 - `HasYCoordinateSelector`
-- `HasZCoordinateSelector` - selects edges which have specific coordinate values.  The `both_ends` keyword can specify whether both vertices of the edge conform to the coordinate requirement (`True`) or at least one vertex (`False`) 
+- `HasZCoordinateSelector` - selects edges which have specific coordinate values.  The `both_ends` keyword can specify whether both vertices of the edge conform to the coordinate requirement (`True`) or at least one vertex (`False`)
 
 | <img src=./images/xcoord3both.png width=300> | <img src=./images/xcoord3.png width=300> |
 | --- | --- |
@@ -386,16 +386,16 @@ es = HasXCoordinateSelector(3.0, min_points=1)
 
 - `SharedVerticesWithObjectSelector` - selects entities which have common vertices with a reference object.  The reference object can be either a solid, face, wire, edge or vertex.
 
-| <img src=./images/sharedvertex.png width=280> | 
-| --- | 
+| <img src=./images/sharedvertex.png width=280> |
+| --- |
 
 ```python
 # selects all edges which have one of its end points common with a specific vertex
 es = SharedVerticesWithObjectSelector(Vector(1, 2, 1))
 ```
 
-| <img src=./images/commonvertface.png width=390> | 
-| --- | 
+| <img src=./images/commonvertface.png width=390> |
+| --- |
 
 ```python
 # selects all edges which have any of its end points common with any vertex

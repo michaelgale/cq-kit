@@ -968,9 +968,7 @@ def ShiftToOrigin(pts):
     opts = []
     xo = pts[0][0]
     yo = pts[0][1]
-    for pt in pts:
-        opts.append((pt[0] - xo, pt[1] - yo))
-    return opts
+    return [(pt[0] - xo, pt[1] - yo) for pt in pts]
 
 
 class SplinePoints:
@@ -1025,13 +1023,9 @@ def points2d_at_height(pts, height):
         if len(pts) == 2:
             return [(*pts, height)]
         return [(pts[0], pts[1], height)]
-    pts3d = []
-    for pt in pts:
-        if len(pt) == 3:
-            pts3d.append((pt[0], pt[1], height))
-        else:
-            pts3d.append((*pt, height))
-    return pts3d
+    if len(pts[0]) == 3:
+        return [(pt[0], pt[1], height) for pt in pts]
+    return [(*pt, height) for pt in pts]
 
 
 def grid_points_2d(length, width, div, width_div=None):
@@ -1052,11 +1046,7 @@ def grid_points_2d(length, width, div, width_div=None):
         py = [-width / 2.0 + (y / (wd - 1)) * width for y in range(wd)]
     else:
         py = [width]
-    pts = []
-    for x in px:
-        for y in py:
-            pts.append((x, y))
-    return pts
+    return [(x, y) for x in px for y in py]
 
 
 def grid_points_at_height(length, width, height, div, width_div=None):
@@ -1099,7 +1089,4 @@ def is_same_edge(e0, e1, tolerance):
 
 def vertices_to_tuples(vpts):
     """ Returns list of vertex tuples from a list of Vertex objects """
-    tpts = []
-    for pt in vpts:
-        tpts.append(pt.toTuple())
-    return tpts
+    return [pt.toTuple() for pt in vpts]

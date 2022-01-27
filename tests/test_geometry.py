@@ -1,13 +1,16 @@
 # system modules
-import math, os.path
+import math
+import os.path
 import sys
-import pytest
 from math import pi
+
+import pytest
+
+from cqkit import *
+from cqkit.cq_geometry import *
 
 # my modules
 
-from cqkit.cq_geometry import *
-from cqkit import *
 
 #
 # Tests for the Point class
