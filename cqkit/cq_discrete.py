@@ -126,9 +126,9 @@ def triangle_mesh_solid(solid, lin_tol=1e-2, ang_tol=0.5):
             face = mesh_face.wrapped
             location = TopLoc_Location()
             facing = bt.Triangulation(face, location)
-            tri = facing.Triangles()
+            tri = facing.InternalTriangles()
             num_tri = facing.NbTriangles()
-            vtx = facing.Nodes()
+            vtx = facing.InternalNodes()
             txf = face.Location().Transformation()
             rev = (
                 True
@@ -140,9 +140,9 @@ def triangle_mesh_solid(solid, lin_tol=1e-2, ang_tol=0.5):
                 ci = [0, 2, 1] if rev else [0, 1, 2]
                 for j in ci:
                     pt = [
-                        vtx.Value(idx[j]).Transformed(txf).X(),
-                        vtx.Value(idx[j]).Transformed(txf).Y(),
-                        vtx.Value(idx[j]).Transformed(txf).Z(),
+                        vtx.Value(idx[j] - 1).Transformed(txf).X(),
+                        vtx.Value(idx[j] - 1).Transformed(txf).Y(),
+                        vtx.Value(idx[j] - 1).Transformed(txf).Z(),
                     ]
                     if pt not in vertices:
                         vertices.append(pt)

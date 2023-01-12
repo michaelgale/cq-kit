@@ -9,14 +9,14 @@ branches:
 
 matrix:
   include:
-  - name: "Python 3.7 - linux"
-    env: PYTHON_VERSION=3.7
-    os: linux
   - name: "Python 3.8 - linux"
     env: PYTHON_VERSION=3.8
     os: linux
   - name: "Python 3.9 - linux"
     env: PYTHON_VERSION=3.9
+    os: linux
+  - name: "Python 3.10 - linux"
+    env: PYTHON_VERSION=3.10
     os: linux
   - name: "Lint"
     env: PYTHON_VERSION=3.8

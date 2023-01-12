@@ -8,7 +8,6 @@ import sys
 import setuptools
 
 PACKAGE_NAME = "cqkit"
-MINIMUM_PYTHON_VERSION = "3.6"
 
 loc = os.path.abspath(os.path.dirname(__file__))
 
@@ -37,12 +36,6 @@ for line in requirements:
         required.append(line)
 
 
-def check_python_version():
-    """Exit when the Python version is too low."""
-    if sys.version < MINIMUM_PYTHON_VERSION:
-        sys.exit("Python {0}+ is required.".format(MINIMUM_PYTHON_VERSION))
-
-
 def read_package_variable(key, filename="__init__.py"):
     """Read the value of a variable from the package without importing."""
     module_path = os.path.join(PACKAGE_NAME, filename)
@@ -65,8 +58,6 @@ def build_description():
         return readme + "\n" + changelog
 
 
-check_python_version()
-
 setuptools.setup(
     name=read_package_variable("__project__"),
     version=read_package_variable("__version__"),
@@ -74,6 +65,7 @@ setuptools.setup(
     url="https://github.com/michaelgale/cq-kit",
     author="Michael Gale",
     author_email="michael@fxbricks.com",
+    python_requires=">=3.8",
     packages=setuptools.find_packages(),
     long_description=build_description(),
     long_description_content_type="text/markdown",
@@ -82,7 +74,7 @@ setuptools.setup(
         "Development Status :: 3 - Alpha",
         "Natural Language :: English",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.8",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
     ],

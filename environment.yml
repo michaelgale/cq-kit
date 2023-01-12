@@ -4,22 +4,25 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python>=3.6
+  - python>=3.8
   - ipython
-  - ocp>=7.5.1
+  - numpy=1.23
+  - ocp>=7.6.*
   - pyparsing>=2.1.9
-  - sphinx=3.2.1
+  - sphinx=5.0.1
   - sphinx_rtd_theme
   - sphinx-autodoc-typehints
   - black=19.10b0
   - codecov
+  - click=8.0.4
   - pytest
   - pytest-cov
   - ezdxf
   - ipython
   - typing_extensions
-  - nptyping
+  - nptyping=2.0.1
   - pip
   - pip:
     - "--editable=."
     - sphinxcadquery
+    - multimethod>=1.7,<2.0

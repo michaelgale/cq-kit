@@ -3,7 +3,7 @@
 # CQ-Kit
 
 ![https://pypi.org/project/cqkit/](https://img.shields.io/pypi/v/cqkit.svg)
-![python version](https://img.shields.io/static/v1?label=python&message=3.6%2B&color=blue&style=flat&logo=python)
+![python version](https://img.shields.io/static/v1?label=python&message=3.8%2B&color=blue&style=flat&logo=python)
 ![https://github.com/CadQuery/cadquery](https://img.shields.io/static/v1?label=dependencies&message=CadQuery%202.0%2B&color=blue&style=flat)
 ![https://github.com/michaelgale/cq-kit/blob/master/LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
@@ -48,7 +48,7 @@ If you want to create a fresh anaconda environment with **CadQuery** and **CQ-Ki
   $ python setup.py install
  ```
 
- Substitute your desired python `$VERSION` with 3.6, 3.7, or 3.8 and optionally replace `$MY_NAME` with a different desired environment name than the default of `cadquery` specified in `environment.yml`.
+ Substitute your desired python `$VERSION` with 3.8, 3.9, or 3.10 and optionally replace `$MY_NAME` with a different desired environment name than the default of `cadquery` specified in `environment.yml`.
 
 ## Basic Usage
 
@@ -417,6 +417,7 @@ es = SharedVerticesWithObjectSelector(face1)
 ## Releases
 
 v.0.4.0 - First release on PyPI
+v.0.5.0 - Update requires python v.3.8+ and OCP v.7.6+ CadQuery 2.1+
 
 ## Authors
 
