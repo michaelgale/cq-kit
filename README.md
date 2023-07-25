@@ -15,7 +15,7 @@
 
 This repository contains utility classes and functions to extend the features and capabilities of the [CadQuery](https://github.com/CadQuery/cadquery) python library.  CadQuery is a python module designed to build parametric 3D CAD models. Since CadQuery is based on python, you can develop a very capable scripted software stack to build 3D models and produce all of the various asset files used for design, prototyping, documentation and manufacturing.  An example use case is how [Fx Bricks](https://fxbricks.com) makes hobby products and is [described here](https://github.com/fx-bricks/fx-cad-notes).
 
-  **CQ-Kit** is designed be easily included as a companion module to CadQuery and extends its functionality in these key areas:
+  **CQ-Kit** is designed to be easily included as a companion module to CadQuery and extends its functionality in these key areas:
 
 - File I/O for import and export to various CAD and graphic file formats (including STEP, IGES, STL, LDraw)
 - Additional `Selector` classes to extend CadQuery's powerful entity selection, filtering, and logic
@@ -97,9 +97,9 @@ CQ-Kit adds some convenient file import and export functions to a few supported 
         P-Curve entities to the STEP file.  This can often double the size of the
         resulting STEP file.  Turning off P-Curves can save file size and almost
         never impacts the quality of the STEP file.
-   - **Precision Mode** - The precision mode parameter coresponds to the OCCT STEP file precision
+   - **Precision Mode** - The precision mode parameter corresponds to the OCCT STEP file precision
         for writing geometric data.  The default value of 1 for maximum precision
-        is used by can be changed if desired.
+        is used, but can be changed if desired.
    - **Enhanced Meta Data** - Adding rich meta data to the STEP file allows for better identification
         of the geometric entity when imported into other applications.  It also
         allows information about the author, organization, copyright, etc. to be
