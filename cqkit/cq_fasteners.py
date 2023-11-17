@@ -157,7 +157,6 @@ class CQNut:
             )
 
     def render(self):
-
         pts = get_cross_section_points(6, self.diameter)
         r = cq.Workplane("XY").polyline(pts).close().extrude(self.height)
         cone_height = ((self.diameter / 2) - self.chamfer) + self.height

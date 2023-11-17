@@ -4,7 +4,7 @@ import os
 
 # fmt: off
 __project__ = 'cqkit'
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 # fmt: on
 
 VERSION = __project__ + "-" + __version__
@@ -29,6 +29,17 @@ def DEGREES(r):
 
 
 from .cq_discrete import discretize_all_edges, discretize_edge, triangle_mesh_solid
+from .cq_helpers import (
+    multi_extrude,
+    extrude_xsection,
+    bounds_2d,
+    bounds_3d,
+    centre_3d,
+    rotate_x,
+    rotate_y,
+    rotate_z,
+    recentre,
+)
 from .cq_fasteners import CQNut, CQWasher
 from .cq_files import (
     StepFileExporter,

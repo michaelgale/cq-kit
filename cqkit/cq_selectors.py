@@ -44,7 +44,7 @@ valid_objects = [
 
 
 def is_valid_edge(obj):
-    """ Validates object is an Edge and is a valid edge type """
+    """Validates object is an Edge and is a valid edge type"""
     if type(obj) == Edge:
         obj_type = obj.geomType().upper()
         if obj_type in valid_objects:
@@ -67,7 +67,7 @@ def is_valid_edge(obj):
 
 
 def object_edges_ends(objs):
-    """ Generator which returns valid edges with their end points"""
+    """Generator which returns valid edges with their end points"""
     for o in objs:
         if is_valid_edge(o):
             p0, p1 = end_points(o)
@@ -85,21 +85,21 @@ def object_vertices(objs, obj_type=None):
 
 
 def object_edges_lengths(objs):
-    """ Generator which returns edge objects and their lengths """
+    """Generator which returns edge objects and their lengths"""
     for o in objs:
         if is_valid_edge(o):
             yield o, edge_length(o)
 
 
 def object_wires_lengths(objs):
-    """ Generator which returns wire objects and their lengths """
+    """Generator which returns wire objects and their lengths"""
     for o in objs:
         if type(o) == Wire:
             yield o, wire_length(o)
 
 
 def object_edges_radius(objs):
-    """ Generator which returns circle edge objects and their radius """
+    """Generator which returns circle edge objects and their radius"""
     for o in objs:
         if type(o) == Edge and o.geomType().upper() == "CIRCLE":
             circle = o._geomAdaptor().Circle()
@@ -107,7 +107,7 @@ def object_edges_radius(objs):
 
 
 def valid_faces(objs):
-    """ Generator which returns valid Face objects which are PLANE types"""
+    """Generator which returns valid Face objects which are PLANE types"""
     for o in objs:
         if type(o) == Face and o.geomType().upper() == "PLANE":
             yield o
@@ -261,7 +261,7 @@ class LengthSelector(Selector):
 
 
 class EdgeLengthSelector(LengthSelector):
-    """ A LengthSelector class which filters edges by length """
+    """A LengthSelector class which filters edges by length"""
 
     def __init__(self, lengths=None, tolerance=0.1):
         super().__init__(lengths=lengths, tolerance=tolerance)
@@ -275,7 +275,7 @@ class EdgeLengthSelector(LengthSelector):
 
 
 class WireLengthSelector(LengthSelector):
-    """ A LengthSelector class which filters wires by length """
+    """A LengthSelector class which filters wires by length"""
 
     def __init__(self, lengths=None, tolerance=0.1):
         super().__init__(lengths=lengths, tolerance=tolerance)
@@ -289,7 +289,7 @@ class WireLengthSelector(LengthSelector):
 
 
 class RadiusSelector(LengthSelector):
-    """ A LengthSelector class which filters circles by radius """
+    """A LengthSelector class which filters circles by radius"""
 
     def __init__(self, radii=None, tolerance=0.1):
         super().__init__(lengths=radii, tolerance=tolerance)
@@ -303,7 +303,7 @@ class RadiusSelector(LengthSelector):
 
 
 class DiameterSelector(LengthSelector):
-    """ A LengthSelector class which filters circles by diameter """
+    """A LengthSelector class which filters circles by diameter"""
 
     def __init__(self, diameters=None, tolerance=0.1):
         super().__init__(lengths=diameters, tolerance=tolerance)
@@ -317,26 +317,25 @@ class DiameterSelector(LengthSelector):
 
 
 class AreaSelector(Selector):
-    """ A CQ Selector class which filters objects by their area """
+    """A CQ Selector class which filters objects by their area"""
 
     pass
 
 
 class ObjectCountSelector(Selector):
-    """ A CQ Selector class which filters objects by the count of its properties """
+    """A CQ Selector class which filters objects by the count of its properties"""
 
     def __init__(self, counts):
         self.counts = counts
 
 
 class VertexCountSelector(ObjectCountSelector):
-    """ An ObjectCountSelector class which filters objects by the number of vertices """
+    """An ObjectCountSelector class which filters objects by the number of vertices"""
 
     def __init__(self, counts):
         super().__init__(counts=counts)
 
     def filter(self, objectList):
-
         r = []
         for o, vertices in object_vertices(objectList):
             if is_valid_length(len(vertices), self.counts, tolerance=0.1):
@@ -345,7 +344,7 @@ class VertexCountSelector(ObjectCountSelector):
 
 
 class EdgeCountSelector(ObjectCountSelector):
-    """ An ObjectCountSelector class which filters objects by the number of edges """
+    """An ObjectCountSelector class which filters objects by the number of edges"""
 
     def __init__(self, counts):
         super().__init__(counts=counts)
@@ -360,7 +359,7 @@ class EdgeCountSelector(ObjectCountSelector):
 
 
 class WireCountSelector(ObjectCountSelector):
-    """ An ObjectCountSelector class which filters objects by the number of edges """
+    """An ObjectCountSelector class which filters objects by the number of edges"""
 
     def __init__(self, counts):
         super().__init__(counts=counts)
@@ -375,7 +374,7 @@ class WireCountSelector(ObjectCountSelector):
 
 
 class FaceCountSelector(ObjectCountSelector):
-    """ An ObjectCountSelector class which filters objects by the number of faces """
+    """An ObjectCountSelector class which filters objects by the number of faces"""
 
     def __init__(self, counts):
         super().__init__(counts=counts)
@@ -494,7 +493,7 @@ class FlatSelector(Selector):
 
 
 class FlatEdgeSelector(FlatSelector):
-    """ A FlatSelector class which filters edges """
+    """A FlatSelector class which filters edges"""
 
     def __init__(self, at_heights=None, tolerance=0.1):
         super().__init__(at_heights=at_heights, tolerance=tolerance)
@@ -504,7 +503,7 @@ class FlatEdgeSelector(FlatSelector):
 
 
 class FlatWireSelector(FlatSelector):
-    """ A FlatSelector class which filters wires """
+    """A FlatSelector class which filters wires"""
 
     def __init__(self, at_heights=None, tolerance=0.1):
         super().__init__(at_heights=at_heights, tolerance=tolerance)
@@ -514,7 +513,7 @@ class FlatWireSelector(FlatSelector):
 
 
 class FlatFaceSelector(FlatSelector):
-    """ A FlatSelector class which filters faces """
+    """A FlatSelector class which filters faces"""
 
     def __init__(self, at_heights=None, tolerance=0.1):
         super().__init__(at_heights=at_heights, tolerance=tolerance)
@@ -673,7 +672,7 @@ class RotatedBoxSelector(Selector):
 
 
 def get_box_selector(pt=(0, 0, 0), dp=(1, 1, 1)):
-    """ Makes a CQ selector object which is simply a cube in space """
+    """Makes a CQ selector object which is simply a cube in space"""
     pX, pY, pZ = pt[0], pt[1], pt[2]
     dX, dY, dZ = dp[0], dp[1], dp[2]
 
@@ -704,7 +703,7 @@ def get_box_selector_array(pts, dp=(1, 1, 1)):
 
 
 def print_edges(e, summary=False):
-    """ A utility function which pretty prints a list of edges sorted by length """
+    """A utility function which pretty prints a list of edges sorted by length"""
     i = 1
     if not isinstance(e, list):
         en = e.vals()

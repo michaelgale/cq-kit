@@ -84,7 +84,7 @@ def _rows_multiplication(r1, r2):
 
 
 class Matrix(object):
-    """ a transformation matrix """
+    """a transformation matrix"""
 
     def __init__(self, rows):
         self.rows = rows
@@ -127,11 +127,11 @@ class Matrix(object):
             raise MatrixError
 
     def copy(self):
-        """ make a copy of this matrix """
+        """make a copy of this matrix"""
         return Matrix(copy.deepcopy(self.rows))
 
     def rotate(self, angle, axis, units=Degrees):
-        """ rotate the matrix by an angle around an axis """
+        """rotate the matrix by an angle around an axis"""
         if units == Degrees:
             c = math.cos(angle / 180.0 * math.pi)
             s = math.sin(angle / 180.0 * math.pi)
@@ -149,11 +149,11 @@ class Matrix(object):
         return self * rotation
 
     def scale(self, sx, sy, sz):
-        """ scale the matrix by a number"""
+        """scale the matrix by a number"""
         return Matrix([[sx, 0, 0], [0, sy, 0], [0, 0, sz]]) * self
 
     def transpose(self):
-        """ transpose """
+        """transpose"""
         r = self.rows
         return Matrix(
             [
@@ -164,7 +164,7 @@ class Matrix(object):
         )
 
     def det(self):
-        """ determinant of the matrix """
+        """determinant of the matrix"""
         r = self.rows
         terms = [
             r[0][0] * (r[1][1] * r[2][2] - r[1][2] * r[2][1]),
@@ -174,11 +174,11 @@ class Matrix(object):
         return sum(terms)
 
     def flatten(self):
-        """ flatten the matrix """
+        """flatten the matrix"""
         return tuple(reduce(lambda x, y: x + y, self.rows))
 
     def fix_diagonal(self):
-        """ Some applications do not like matrices with zero diagonal elements. """
+        """Some applications do not like matrices with zero diagonal elements."""
         corrected = False
         for i in range(3):
             if self.rows[i][i] == 0.0:
@@ -193,12 +193,12 @@ class Matrix(object):
 
 
 def Identity():
-    """ a transformation matrix representing Identity """
+    """a transformation matrix representing Identity"""
     return Matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
 
 
 class Vector(object):
-    """ a Vector in 3D"""
+    """a Vector in 3D"""
 
     def __init__(self, x, y=None, z=None):
         if isinstance(x, tuple):
@@ -256,7 +256,7 @@ class Vector(object):
         return self.x == other.x and self.y == other.y and self.z == other.z
 
     def __abs__(self):
-        return (self.x ** 2 + self.y ** 2 + self.z ** 2) ** 0.5
+        return (self.x**2 + self.y**2 + self.z**2) ** 0.5
 
     def __rmul__(self, other):
         if isinstance(other, Number):
@@ -279,7 +279,7 @@ class Vector(object):
         return Vector(self.x, self.y, self.z)
 
     def cross(self, other):
-        """ cross product """
+        """cross product"""
         return Vector(
             self.y * other.z - self.z * other.y,
             self.z * other.x - self.x * other.z,
@@ -287,11 +287,11 @@ class Vector(object):
         )
 
     def dot(self, other):
-        """ dot product"""
+        """dot product"""
         return self.x * other.x + self.y * other.y + self.z * other.z
 
     def norm(self):
-        """ normalized """
+        """normalized"""
         _length = abs(self)
         self.x = self.x / _length
         self.y = self.y / _length
@@ -332,7 +332,7 @@ class Vector(object):
 
 
 class Vector2D(object):
-    """ a Vector in 2D """
+    """a Vector in 2D"""
 
     def __init__(self, x, y):
         self.x, self.y = x, y
@@ -374,7 +374,7 @@ class Vector2D(object):
         return self.x != other.x or self.y != other.y
 
     def __abs__(self):
-        return (self.x ** 2 + self.y ** 2) ** 0.5
+        return (self.x**2 + self.y**2) ** 0.5
 
     def __rmul__(self, other):
         if isinstance(other, Number):
@@ -395,7 +395,7 @@ class Vector2D(object):
         return Vector2D(self.x, self.y)
 
     def dot(self, other):
-        """ dot product """
+        """dot product"""
         return self.x * other.x + self.y * other.y
 
 
@@ -459,7 +459,7 @@ class Point:
             return "(%s %s)" % (self.x, self.y)
 
     def length(self):
-        return math.sqrt(self.x ** 2 + self.y ** 2)
+        return math.sqrt(self.x**2 + self.y**2)
 
     def distance_to(self, p):
         """Calculate the distance between two points."""
@@ -551,7 +551,7 @@ class Point:
 
 
 class Size:
-    """ Container class for 2D sizes """
+    """Container class for 2D sizes"""
 
     def __init__(self, width=0, height=0):
         self.width = width
@@ -565,7 +565,7 @@ class Size:
 
 
 class Rect:
-    """ 2D Rectangle class """
+    """2D Rectangle class"""
 
     def __init__(self, width=2.0, height=2.0, bottomUp=False):
         self.bottom_up = bottomUp
@@ -769,7 +769,6 @@ def GetBoundingRect(length, width, angle):
 
 
 def GetFinalPoint(startPoint, segments, startAngle=0.0):
-
     currentPoint = startPoint
     currentAngle = startAngle
 
@@ -800,7 +799,6 @@ def GetFinalPoint(startPoint, segments, startAngle=0.0):
 
 
 def GetBestRectMetrics(fromWidth, fromHeight, inWidth, inHeight):
-
     if fromWidth > fromHeight:
         bestWidth = inWidth
         bestHeight = inWidth * fromHeight / fromWidth
@@ -816,7 +814,7 @@ class RadialPoint:
     A specialized class for computing symmetrically offset points
     on a circle at a specified angluar offset.  The point on the circle
     is called 'mid', the point inside the circle is 'inner' and the point
-    outside the cirucle is 'outer' as referred to by the methods 'mid_xy', etc.
+    outside the circle is 'outer' as referred to by the methods 'mid_xy', etc.
 
     The points are returned re-centred to the origin.  That is, a 'mid' point
     at angle=0 deg and radius=R is returned at (0, 0).  At angle 45, it would
@@ -1018,7 +1016,7 @@ def PrintPointsInDict(dict):
 
 
 def points2d_at_height(pts, height):
-    """ Returns a list of 2D point tuples as 3D tuples at height"""
+    """Returns a list of 2D point tuples as 3D tuples at height"""
     if isinstance(pts, tuple):
         if len(pts) == 2:
             return [(*pts, height)]
@@ -1063,13 +1061,13 @@ def end_points(obj):
 
 
 def edge_length(edge):
-    """ Returns the length of an edge """
+    """Returns the length of an edge"""
     p0, p1 = end_points(edge)
     return abs(p1 - p0)
 
 
 def wire_length(wire):
-    """ Returns the length of a wire by summing all of its edge lengths """
+    """Returns the length of a wire by summing all of its edge lengths"""
     length = 0
     edges = wire.Edges()
     for e in edges:
@@ -1088,5 +1086,5 @@ def is_same_edge(e0, e1, tolerance):
 
 
 def vertices_to_tuples(vpts):
-    """ Returns list of vertex tuples from a list of Vertex objects """
+    """Returns list of vertex tuples from a list of Vertex objects"""
     return [pt.toTuple() for pt in vpts]

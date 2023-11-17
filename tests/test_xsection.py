@@ -25,6 +25,19 @@ round_pts = [
 ]
 
 
+def _almost_same(x, y, tol=1e-3):
+    if isinstance(x, (list, tuple)):
+        return all((abs(xe - ye) < tol for xe, ye in zip(x, y)))
+    return abs(x - y) < tol
+
+
+def _pts_contains(pt, pts):
+    for p in pts:
+        if _almost_same(pt, p):
+            return True
+    return False
+
+
 def test_xsection_init():
     xc = XSection()
     pts = xc.get_points()
@@ -40,7 +53,6 @@ def test_xsection_init():
 
 
 def test_xsection_geometry():
-
     xc = XSection(triangle_pts, "XZ", symmetric=False)
     pts = xc.get_points()
     assert (0, 3) in pts
@@ -81,7 +93,6 @@ def test_xsection_geometry():
 
 
 def test_xsection_outline():
-
     xc = XSection(triangle_pts, "XZ", symmetric=True, mirror_axis="Z")
     pts = xc.get_points()
 
@@ -96,10 +107,10 @@ def test_xsection_outline():
     assert len(edges) == 4
     pts = r.vertices().vals()
     tpts = vertices_to_tuples(pts)
-    assert (-1, 0, 0) in tpts
-    assert (-1, 0, 3) in tpts
-    assert (1, 0, 3) in tpts
-    assert (1, 0, 0) in tpts
+    assert _pts_contains((-1, 0, 0), tpts)
+    assert _pts_contains((-1, 0, 3), tpts)
+    assert _pts_contains((1, 0, 3), tpts)
+    assert _pts_contains((1, 0, 0), tpts)
 
     r = xc.get_bounding_rect()
     assert r.left == -1
@@ -111,7 +122,6 @@ def test_xsection_outline():
 
 
 def test_xsection_solid():
-
     xc = XSection(triangle_pts, "XZ", symmetric=True, mirror_axis="Z")
     r = xc.render().extrude(7)
 
@@ -122,10 +132,10 @@ def test_xsection_solid():
     vtx = r.vertices().vals()
     tpts = vertices_to_tuples(vtx)
 
-    assert (1, -7, 0) in tpts
-    assert (-1, 0, 0) in tpts
-    assert (-1, -7, 0) in tpts
-    assert (0, -7, 3) in tpts
+    assert _pts_contains((1, -7, 0), tpts)
+    assert _pts_contains((-1, 0, 0), tpts)
+    assert _pts_contains((-1, -7, 0), tpts)
+    assert _pts_contains((0, -7, 3), tpts)
 
     xc = XSection(triangle_pts, "XZ", symmetric=True, mirror_axis="Z")
     r = xc.render().extrude(-7)
@@ -137,7 +147,7 @@ def test_xsection_solid():
     vtx = r.vertices().vals()
     tpts = vertices_to_tuples(vtx)
 
-    assert (1, 7, 0) in tpts
-    assert (-1, 0, 0) in tpts
-    assert (-1, 7, 0) in tpts
-    assert (0, 7, 3) in tpts
+    assert _pts_contains((1, 7, 0), tpts)
+    assert _pts_contains((-1, 0, 0), tpts)
+    assert _pts_contains((-1, 7, 0), tpts)
+    assert _pts_contains((0, 7, 3), tpts)

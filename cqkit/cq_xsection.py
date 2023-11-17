@@ -101,7 +101,7 @@ class XSection(object):
         return "\n".join(s)
 
     def _pt_tuple(self, pt, scale=(1, 1), offset=(0, 0)):
-        """ Extracts a tuple point from a dictionary or tuple point """
+        """Extracts a tuple point from a dictionary or tuple point"""
         if isinstance(pt, dict):
             if "radiusArc" in pt:
                 xp = (
@@ -119,7 +119,7 @@ class XSection(object):
             return (pt[0] * scale[0] + offset[0], pt[1] * scale[1] + offset[1])
 
     def _transform_pt(self, pt, scale, offset=(0, 0), flip=False):
-        """ Converts a dictionary described point or tuple point to a tuple point. """
+        """Converts a dictionary described point or tuple point to a tuple point."""
         if isinstance(pt, dict):
             if "radiusArc" in pt:
                 radius = pt["radiusArc"][1]
@@ -133,7 +133,7 @@ class XSection(object):
             return (pt[0] * scale[0] + offset[0], pt[1] * scale[1] + offset[1])
 
     def _replace_tuple(self, pt, pt_tuple):
-        """ Replaces a point tuple in a dictionary or point tuple. """
+        """Replaces a point tuple in a dictionary or point tuple."""
         if isinstance(pt, dict):
             if "radiusArc" in pt:
                 return {"radiusArc": (pt_tuple, pt["radiusArc"][1])}
@@ -143,7 +143,7 @@ class XSection(object):
             return pt_tuple
 
     def _mirror_pt(self, pt):
-        """ Mirrors a point about the mirror_axis. """
+        """Mirrors a point about the mirror_axis."""
         if self.mirror_axis == self.workplane[0]:
             new_pt = self._transform_pt(pt, (1, -1))
         else:

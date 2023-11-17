@@ -24,18 +24,6 @@
 # Discrete Geometry Utilities
 
 try:
-    from OCC.Core.BRep import BRep_Tool
-    from OCC.Core.BRepAdaptor import BRepAdaptor_Curve
-    from OCC.Core.BRepLProp import BRepLProp_CLProps
-    from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
-    from OCC.Core.GCPnts import GCPnts_AbscissaPoint, GCPnts_QuasiUniformAbscissa
-    from OCC.Core.gp import gp_Dir
-    from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_VERTEX
-    from OCC.Core.TopExp import TopExp_Explorer
-    from OCC.Core.TopLoc import TopLoc_Location
-    from OCC.Core.TopoDS import TopoDS_Face, TopoDS_Iterator, TopoDS_Vertex
-
-except:
     from OCP.BRep import BRep_Tool
     from OCP.BRepAdaptor import BRepAdaptor_Curve
     from OCP.BRepLProp import BRepLProp_CLProps
@@ -49,6 +37,19 @@ except:
 
     BRep_Tool.Triangulation = BRep_Tool.Triangulation_s
     GCPnts_AbscissaPoint.Length = GCPnts_AbscissaPoint.Length_s
+
+except:
+    from OCC.Core.BRep import BRep_Tool
+    from OCC.Core.BRepAdaptor import BRepAdaptor_Curve
+    from OCC.Core.BRepLProp import BRepLProp_CLProps
+    from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
+    from OCC.Core.GCPnts import GCPnts_AbscissaPoint, GCPnts_QuasiUniformAbscissa
+    from OCC.Core.gp import gp_Dir
+    from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_VERTEX
+    from OCC.Core.TopExp import TopExp_Explorer
+    from OCC.Core.TopLoc import TopLoc_Location
+    from OCC.Core.TopoDS import TopoDS_Face, TopoDS_Iterator, TopoDS_Vertex
+
 
 import cadquery as cq
 from cadquery import *

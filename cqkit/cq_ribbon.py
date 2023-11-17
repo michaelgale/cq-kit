@@ -61,6 +61,9 @@ class Ribbon:
             ("arc", {"radius": 0.5, "angle": -170}),
             ("line", {"length": 3}),
         ]
+    path = { "start": {"position": (10.0, 0.0), "direction": 30.0, "width": 0.5 }},
+             "path": "L 2.0 R2,A145 L2 R0.5,A170 L3"
+           }
 
     Arguments:
     :param workplane : CadQuery workplane object identifier, e.g. "XY"

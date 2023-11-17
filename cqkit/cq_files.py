@@ -142,14 +142,14 @@ def replace_delimited_floats(x, token, subtoken, tolerance):
 
 
 def better_float_line(x, tolerance):
-    """ replaces a line / string group of floating point values """
+    """replaces a line / string group of floating point values"""
     s = replace_delimited_floats(x, "(", ",", tolerance=tolerance)
     s = replace_delimited_floats(s, ")", ",", tolerance=tolerance)
     return s
 
 
 class LineToken(Enum):
-    """ A simple class representing STEP file tokens useful for parsing """
+    """A simple class representing STEP file tokens useful for parsing"""
 
     # tokens in the DATA section
     PRODUCT = 1
@@ -317,7 +317,7 @@ class StepFileExporter:
         self._flines = []
 
     def export(self):
-        """ Export shape object to STEP file """
+        """Export shape object to STEP file"""
         writer = STEPControl_Writer()
         pcurves = 1 if self.write_pcurves else 0
         Interface_Static_SetIVal("write.surfacecurve.mode", pcurves)
@@ -329,7 +329,7 @@ class StepFileExporter:
             self._final_export()
 
     def _find_header_tokens(self):
-        """ fill a local dictionary with line locations of important file tokens """
+        """fill a local dictionary with line locations of important file tokens"""
         with open(self.filename, "r") as fp:
             self._flines = fp.readlines()
         self._filemap = {}
@@ -341,7 +341,7 @@ class StepFileExporter:
                     break
 
     def _fill_header(self, lines):
-        """ fill a list of lines representing the STEP file header section """
+        """fill a list of lines representing the STEP file header section"""
         descstr = ""
         schemastr = ""
         for i in range(self._filemap[LineToken.ENDSEC]):
@@ -476,12 +476,12 @@ def export_step_file(shape, filename, title=None, author=None, organization=None
 
 
 def import_step_file(filename):
-    """ Imports a STEP file as a new CQ Workplane object. """
+    """Imports a STEP file as a new CQ Workplane object."""
     return cq.occ_impl.importers.importStep(filename)
 
 
 def export_iges_file(shape, filename, author=None, organization=None):
-    """ Exports a shape to an IGES file.  """
+    """Exports a shape to an IGES file."""
     # initialize iges writer in BRep mode
     writer = IGESControl_Writer("MM", 1)
     Interface_Static_SetIVal("write.iges.brep.mode", 1)
@@ -515,11 +515,15 @@ def import_iges_file(filename):
     return cq.Workplane("XY").newObject(solids)
 
 
-def export_stl_file(shape, filename, tolerance=1e-4):
+def export_stl_file(
+    shape, filename, tolerance=1e-3, ang_tolerance=0.1, relative=True, parallel=True
+):
     """Exports a shape to a STL mesh file.  The mesh is automatically
     computed prior to export and the resolution/tolerance of the mesh
     can optionally be changed from the default of 1e-4"""
-    mesh = BRepMesh_IncrementalMesh(shape.val().wrapped, tolerance, True)
+    mesh = BRepMesh_IncrementalMesh(
+        shape.val().wrapped, tolerance, relative, ang_tolerance, parallel
+    )
     mesh.Perform()
     writer = StlAPI_Writer()
     writer.Write(shape.val().wrapped, filename)
