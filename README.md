@@ -418,6 +418,7 @@ es = SharedVerticesWithObjectSelector(face1)
 
 - v.0.4.0 - First release on PyPI
 - v.0.5.0 - Update requires python v.3.8+ and OCP v.7.6+ CadQuery 2.1+
+- v.0.5.3 - Updated with new helpers and updated setup.py
 
 
 ## Authors
