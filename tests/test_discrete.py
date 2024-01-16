@@ -6,8 +6,6 @@ import os.path
 import sys
 from math import pi
 
-import pytest
-
 # my modules
 from cadquery import *
 

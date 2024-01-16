@@ -4,7 +4,7 @@ import os
 
 # fmt: off
 __project__ = 'cqkit'
-__version__ = '0.5.3'
+__version__ = '0.5.4'
 # fmt: on
 
 VERSION = __project__ + "-" + __version__
@@ -32,8 +32,13 @@ from .cq_discrete import discretize_all_edges, discretize_edge, triangle_mesh_so
 from .cq_helpers import (
     multi_extrude,
     extrude_xsection,
+    multi_section_extrude,
+    composite_from_pts,
+    size_2d,
+    size_3d,
     bounds_2d,
     bounds_3d,
+    empty_BoundBox,
     centre_3d,
     rotate_x,
     rotate_y,
@@ -54,4 +59,5 @@ from .cq_pprint import obj_str, pprint_obj
 from .cq_ribbon import Ribbon
 from .cq_selectors import *
 from .cq_xsection import XSection
+from .cq_layout import SolidLayoutArranger
 from .refdim import NUT_METRIC, NUT_US, WASHER_METRIC, WASHER_SAE, WASHER_USS

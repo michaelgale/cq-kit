@@ -23,8 +23,12 @@
 #
 # Misc. helper functions
 
+from math import atan2, degrees, cos, radians
+
 import cadquery as cq
 from cadquery import *
+
+from cqkit.cq_selectors import HasCoordinateSelector
 
 
 def multi_extrude(obj, levels, face=">Z"):
@@ -37,6 +41,166 @@ def multi_extrude(obj, levels, face=">Z"):
         else:
             obj = obj.faces(face).wires().toPending().extrude(level)
     return obj
+
+
+def multi_section_extrude(sections, workplane="XY", tol=0):
+    """Extrude arbitrary cross-sectional shapes into one solid.
+    The solid is described in sections, where each section is
+    described a compact string specification. The vocabulary for the
+    section includes:
+    1 or more of:
+      rect {length} {width}
+      circle {rad} or circle /{diam}
+      poly {sides} {diam}
+    each followed by a:
+      +/-{height}
+    optional:
+      <{rad} chamfer starting face
+      >{rad} chamfer ending face
+      ({rad} fillet starting face
+      ){rad} fillet ending face
+      <<{rad} chamfer joint at start face with the previous section
+      (({rad} fillet as above
+      >>{rad} chamfer joint at end face with the next section
+      )){rad} fillet as above
+      |>{rad} chamfer edges co-linear with extrusion
+      |){rad} fillet edges co-linear with extrusion
+    e.g.
+      conical section from diameter 5 to 1, height 3:
+        circle /5 +3 circle /1
+      rectangular section 2x3, height 5, 0.25 chamfer start, 0.5 fillet edges:
+        <0.25 rect 2 3 +5 |)0.5
+    """
+
+    def _token_val(token, el, tol=0):
+        return float(el.replace(token, "")) + tol
+
+    if "X" in workplane and "Y" in workplane:
+        face = "Z"
+    elif "X" in workplane and "Z" in workplane:
+        face = "Y"
+    else:
+        face = "X"
+    r = None
+    h_total = 0
+    chamfers = {}
+    fillets = {}
+    for idx, section in enumerate(sections):
+        sp = section.split()
+        faces = []
+        heights = []
+        mods = []
+        mod_tok = "|> |) > < ( )"
+        i = 0
+        # parse the tokenized string for this section
+        while i < len(sp):
+            e = sp[i]
+            if "+" in e:
+                h = _token_val("+", e)
+                if face == "Y":
+                    h = -h
+                heights.append(h)
+            elif "-" in e:
+                h = _token_val("-", e)
+                if face == "Y":
+                    h = -h
+                heights.append(h)
+            # chamfers and fillets at section joints
+            elif ">>" in e:
+                chamfers[idx + 1] = _token_val(">>", e)
+            elif "))" in e:
+                fillets[idx + 1] = _token_val("))", e)
+            elif "<<" in e:
+                chamfers[idx] = _token_val("<<", e)
+            elif "((" in e:
+                fillets[idx] = _token_val("((", e)
+            # chamfers and fillets isolated to this section only
+            else:
+                for t in mod_tok.split():
+                    if t in e:
+                        mods.append((t, _token_val(t, e, tol)))
+                        break
+
+            # capture faces described in this section
+            if e == "rect":
+                l, w = float(sp[i + 1]) + 2 * tol, float(sp[i + 2]) + 2 * tol
+                faces.append(("rect", l, w))
+                i += 3
+            elif e == "circle":
+                if "/" in sp[i + 1]:
+                    rad = float(sp[i + 1].replace("/", "")) / 2 + tol
+                else:
+                    rad = float(sp[i + 1]) + tol
+                faces.append(("circle", rad))
+                i += 2
+            elif e.startswith("poly"):
+                sides = int(sp[i + 1])
+                diam = float(sp[i + 2]) + 2 * tol
+                faces.append(("poly", sides, diam))
+                i += 3
+            else:
+                i += 1
+        # tolerance along the extruded axis is only added to
+        # first and last segments
+        tf = -tol if face == "Y" else tol
+        if idx == 0:
+            heights[0] = heights[0] + tf
+        elif idx == len(sections) - 1:
+            heights[-1] = heights[-1] + tf
+
+        # build the solid described in this section
+        rs = cq.Workplane(workplane)
+        for i, f in enumerate(faces):
+            if f[0] == "rect":
+                rs = rs.rect(f[1], f[2])
+            elif f[0] == "circle":
+                rs = rs.circle(f[1])
+            elif f[0] == "poly":
+                rs = rs.polygon(f[1], f[2])
+            if i < len(faces) - 1 and len(faces) > 1:
+                rs = rs.workplane(offset=heights[i])
+            elif i == 0 and len(faces) == 1:
+                rs = rs.extrude(heights[i])
+            elif i == len(faces) - 1:
+                rs = rs.loft(ruled=True)
+
+        # apply local chamfers and fillets
+        # apply from largest to smallest radius
+        mods = sorted(mods, key=lambda x: x[1], reverse=True)
+        for mod in mods:
+            if mod[0] == "<":
+                rs = rs.edges("<%s" % face).chamfer(mod[1])
+            elif mod[0] == ">":
+                rs = rs.edges(">%s" % face).chamfer(mod[1])
+            elif mod[0] == "(":
+                rs = rs.edges("<%s" % face).fillet(mod[1])
+            elif mod[0] == ")":
+                rs = rs.edges(">%s" % face).fillet(mod[1])
+            elif mod[0] == "|>":
+                rs = rs.edges("not (|%s or |%s)" % (tuple(workplane))).chamfer(mod[1])
+            elif mod[0] == "|)":
+                rs = rs.edges("not (|%s or |%s)" % (tuple(workplane))).fillet(mod[1])
+        # append to the parent solid
+        hs = sum(heights)
+        if face == "Z":
+            rs = rs.translate((0, 0, h_total))
+        elif face == "Y":
+            rs = rs.translate((0, h_total, 0))
+            hs = -hs
+        else:
+            rs = rs.translate((h_total, 0, 0))
+        if r is None:
+            r = rs
+        else:
+            r = r.union(rs)
+        # apply chamfers and fillets at section joints
+        bs = HasCoordinateSelector(h_total, axis=face, all_points=True)
+        if idx in chamfers:
+            r = r.edges(bs).chamfer(chamfers[idx])
+        if idx in fillets:
+            r = r.edges(bs).fillet(fillets[idx])
+        h_total += hs
+    return r
 
 
 def extrude_xsection(obj, axis, extent, axis_offset=0, cut_only=False):
@@ -125,6 +289,18 @@ def bounds_3d(obj):
     s = obj.vals()[0]
     bb = s.BoundingBox()
     return (bb.xmin, bb.ymin, bb.zmin), (bb.xmax, bb.ymax, bb.zmax)
+
+
+def empty_BoundBox():
+    """Generates an empty CQ BoundBox instance. The implementation is a hack
+    since an instance of BoundBox must be instantiated from an existing object.
+    Therefore a dummy box is created to proxy a creation of BoundBox."""
+    r = cq.Workplane("XY").rect(1e-3, 1e-3).extrude(1e-3)
+    b = r.vals()[0].BoundingBox()
+    b.xmin, b.xmax, b.xlen = 0, 0, 0
+    b.ymin, b.ymax, b.ylen = 0, 0, 0
+    b.zmin, b.zmax, b.zlen = 0, 0, 0
+    return b
 
 
 def size_2d(obj):

@@ -184,12 +184,20 @@ def is_valid_length(length, length_constraints, tolerance):
 
 class HasCoordinateSelector(Selector):
     """A CQ Selector class which filters objects which have specified
-    values for a coordinate"""
+    values for a coordinate
+      min_points - the minimum vertices of an object that must conform to the filter
+      all_points - all vertices must conform
+      tolerance - matching tolerance for evaluating coordinate values
+    """
 
-    def __init__(self, coords=None, min_points=1, tolerance=0.1):
+    def __init__(
+        self, coords=None, min_points=1, tolerance=0.1, axis=None, all_points=False
+    ):
         self.coords = coords
         self.min_points = min_points
         self.tolerance = tolerance
+        self.axis = axis
+        self.all_points = all_points
 
     def count_matching_vertices(self, vertices, coord):
         if coord.upper() == "X":
@@ -205,48 +213,91 @@ class HasCoordinateSelector(Selector):
                 int(is_valid_length(v.Z, self.coords, self.tolerance)) for v in vertices
             )
 
+    def good_vertex_count(self, vertices, coord):
+        count = self.count_matching_vertices(vertices, coord)
+        if self.all_points:
+            # all vertices must conform
+            return count == len(vertices)
+        return count >= self.min_points
+
+    def filter(self, objectList):
+        r = []
+        if self.axis is None:
+            return r
+        for o, vertices in object_vertices(objectList):
+            if self.good_vertex_count(vertices, self.axis):
+                r.append(o)
+        return r
+
 
 class HasXCoordinateSelector(HasCoordinateSelector):
     """A CQ Selector class which filters edges which have specified values
-    for their X coordinate"""
+    for their X coordinate.
+      min_points - the minimum vertices of an object that must conform to the filter
+      all_points - all vertices must conform
+      tolerance - matching tolerance for evaluating coordinate values
+    """
 
-    def __init__(self, coords=None, min_points=1, tolerance=0.1):
-        super().__init__(coords=coords, min_points=min_points, tolerance=tolerance)
+    def __init__(self, coords=None, min_points=1, tolerance=0.1, all_points=False):
+        super().__init__(
+            coords=coords,
+            min_points=min_points,
+            tolerance=tolerance,
+            all_points=all_points,
+        )
 
     def filter(self, objectList):
         r = []
         for o, vertices in object_vertices(objectList):
-            if self.count_matching_vertices(vertices, "X") >= self.min_points:
+            if self.good_vertex_count(vertices, "X"):
                 r.append(o)
         return r
 
 
 class HasYCoordinateSelector(HasCoordinateSelector):
     """A CQ Selector class which filters edges which have specified values
-    for their Y coordinate"""
+    for their Y coordinate
+      min_points - the minimum vertices of an object that must conform to the filter
+      all_points - all vertices must conform
+      tolerance - matching tolerance for evaluating coordinate values
+    """
 
-    def __init__(self, coords=None, min_points=1, tolerance=0.1):
-        super().__init__(coords=coords, min_points=min_points, tolerance=tolerance)
+    def __init__(self, coords=None, min_points=1, tolerance=0.1, all_points=False):
+        super().__init__(
+            coords=coords,
+            min_points=min_points,
+            tolerance=tolerance,
+            all_points=all_points,
+        )
 
     def filter(self, objectList):
         r = []
         for o, vertices in object_vertices(objectList):
-            if self.count_matching_vertices(vertices, "Y") >= self.min_points:
+            if self.good_vertex_count(vertices, "Y"):
                 r.append(o)
         return r
 
 
 class HasZCoordinateSelector(HasCoordinateSelector):
     """A CQ Selector class which filters edges which have specified values
-    for their Z coordinate"""
+    for their Z coordinate
+      min_points - the minimum vertices of an object that must conform to the filter
+      all_points - all vertices must conform
+      tolerance - matching tolerance for evaluating coordinate values
+    """
 
-    def __init__(self, coords=None, min_points=1, tolerance=0.1):
-        super().__init__(coords=coords, min_points=min_points, tolerance=tolerance)
+    def __init__(self, coords=None, min_points=1, tolerance=0.1, all_points=False):
+        super().__init__(
+            coords=coords,
+            min_points=min_points,
+            tolerance=tolerance,
+            all_points=all_points,
+        )
 
     def filter(self, objectList):
         r = []
         for o, vertices in object_vertices(objectList):
-            if self.count_matching_vertices(vertices, "Z") >= self.min_points:
+            if self.good_vertex_count(vertices, "Z"):
                 r.append(o)
         return r
 

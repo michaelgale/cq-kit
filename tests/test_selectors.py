@@ -1,12 +1,6 @@
 # Selector class tests
 
 # system modules
-import math
-import os.path
-import sys
-from math import pi
-
-import pytest
 
 # my modules
 from cadquery import *
@@ -32,15 +26,21 @@ def test_coord_selectors():
     assert r.edges(bs).size() == 8
     bs = HasXCoordinateSelector(1, min_points=2)
     assert r.edges(bs).size() == 4
+    bs = HasXCoordinateSelector(1, all_points=True)
+    assert r.edges(bs).size() == 4
 
     bs = HasYCoordinateSelector(2)
     assert r.edges(bs).size() == 8
     bs = HasYCoordinateSelector(2, min_points=2)
     assert r.edges(bs).size() == 4
+    bs = HasYCoordinateSelector(2, all_points=True)
+    assert r.edges(bs).size() == 4
 
     bs = HasZCoordinateSelector(3)
     assert r.edges(bs).size() == 8
     bs = HasZCoordinateSelector(3, min_points=2)
+    assert r.edges(bs).size() == 4
+    bs = HasZCoordinateSelector(3, all_points=True)
     assert r.edges(bs).size() == 4
 
 

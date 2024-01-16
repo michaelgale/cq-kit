@@ -18,10 +18,10 @@ def make_cube(size):
     return r
 
 
-FILENAME = "./stepfiles/box.step"
-IGES_FILENAME = "./stepfiles/box.iges"
-IGES_IMP_FILENAME = "./stepfiles/box5.iges"
-STL_FILENAME = "./stepfiles/box.stl"
+FILENAME = "./tests/stepfiles/box.step"
+IGES_FILENAME = "./tests/stepfiles/box.iges"
+IGES_IMP_FILENAME = "./tests/stepfiles/box5.iges"
+STL_FILENAME = "./tests/stepfiles/box.stl"
 
 
 def test_step_export_init():

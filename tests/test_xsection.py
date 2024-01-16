@@ -91,6 +91,33 @@ def test_xsection_geometry():
     assert (1, 0) in pts
     assert (-1, 0) not in pts
 
+    xc = XSection(round_pts, "XY", symmetric=True, mirror_axis="Y")
+    pts = xc.get_points()
+    assert len(pts) == 10
+    assert _almost_same(pts[0], (0, 0))
+    assert _almost_same(pts[1], (3, 0))
+    assert _almost_same(pts[2], (2.5, 0.5))
+    assert _almost_same(pts[3], (2.5, 4))
+    assert _almost_same(pts[4]["radiusArc"][0], (2, 4.5))
+    assert _almost_same(pts[4]["radiusArc"][1], -0.5)
+    assert _almost_same(pts[5], (0, 4.5))
+    assert _almost_same(pts[6], (-2, 4.5))
+    assert _almost_same(pts[7]["radiusArc"][0], (-2.5, 4))
+    assert _almost_same(pts[7]["radiusArc"][1], -0.5)
+    assert _almost_same(pts[8], (-2.5, 0.5))
+    assert _almost_same(pts[9], (-3, 0))
+
+    xc = XSection(round_pts, "XY", symmetric=False)
+    pts = xc.get_points(flipped=True)
+    assert len(pts) == 6
+    assert _almost_same(pts[0], (0, 0))
+    assert _almost_same(pts[1], (3, 0))
+    assert _almost_same(pts[2], (2.5, -0.5))
+    assert _almost_same(pts[3], (2.5, -4))
+    assert _almost_same(pts[4]["radiusArc"][0], (2, -4.5))
+    assert _almost_same(pts[4]["radiusArc"][1], 0.5)
+    assert _almost_same(pts[5], (0, -4.5))
+
 
 def test_xsection_outline():
     xc = XSection(triangle_pts, "XZ", symmetric=True, mirror_axis="Z")

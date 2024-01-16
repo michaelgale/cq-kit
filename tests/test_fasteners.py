@@ -25,7 +25,6 @@ def test_washers():
     r = CQWasher(family="metric", item="4mm").render()
     assert r.solids().size() == 1
     assert r.edges().size() == 6
-    export_step_file(r, "./stepfiles/washer.step")
 
     r2 = CQWasher(inner_diameter=0.5, outer_diameter=2.0, thickness=0.3).render()
     assert r2.solids().size() == 1

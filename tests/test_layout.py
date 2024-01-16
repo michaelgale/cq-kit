@@ -1,0 +1,266 @@
+# Layout tests
+
+# system modules
+
+# my modules
+from cadquery import *
+
+from cqkit import *
+
+from rich import inspect, print
+
+
+def _almost_same(x, y):
+    if isinstance(x, (tuple, list)):
+        return all(abs(x[i] - y[i]) < 1e-3 for i in range(len(x)))
+    return abs(x - y) < 1e-3
+
+
+def _make_objs():
+    objs = []
+    objs.append(cq.Workplane("XY").rect(1, 2).extrude(3))
+    objs.append(cq.Workplane("XY").circle(2.5).extrude(4))
+    objs.append(cq.Workplane("XY").rect(3, 3).extrude(3))
+    objs.append(cq.Workplane("XY").circle(1.5).extrude(10))
+    objs.append(cq.Workplane("XY").rect(4, 1).extrude(1))
+    return objs
+
+
+def _my_bounds():
+    b = empty_BoundBox()
+    b.xmin, b.xmax, b.xlen = 0, 50, 50
+    b.ymin, b.ymax, b.ylen = -20, 20, 40
+    b.zmin, b.zmax, b.zlen = 0, 15, 15
+    return b
+
+
+def test_layout_init():
+    objs = _make_objs()
+    bb = _my_bounds()
+    s0 = SolidLayoutArranger(objs, bounds=bb)
+    assert len(s0.solids) == 5
+    assert s0.obj_xlen == 16
+    assert s0.obj_xmax == 5
+    assert s0.obj_ylen == 14
+    assert s0.obj_ymax == 5
+    assert s0.obj_zlen == 21
+    assert s0.obj_zmax == 10
+    assert s0.x_avail == 34
+    assert s0.x_gap == 8.5
+    assert s0.y_avail == 26
+    assert s0.y_gap == 6.5
+    assert s0.z_avail == -6
+    assert s0.z_gap == -1.5
+
+    # bounds from an object
+    b0 = cq.Workplane("XY").rect(80, 40).extrude(30)
+    s0 = SolidLayoutArranger(objs, bounds=b0)
+    assert len(s0.solids) == 5
+    assert s0.bounds.xmin == -40
+    assert s0.bounds.xmax == 40
+    assert s0.bounds.ymin == -20
+    assert s0.bounds.ymax == 20
+    assert s0.bounds.zmin == 0
+    assert s0.bounds.zmax == 30
+
+    # bounds from a pair of min, max tuples
+    b1 = ((-20, -30, -10), (20, 30, 10))
+    s0 = SolidLayoutArranger(objs, bounds=b1)
+    assert len(s0.solids) == 5
+    assert s0.bounds.xmin == -20
+    assert s0.bounds.xmax == 20
+    assert s0.bounds.ymin == -30
+    assert s0.bounds.ymax == 30
+    assert s0.bounds.zmin == -10
+    assert s0.bounds.zmax == 10
+
+    # bounds from a flat x,y,z min/max pairs
+    b1 = [0, 25, -35, 35, -10, 50]
+    s0 = SolidLayoutArranger(objs, bounds=b1)
+    assert len(s0.solids) == 5
+    assert s0.bounds.xmin == 0
+    assert s0.bounds.xmax == 25
+    assert s0.bounds.ymin == -35
+    assert s0.bounds.ymax == 35
+    assert s0.bounds.zmin == -10
+    assert s0.bounds.zmax == 50
+
+
+def test_layout_margins():
+    objs = _make_objs()
+    bb = _my_bounds()
+    s1 = SolidLayoutArranger(objs, bounds=bb, left_margin=5)
+    assert s1.x_avail == 29
+    assert s1.x_gap == 7.25
+    s1 = SolidLayoutArranger(objs, bounds=bb, right_margin=6)
+    assert s1.x_avail == 28
+    assert s1.x_gap == 7
+    s1 = SolidLayoutArranger(objs, bounds=bb, front_margin=3)
+    assert s1.y_avail == 23
+    assert s1.y_gap == 5.75
+    s1 = SolidLayoutArranger(objs, bounds=bb, back_margin=2)
+    assert s1.y_avail == 24
+    assert s1.y_gap == 6
+    s1 = SolidLayoutArranger(objs, bounds=bb, top_margin=1)
+    assert s1.z_avail == -7
+    assert s1.z_gap == -1.75
+    s1 = SolidLayoutArranger(objs, bounds=bb, bottom_margin=2)
+    assert s1.z_avail == -8
+    assert s1.z_gap == -2
+    s1 = SolidLayoutArranger(objs, bounds=bb, left_margin=2, right_margin=5)
+    assert s1.x_avail == 27
+    assert s1.x_gap == 6.75
+
+    s1 = SolidLayoutArranger(objs, bounds=bb, x_margin=1)
+    assert s1.inset.xmin == 1
+    assert s1.inset.xmax == 49
+    s1 = SolidLayoutArranger(objs, bounds=bb, y_margin=2)
+    assert s1.inset.ymin == -18
+    assert s1.inset.ymax == 18
+    s1 = SolidLayoutArranger(objs, bounds=bb, z_margin=0.5)
+    assert s1.inset.zmin == 0.5
+    assert s1.inset.zmax == 14.5
+
+
+def test_layout_vals():
+    objs = _make_objs()
+    bb = _my_bounds()
+    s0 = SolidLayoutArranger(objs, bounds=bb)
+    assert len(s0.solids) == 5
+    c0 = s0.obj_coords("X")
+    assert c0[0] == 0.5
+    assert c0[1] == 12
+    assert c0[2] == 24.5
+    assert c0[3] == 36
+    assert c0[4] == 48
+    assert s0.enough_space("X")
+    assert _almost_same(s0.whitespace("X"), 0.68)
+
+    s0 = SolidLayoutArranger(objs, bounds=bb)
+    assert len(s0.solids) == 5
+    c0 = s0.obj_coords("Y")
+    assert c0[0] == -19
+    assert c0[1] == -9
+    assert c0[2] == 1.5
+    assert c0[3] == 11
+    assert c0[4] == 19.5
+    assert s0.enough_space("Y")
+    assert _almost_same(s0.whitespace("Y"), 0.65)
+
+    s0 = SolidLayoutArranger(objs, bounds=bb)
+    assert len(s0.solids) == 5
+    c0 = s0.obj_coords("Z")
+    assert c0[0] == 1.5
+    assert c0[1] == 3.5
+    assert c0[2] == 5.5
+    assert c0[3] == 10.5
+    assert c0[4] == 14.5
+    assert not s0.enough_space("Z")
+    assert _almost_same(s0.whitespace("Z"), -0.4)
+
+    s0 = SolidLayoutArranger(objs, bounds=bb, method="equal_sizes")
+    assert len(s0.solids) == 5
+    c0 = s0.obj_coords("Y")
+    assert c0[0] == -16
+    assert c0[1] == -8
+    assert c0[2] == 0
+    assert c0[3] == 8
+    assert c0[4] == 16
+    assert s0.enough_space("Y")
+
+    s0 = SolidLayoutArranger(objs, bounds=bb, method="equal_sizes")
+    assert len(s0.solids) == 5
+    c0 = s0.obj_coords("X")
+    assert c0[0] == 5
+    assert c0[1] == 15
+    assert c0[2] == 25
+    assert c0[3] == 35
+    assert c0[4] == 45
+    assert s0.enough_space("X")
+    assert _almost_same(s0.whitespace("X"), 0.68)
+
+    s0 = SolidLayoutArranger(objs, bounds=bb, method="equal_sizes", x_align="left")
+    assert len(s0.solids) == 5
+    c0 = s0.obj_coords("X")
+    assert c0[0] == 0.5
+    assert c0[1] == 12.5
+    assert c0[2] == 21.5
+    assert c0[3] == 31.5
+    assert c0[4] == 42
+    assert s0.enough_space("X")
+
+    s0 = SolidLayoutArranger(objs, bounds=bb, method="equal_sizes", x_align="right")
+    assert len(s0.solids) == 5
+    c0 = s0.obj_coords("X")
+    assert c0[0] == 9.5
+    assert c0[1] == 17.5
+    assert c0[2] == 28.5
+    assert c0[3] == 38.5
+    assert c0[4] == 48
+    assert s0.enough_space("X")
+
+
+def test_layout_coords():
+    objs = _make_objs()
+    bb = _my_bounds()
+    s0 = SolidLayoutArranger(objs, bounds=bb)
+    assert len(s0.solids) == 5
+    ol, cl, sl = s0.layout_x_wise()
+    assert _almost_same(cl[0], (0.5, 0, 7.5))
+    assert _almost_same(cl[1], (12, 0, 7.5))
+    assert _almost_same(cl[2], (24.5, 0, 7.5))
+    assert _almost_same(cl[3], (36, 0, 7.5))
+    assert _almost_same(cl[4], (48, 0, 7.5))
+    assert s0.enough_space("X")
+    assert s0.enough_space("Y")
+    assert not s0.enough_space("Z")
+
+    ol, cl, sl = s0.layout_x_wise(at_y=3, at_z=-8)
+    assert _almost_same(cl[0], (0.5, 3, -8))
+    assert _almost_same(cl[1], (12, 3, -8))
+    assert _almost_same(cl[2], (24.5, 3, -8))
+    assert _almost_same(cl[3], (36, 3, -8))
+    assert _almost_same(cl[4], (48, 3, -8))
+    assert s0.enough_space("X")
+    assert s0.enough_space("Y")
+    assert not s0.enough_space("Z")
+
+    objs = _make_objs()
+    bb = _my_bounds()
+    s0 = SolidLayoutArranger(objs, bounds=bb)
+    s0.y_align = "back"
+    s0.z_align = "top"
+    ol, cl, sl = s0.layout_x_wise()
+    assert _almost_same(cl[0], (0.5, 19, 13.5))
+    assert _almost_same(cl[1], (12, 17.5, 13))
+    assert _almost_same(cl[2], (24.5, 18.5, 13.5))
+    assert _almost_same(cl[3], (36, 18.5, 10))
+    assert _almost_same(cl[4], (48, 19.5, 14.5))
+    assert s0.enough_space("X")
+    assert s0.enough_space("Y")
+    assert not s0.enough_space("Z")
+
+    s0.y_align = "front"
+    s0.z_align = "centre"
+    ol, cl, sl = s0.layout_x_wise()
+    assert _almost_same(cl[0], (0.5, -19, 7.5))
+    assert _almost_same(cl[1], (12, -17.5, 7.5))
+    assert _almost_same(cl[2], (24.5, -18.5, 7.5))
+    assert _almost_same(cl[3], (36, -18.5, 7.5))
+    assert _almost_same(cl[4], (48, -19.5, 7.5))
+    assert s0.enough_space("X")
+    assert s0.enough_space("Y")
+    assert not s0.enough_space("Z")
+
+    ol, cl, sl = s0.layout_x_wise(at_y=0)
+    assert _almost_same(cl[0], (0.5, 1, 7.5))
+    assert _almost_same(cl[1], (12, 2.5, 7.5))
+    assert _almost_same(cl[2], (24.5, 1.5, 7.5))
+    assert _almost_same(cl[3], (36, 1.5, 7.5))
+    assert _almost_same(cl[4], (48, 0.5, 7.5))
+    assert s0.enough_space("X")
+    assert s0.enough_space("Y")
+    assert not s0.enough_space("Z")
+
+    ol, cl, sl = s0.layout_x_wise()
+    assert s0.enough_space("Y")
