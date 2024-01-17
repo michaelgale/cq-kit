@@ -24,7 +24,14 @@
 # Object layout features
 
 from cadquery import *
-from cqkit.cq_helpers import size_3d, recentre, empty_BoundBox
+from cqkit.cq_helpers import (
+    size_3d,
+    recentre,
+    empty_BoundBox,
+    rotate_x,
+    rotate_y,
+    rotate_z,
+)
 
 
 class SolidLayoutArranger:
@@ -411,30 +418,84 @@ class SolidLayoutArranger:
         else:
             return self.inset.zmin + self.inset.zlen / 2
 
-    def layout_x_wise(self, at_y=None, at_z=None):
+    def obj_sort_dim(self, dim):
+        if "X" in dim:
+            dv = [v[0] for v in self._obj_sizes]
+        elif "Y" in dim:
+            dv = [v[1] for v in self._obj_sizes]
+        else:
+            dv = [v[2] for v in self._obj_sizes]
+        rev = True if "-" in dim else False
+        sorted_objs = sorted(zip(self.solids, dv), key=lambda x: x[1], reverse=rev)
+        self.solids = [x[0] for x in sorted_objs]
+        self._obj_sizes = None
+
+    def obj_sort_area(self, dim):
+        if "X" in dim and "Y" in dim:
+            dv = [v[0] * v[1] for v in self._obj_sizes]
+        elif "Y" in dim and "Z" in dim:
+            dv = [v[1] * v[2] for v in self._obj_sizes]
+        else:
+            dv = [v[0] * v[2] for v in self._obj_sizes]
+        rev = True if "-" in dim else False
+        sorted_objs = sorted(zip(self.solids, dv), key=lambda x: x[1], reverse=rev)
+        self.solids = [x[0] for x in sorted_objs]
+        self._obj_sizes = None
+
+    def obj_sort_vol(self, dim=""):
+        dv = [v[0] * v[1] * v[2] for v in self._obj_sizes]
+        rev = True if "-" in dim else False
+        sorted_objs = sorted(zip(self.solids, dv), key=lambda x: x[1], reverse=rev)
+        self.solids = [x[0] for x in sorted_objs]
+        self._obj_sizes = None
+
+    def obj_alt_rotate(self, dim):
+        if dim == "X":
+            for i, s in enumerate(self.solids):
+                if i % 2:
+                    self.solids[i] = rotate_x(s, 180)
+        elif dim == "Y":
+            for i, s in enumerate(self.solids):
+                if i % 2:
+                    self.solids[i] = rotate_y(s, 180)
+        elif dim == "Z":
+            for i, s in enumerate(self.solids):
+                if i % 2:
+                    self.solids[i] = rotate_z(s, 180)
+        self._obj_sizes = None
+
+    def layout_x_wise(self, at_y=None, at_z=None, **kwargs):
         """Places objects in the X axis within bounds."""
         self.fixed_y = at_y
         self.fixed_z = at_z
-        return self.layout_wise("X")
+        return self.layout_wise("X", **kwargs)
 
-    def layout_y_wise(self, at_x=None, at_z=None):
+    def layout_y_wise(self, at_x=None, at_z=None, **kwargs):
         """Places objects in the Y axis within bounds."""
         self.fixed_x = at_x
         self.fixed_z = at_z
-        return self.layout_wise("Y")
+        return self.layout_wise("Y", **kwargs)
 
-    def layout_z_wise(self, at_x=None, at_y=None):
+    def layout_z_wise(self, at_x=None, at_y=None, **kwargs):
         """Places objects in the Z axis within bounds."""
         self.fixed_x = at_x
         self.fixed_y = at_y
-        return self.layout_wise("Z")
+        return self.layout_wise("Z", **kwargs)
 
-    def layout_wise(self, axis):
+    def layout_wise(self, axis, **kwargs):
         """Places objects in the specified axis within bounds."""
+        if "sort_dim" in kwargs:
+            self.obj_sort_dim(kwargs["sort_dim"])
+        if "sort_area" in kwargs:
+            self.obj_sort_area(kwargs["sort_area"])
+        if "sort_vol" in kwargs:
+            self.obj_sort_vol(kwargs["sort_vol"])
+        if "alt_rotate" in kwargs:
+            self.obj_alt_rotate(kwargs["alt_rotate"])
         self._compute_inset()
         objs, sizes, coords = [], [], []
         locs = self.obj_coords(axis=axis)
-        for solid, size, loc in zip(self.solids, self._obj_sizes, locs):
+        for i, (solid, size, loc) in enumerate(zip(self.solids, self._obj_sizes, locs)):
             rs = recentre(solid)
             x, y, z = self.x_pos(size), self.y_pos(size), self.z_pos(size)
             if axis.upper() == "X":
@@ -443,6 +504,15 @@ class SolidLayoutArranger:
                 y = loc
             else:
                 z = loc
+            if "alt_stagger_x" in kwargs:
+                if i % 2:
+                    x += kwargs["alt_stagger_x"]
+            if "alt_stagger_y" in kwargs:
+                if i % 2:
+                    y += kwargs["alt_stagger_y"]
+            if "alt_stagger_z" in kwargs:
+                if i % 2:
+                    z += kwargs["alt_stagger_z"]
             rs = rs.translate((x, y, z))
             objs.append(rs)
             coords.append((x, y, z))
