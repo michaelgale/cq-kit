@@ -30,12 +30,12 @@ Assuming **CadQuery** is installed, you can install **CQ-Kit** using a [PyPI pac
 $ pip install cqkit
 ```
 
-The **CQ-Kit** package can be installed directly from the source code:
+The **CQ-Kit** package can also be installed directly from the source code:
 
 ```bash
   $ git clone https://github.com/michaelgale/cq-kit.git
   $ cd cq-kit
-  $ python setup.py install
+  $ pip install .
 ```
 
 If you want to create a fresh anaconda environment with **CadQuery** and **CQ-Kit**:
@@ -45,7 +45,7 @@ If you want to create a fresh anaconda environment with **CadQuery** and **CQ-Ki
   $ conda env create -f environment.yml --name $MY_NAME
   $ conda activate $MY_NAME
   $ conda install -c conda-forge -c defaults -c cadquery python=$VERSION cadquery=master
-  $ python setup.py install
+  $ pip install .
  ```
 
  Substitute your desired python `$VERSION` with 3.8, 3.9, or 3.10 and optionally replace `$MY_NAME` with a different desired environment name than the default of `cadquery` specified in `environment.yml`.
