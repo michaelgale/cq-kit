@@ -96,6 +96,20 @@ def test_recentre():
     assert _almost_same((mx, my, mz, px, py, pz), (5.5, 5.5, 7.0, 8.5, 10.5, 11.0))
 
 
+def test_multi_extrude():
+    rc = cq.Workplane("XY").rect(10, 12).extrude(2)
+    l0 = (2, (1, -45), 3, (1, 45))
+    r = multi_extrude(rc, l0)
+    assert _almost_same(size_3d(r), (12, 14, 9))
+    (mx, my, mz), (px, py, pz) = bounds_3d(r)
+    assert _almost_same((mx, my, mz, px, py, pz), (-6, -7, 0, 6, 7, 9))
+
+    rs = cq.Workplane("XY").placeSketch(rounded_rect_sketch(3, 4, 0.25)).extrude(1)
+    r = multi_extrude(rs, [5, (2, -45), 2, (2, 45), 1])
+    (mx, my, mz), (px, py, pz) = bounds_3d(r)
+    assert _almost_same((mx, my, mz, px, py, pz), (-3.5, -4, 0, 3.5, 4, 13))
+
+
 def test_multi_section_extrude():
     s0 = ["rect 1 2 +4"]
     r0 = multi_section_extrude(s0)

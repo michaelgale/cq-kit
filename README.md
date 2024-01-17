@@ -265,6 +265,37 @@ path = [
 ]
 ```
 
+Alternatively, since CQ-Kit v.0.5.4, a more compact dictionary representation of the command list can be provided.  It consists of a two element dictionary with the keys `"start"` and `"path"` shown as follows:
+
+```python
+path = {
+    "start": "(10,0) D30 W0.5",
+    "path": "L:2.0 A:2/145 L2 arc(0.5,-170) line:3",
+    }
+```
+
+Each element contains a string description of the start and path of the ribbon. The string consists of whitespace delimited tokens representing values.  The values start with a case insensitive token followed by an optional colon ":" and the value. Value tokens are case insensitive and can be abbreviated up to the first character, e.g. "Line", "line", "li", "L" are all valid. Multiple values can be delimited by either a comma "," or slash "/" and optionally enclosed in brackets "()". As an example, all of these forms are valid:
+
+```python
+# minimally concise
+path = {
+    "start": "(10,0) D30 W0.5",
+    "path": "L2.0 A2/145 L2 A0.5,-170 L3",
+    }
+# maximally consise
+path = {
+    "start": "(10,0) direction:30 width:0.5",
+    "path": "line:2.0 arc:(2/145) line:2 arc:(0.5,-170) line:3",
+    }
+# combination
+path = {
+    "start": "(10,0) dir:30 W:0.5",
+    "path": "L:2.0 A:2/145 line:2 arc(0.5,-170) Line3",
+    }
+```
+
+A `Ribbbon` can be initialized with the `commands` argument passed either with the list of tuples or the compact dictionary of strings.
+
 A `Ribbon` object is initialized with CadQuery workplane specification representing the 2D plane which the ribbon is constructed and a command list.  The `render` method is called to construct the ribbon object and it is returned as a closed wire path CadQuery workplane object.  This object can then be chained as any other CQ workplane object, e.g. using `extrude()` to transform the ribbon object into a 3D solid.
 
 <img src=./images/ribbon.png>
@@ -404,6 +435,90 @@ face1 = solid.faces(FlatFaceSelector(1.0)).val()
 es = SharedVerticesWithObjectSelector(face1)
 ```
 
+## Miscellaneous Helper Functions
+
+CQ-Kit has several small convenience functions for performing simple object transformations or interogating attributes.  These include:
+
+```python
+# rotate object about either the X, Y, Z axis
+r = rotate_x(obj, angle)
+r = rotate_y(obj, angle)
+r = rotate_z(obj, angle)
+```
+
+```python
+# move object centred about the origin
+r = recentre(obj, axes=None, to_pt=None)
+# axes defaults to "XYZ", i.e. centre the object in all three axes
+# However, axes can be any string combination of "XYZ" to selectively
+# centre about one or more desired axes:
+r = recentre(obj, axes="XY")
+# recentre just in X, Y with Z position the same
+# to_pt optionally re-centres the object about another point instead
+# of the origin:
+r = recentre(obj, to_pt=(-5, 0, 10))
+```
+
+```python
+r = composite_from_pts(obj, pts, workplane="XY")
+# returns the composite (union) of an object copied to list of locations
+# specified by pts.
+```
+
+```python
+xlen, ylen = size_2d(obj)
+# size of object in X, Y
+xlen, ylen, zlen = size_3d(obj)
+# size of object in X, Y, Z
+(xmin, ymin), (xmax, ymax) = bounds_2d(obj)
+# bounding box limits of object in X, Y
+(xmin, ymin, zmin), (xmax, ymax, zmax) = bounds_3d(obj)
+# bounding box limits of object in X, Y, Z
+xc, yc, zc = centre_3d(obj)
+# bounding box mid point of object in X, Y, Z
+```
+
+```python
+r = rounded_rect_sketch(length, width, radius=0)
+# returns a cq.Sketch() of a rectangle shape with optional rounded corners
+```
+
+```python
+r = multi_extrude(obj, levels, face=">Z")
+# returns a new object made by extruding a desired face from a reference
+# object one or more successive levels
+# levels are specified as a list of additional extrusion lengths and/or
+# extrusion length/taper angle pairs, e.g.
+rs = cq.Workplane("XY").placeSketch(rounded_rect_sketch(3, 4, 0.5)).extrude(1)
+r = multi_extrude(rs, [5, (2, -45), 2, (2, 45), 3])
+# extrudes a rounded box from its top face:
+# - up 5 units
+# - up 2 units at 45 degrees outward
+# - up 2 units
+# - up 2 units at 45 degrees inward
+# - up 3 units
+# new object is 15 units tall with 5x added extruded segments from its top
+# Note that tapered extrusions are automatically corrected to the correct
+# projected length, i.e. a segment will always be projected to the same
+# length independent of taper angle.
+```
+
+```python
+r = extrude_xsection(obj, axis, extent, axis_offset=0, cut_only=False):
+"""Cuts a cross-section through a solid along an axis and then
+extrudes the exposed cross section over a desired extent.
+axis is specified as either 'x', 'y', or 'z' and an optional
+axis cut location can be specified instead of the default of 0
+co-incident with the origin.  The sign of 'extent' determines
+the direction from which the exposed face is extruded."""
+# e.g.
+rs = cq.Workplane("XZ").circle(4).extrude(5)
+r = extrude_xsection(rs, "z", 4, axis_offset=0.5)
+# returns a object derived from slicing a cylinder axially at z=0.5 and
+# extruding the resulting exposed rectangular face upwards by 4 units
+r = extrude_xsection(rs, "z", 4, axis_offset=0.5, cut_only=True)
+# returns the same sliced cylinder without extruding the exposed cut face
+```
 
 ## To Do
 

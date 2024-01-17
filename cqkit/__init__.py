@@ -34,6 +34,7 @@ from .cq_helpers import (
     extrude_xsection,
     multi_section_extrude,
     composite_from_pts,
+    rounded_rect_sketch,
     size_2d,
     size_3d,
     bounds_2d,

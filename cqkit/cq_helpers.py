@@ -23,7 +23,7 @@
 #
 # Misc. helper functions
 
-from math import atan2, degrees, cos, radians
+from math import cos, radians
 
 import cadquery as cq
 from cadquery import *
@@ -37,7 +37,8 @@ def multi_extrude(obj, levels, face=">Z"):
     a tuple of offset and taper angle."""
     for level in levels:
         if isinstance(level, (tuple, list)):
-            obj = obj.faces(face).wires().toPending().extrude(level[0], taper=level[1])
+            cl = level[0] / cos(radians(level[1]))
+            obj = obj.faces(face).wires().toPending().extrude(cl, taper=level[1])
         else:
             obj = obj.faces(face).wires().toPending().extrude(level)
     return obj
