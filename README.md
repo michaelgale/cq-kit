@@ -274,7 +274,7 @@ path = {
     }
 ```
 
-Each element contains a string description of the start and path of the ribbon. The string consists of whitespace delimited tokens representing values.  The values start with a case insensitive token followed by an optional colon ":" and the value. Value tokens are case insensitive and can be abbreviated up to the first character, e.g. "Line", "line", "li", "L" are all valid. Multiple values can be delimited by either a comma "," or slash "/" and optionally enclosed in brackets "()". As an example, all of these forms are valid:
+Each element contains a string description of the start and path of the ribbon. The string consists of whitespace delimited tokens representing values.  The values start with a case insensitive token followed by an optional colon ":" and the value. Value tokens are case insensitive and can be abbreviated up to the first character, e.g. "Line", "line", "li", "L" are all valid. Multiple values can be delimited by either a comma "," or slash "/" and optionally enclosed in brackets "()"; however, they should not contain any additional whitespace separators. As an example, all of these forms are valid:
 
 ```python
 # minimally concise
@@ -285,12 +285,12 @@ path = {
 # maximally consise
 path = {
     "start": "(10,0) direction:30 width:0.5",
-    "path": "line:2.0 arc:(2/145) line:2 arc:(0.5,-170) line:3",
+    "path": "line:2.0 arc:(2,145) line:2.0 arc:(0.5,-170) line:3.0",
     }
 # combination
 path = {
-    "start": "(10,0) dir:30 W:0.5",
-    "path": "L:2.0 A:2/145 line:2 arc(0.5,-170) Line3",
+    "start": "(10,0) dir:30 w:0.5",
+    "path": "L:2 arc:2,145 L:2 arc(0.5,-170) L:3",
     }
 ```
 

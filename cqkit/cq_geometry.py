@@ -1182,6 +1182,181 @@ class Rect:
         return Rect._pts_to_rects(pts, offset=offset, bottom_up=bottom_up)
 
 
+class RectCell(Rect):
+    """A subclass of Rect which has extra meta information.
+    In addition to the attributes of Rect, this class has additional meta data associated with
+    a rectangle such as: row and column membership, horizontal and vertical alignment
+    """
+
+    __slots__ = ("row", "col", "horz_align", "vert_align")
+
+    def __init__(self, width=2.0, height=2.0, bottomUp=False, **kwargs):
+        super().__init__(width, height, bottomUp=bottomUp)
+        self.row = None
+        self.col = None
+        self.horz_align = "left"
+        self.vert_align = "top"
+        for k, v in kwargs.items():
+            if k == "row":
+                self.row = kwargs["row"]
+            elif k == "col":
+                self.col = kwargs["col"]
+            elif k == "horz_align":
+                self.horz_align = kwargs["horz_align"]
+            elif k == "vert_align":
+                self.vert_align = kwargs["vert_align"]
+
+    def __str__(self):
+        return (
+            "<Rect (%.2f,%.2f)-(%.2f,%.2f) w=%.2f h=%.2f> row=%s col=%s ha=%s va=%s"
+            % (
+                self.left,
+                self.top,
+                self.right,
+                self.bottom,
+                self.width,
+                self.height,
+                self.row,
+                self.col,
+                self.horz_align,
+                self.vert_align,
+            )
+        )
+
+    def as_rect(self):
+        r = Rect(self.width, self.height)
+        r.left = self.left
+        r.right = self.right
+        r.top = self.top
+        r.bottom = self.bottom
+        r.bottom_up = self.bottom_up
+        return r
+
+    @classmethod
+    def from_rect(cls, rect):
+        r = cls()
+        r.left = rect.left
+        r.right = rect.right
+        r.top = rect.top
+        r.bottom = rect.bottom
+        r.bottom_up = rect.bottom_up
+        r.width = rect.width
+        r.height = rect.height
+        return r
+
+    @staticmethod
+    def shape_from_rects(rects):
+        rows, cols = 0, 0
+        for rect in rects:
+            rows = max(rows, rect.row)
+            cols = max(cols, rect.col)
+        return rows + 1, cols + 1
+
+    @staticmethod
+    def cols_at_row(rects, row):
+        cols = 0
+        for rect in [r for r in rects if r.row == row]:
+            cols = max(cols, rect.col)
+        return cols + 1
+
+    @staticmethod
+    def rows_at_col(rects, col):
+        rows = 0
+        for rect in [r for r in rects if r.col == col]:
+            rows = max(rows, rect.row)
+        return rows + 1
+
+    @staticmethod
+    def max_right_at_col(rects, col):
+        max_right = None
+        for rect in [r for r in rects if r.col == col]:
+            if max_right is None:
+                max_right = rect.right
+            else:
+                max_right = max(max_right, rect.right)
+        return max_right
+
+    @staticmethod
+    def min_left_at_col(rects, col):
+        min_left = None
+        for rect in [r for r in rects if r.col == col]:
+            if min_left is None:
+                min_left = rect.left
+            else:
+                min_left = min(min_left, rect.left)
+        return min_left
+
+    @staticmethod
+    def min_bottom_at_row(rects, row):
+        min_bottom = None
+        for rect in [r for r in rects if r.row == row]:
+            if min_bottom is None:
+                min_bottom = rect.bottom
+            else:
+                min_bottom = min(min_bottom, rect.bottom)
+        return min_bottom
+
+    @staticmethod
+    def max_top_at_row(rects, row):
+        max_top = None
+        for rect in [r for r in rects if r.row == row]:
+            if max_top is None:
+                max_top = rect.top
+            else:
+                max_top = max(max_top, rect.top)
+        return max_top
+
+    @staticmethod
+    def vert_gutters_from_rects(rects, ignore_single=False):
+        """Computes if rectangular vertical gutters exist between a grid of rects."""
+        _, cols = RectCell.shape_from_rects(rects)
+        if cols < 2:
+            return None
+        gutters = []
+        bounds = Rect.bounding_rect_from_rects(rects)
+        for col in range(1, cols):
+            both_single = (
+                RectCell.rows_at_col(rects, col) == 1
+                and RectCell.rows_at_col(rects, col - 1) == 1
+            )
+            if ignore_single and both_single:
+                continue
+            max_right = RectCell.max_right_at_col(rects, col - 1)
+            min_left = RectCell.min_left_at_col(rects, col)
+            if max_right is not None and min_left is not None:
+                gutter_width = min_left - max_right
+                if gutter_width > 0:
+                    gr = Rect(gutter_width, bounds.height)
+                    gr.move_top_left_to((max_right, bounds.top))
+                    gutters.append(gr)
+        return gutters
+
+    @staticmethod
+    def horz_gutters_from_rects(rects, ignore_single=False):
+        """Computes if rectangular horz gutters exist between a grid of rects."""
+        rows, _ = RectCell.shape_from_rects(rects)
+        if rows < 2:
+            return None
+        gutters = []
+        bounds = Rect.bounding_rect_from_rects(rects)
+        for row in range(1, rows):
+            both_single = (
+                RectCell.cols_at_row(rects, row) == 1
+                and RectCell.cols_at_row(rects, row - 1) == 1
+            )
+            if ignore_single and both_single:
+                continue
+            min_bottom = RectCell.min_bottom_at_row(rects, row - 1)
+            max_top = RectCell.max_top_at_row(rects, row)
+            if max_top is not None and min_bottom is not None:
+                gutter_height = min_bottom - max_top
+                if gutter_height > 0:
+                    gr = Rect(bounds.width, gutter_height)
+                    gr.move_top_left_to((bounds.left, min_bottom))
+                    gutters.append(gr)
+        return gutters
+
+
 class RadialPoint:
     """Symmetric Radial Points
 

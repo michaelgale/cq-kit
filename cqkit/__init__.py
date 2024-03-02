@@ -4,7 +4,7 @@ import os
 
 # fmt: off
 __project__ = 'cqkit'
-__version__ = '0.5.4'
+__version__ = '0.5.5'
 # fmt: on
 
 VERSION = __project__ + "-" + __version__
@@ -60,5 +60,11 @@ from .cq_pprint import obj_str, pprint_obj
 from .cq_ribbon import Ribbon
 from .cq_selectors import *
 from .cq_xsection import XSection
-from .cq_layout import SolidLayoutArranger
+from .cq_layout import (
+    ShapeLayoutArranger,
+    XLayoutArranger,
+    YLayoutArranger,
+    ZLayoutArranger,
+    GridLayoutArranger,
+)
 from .refdim import NUT_METRIC, NUT_US, WASHER_METRIC, WASHER_SAE, WASHER_USS
