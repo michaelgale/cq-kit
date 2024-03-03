@@ -112,6 +112,8 @@ def better_float_str(x, tolerance=12, pre_strip=True):
     ns = ns.replace(estr, "0.")
     if "E" not in ns:
         ns = ns.rstrip("0")
+    if ns == "-0.":
+        return "0."
     return ns
 
 

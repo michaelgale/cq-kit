@@ -1511,19 +1511,6 @@ class RadialPoint:
         )
 
 
-class SplinePoints:
-    def __init__(self, pts):
-        self.pts = pts
-        self.pts_origin = []
-        self.xo = pts[0][0]
-        self.yo = pts[0][1]
-        for pt in pts[1:]:
-            self.pts_origin.append((pt[0] - self.xo, pt[1] - self.yo))
-
-    def origin_offset(self):
-        return (self.xo, self.yo)
-
-
 def points2d_at_height(pts, height):
     """Returns a list of 2D point tuples as 3D tuples at height"""
     if isinstance(pts, tuple):
@@ -1597,3 +1584,14 @@ def is_same_edge(e0, e1, tolerance):
 def vertices_to_tuples(vpts):
     """Returns list of vertex tuples from a list of Vertex objects"""
     return [pt.toTuple() for pt in vpts]
+
+
+def sorted_edges(edges):
+    edges = sorted(
+        edges,
+        key=lambda x: edge_length(x)
+        if not x.geomType() == "CIRCLE"
+        else x._geomAdaptor().Circle().Radius(),
+    )
+    edges = sorted(edges, key=lambda x: x.geomType())
+    return edges

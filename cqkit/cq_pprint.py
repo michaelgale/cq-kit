@@ -39,22 +39,20 @@ try:
 except:
     has_crayons = False
 
-from cqkit.cq_geometry import edge_length, wire_length
+from cqkit.cq_geometry import edge_length, wire_length, sorted_edges
 
 from .cq_files import better_float_str
 
 force_no_colour = False
 
 
-def _str_value(v, prec=3, colour="white"):
+def _str_value(v, prec=5, colour="white"):
     """Prints a single value as an optimal decimal valued string.
     If the crayons module is detected, then it will show the value in
     colour (unless the global force_no_colour is True)."""
     s = better_float_str(str(v), tolerance=prec, pre_strip=False).rstrip(".")
     if len(s):
-        if s[0] != "-":
-            s = "  " + s
-        else:
+        if not s.startswith("-"):
             s = " " + s
     if has_crayons and not force_no_colour:
         if colour.lower() == "red":
@@ -124,11 +122,11 @@ def _str_coord(obj, show_brackets=True, colour="white", coord_colours=None):
         if len(obj) == 2 or len(obj) == 3:
             xcolour = coord_colours[0] if coord_colours is not None else colour
             s.append(_str_value(obj[0], colour=xcolour))
-            s.append(",")
+            s.append(", ")
             ycolour = coord_colours[1] if coord_colours is not None else colour
             s.append(_str_value(obj[1], colour=ycolour))
         if len(obj) == 3:
-            s.append(",")
+            s.append(", ")
             zcolour = coord_colours[2] if coord_colours is not None else colour
             s.append(_str_value(obj[2], colour=zcolour))
         if show_brackets:
@@ -205,6 +203,7 @@ def str_wire(obj):
         s.append("length:")
         s.append(_str_value(wire_length(obj), colour="yellow"))
         s.append("\n")
+    edges = sorted_edges(edges)
     for i, e in enumerate(edges):
         s.append("      %3d/%3d %s\n" % (i + 1, edge_count, str_edge(e)))
     return "".join(s)
@@ -278,6 +277,11 @@ def obj_str(obj, show_type=False, no_colour=True):
         objs = [obj]
         multi = False
     n_objs = len(objs)
+    if isinstance(objs[0], Edge):
+        objs = sorted_edges(objs)
+    elif isinstance(objs[0], Wire):
+        objs = sorted(objs, key=lambda x: wire_length(x))
+        objs = sorted(objs, key=lambda x: x.geomType())
     for i, o in enumerate(objs):
         if multi and n_objs > 1:
             s.append("%3d/%3d " % (i + 1, n_objs))
