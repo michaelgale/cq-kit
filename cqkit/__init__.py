@@ -45,6 +45,9 @@ from .cq_helpers import (
     rotate_y,
     rotate_z,
     recentre,
+    cq_bop_cut,
+    cq_bop_fuse,
+    cq_bop_intersect,
 )
 from .cq_fasteners import CQNut, CQWasher
 from .cq_files import (

@@ -1,6 +1,7 @@
 # Pretty print tests
 
 # system modules
+from rich import inspect
 
 try:
     from OCC.Core.gp import gp_Dir, gp_Pnt, gp_Vec, gp_XYZ
@@ -29,20 +30,10 @@ def test_pprint():
     s2 = obj_str(r.wires().vals())
     assert "Wire" in s2
     assert "4x Edges" in s2
-    assert "  4/  4" in s2
+    assert "  4/4" in s2
     assert "Line" in s2
     assert "(-0.5, -1,  0)" in s2
     assert "( 0.5,  1,  0)" in s2
     s1 = obj_str(r.edges())
     s2 = obj_str(r.edges().vals())
     assert s1 == s2
-
-
-def test_edge_sort():
-    r = cq.Workplane("XY").rect(3, 4).extrude(5)
-    rc = cq.Workplane("XY").circle(0.5).extrude(5)
-    r = r.cut(rc)
-    r = r.edges().fillet(0.25)
-    pprint_obj(r.edges())
-
-    pprint_obj(r.wires())

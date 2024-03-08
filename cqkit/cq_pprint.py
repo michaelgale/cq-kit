@@ -46,7 +46,7 @@ from .cq_files import better_float_str
 force_no_colour = False
 
 
-def _str_value(v, prec=5, colour="white"):
+def _str_value(v, prec=4, colour="white"):
     """Prints a single value as an optimal decimal valued string.
     If the crayons module is detected, then it will show the value in
     colour (unless the global force_no_colour is True)."""
@@ -164,6 +164,10 @@ def str_obj_type(obj):
         return "Solid"
     elif isinstance(obj, Compound):
         return "Compound"
+    elif isinstance(obj, Sketch):
+        return "Sketch"
+    elif isinstance(obj, Workplane):
+        return "Workplane"
     return ""
 
 
@@ -184,6 +188,38 @@ def str_edge(obj):
         s.append(_str_coord(Vector(centre).toTuple()))
         s.append(" radius:")
         s.append(_str_value(radius, colour="yellow"))
+    elif obj_type.upper() == "ELLIPSE":
+        el = obj._geomAdaptor().Ellipse()
+        major_radius = el.MajorRadius()
+        minor_radius = el.MinorRadius()
+        centre = el.Location()
+        s.append("centre: ")
+        s.append(_str_coord(Vector(centre).toTuple()))
+        s.append(" major/minor radii:")
+        s.append(_str_value(major_radius, colour="yellow"))
+        s.append("/")
+        s.append(_str_value(minor_radius, colour="yellow"))
+    elif obj_type.upper() in ["BSPLINE", "BEZIER"]:
+        if obj_type.upper() == "BSPLINE":
+            bs = obj._geomAdaptor().BSpline()
+        else:
+            bs = obj._geomAdaptor().Bezier()
+        deg = bs.Degree()
+        poles = bs.NbPoles()
+        s.append(_str_diff_coord(obj.startPoint().toTuple(), obj.endPoint().toTuple()))
+        if bs.IsClosed():
+            s.append(" closed")
+        else:
+            s.append(" length:")
+            s.append(_str_value(edge_length(obj), colour="yellow"))
+        if bs.IsPeriodic():
+            s.append(" periodic")
+        s.append(" degree:")
+        s.append(_str_value(deg, colour="yellow"))
+        if obj_type.upper() == "BSPLINE":
+            knots = bs.NbKnots()
+            s.append(" knots:")
+            s.append(_str_value(knots, colour="yellow"))
     else:
         s.append(_str_diff_coord(obj.startPoint().toTuple(), obj.endPoint().toTuple()))
         s.append(" length:")
@@ -204,8 +240,9 @@ def str_wire(obj):
         s.append(_str_value(wire_length(obj), colour="yellow"))
         s.append("\n")
     edges = sorted_edges(edges)
+    nfmt = "    %%3d/%%%dd %%s\n" % (len(str(edge_count)))
     for i, e in enumerate(edges):
-        s.append("      %3d/%3d %s\n" % (i + 1, edge_count, str_edge(e)))
+        s.append(nfmt % (i + 1, edge_count, str_edge(e)))
     return "".join(s)
 
 
@@ -219,8 +256,9 @@ def str_face(obj):
         s.append(str_wire(wires[0]))
     else:
         s.append("Face (%dx Wires)\n" % (wire_count))
+        nfmt = "    %%3d/%%%dd %%s\n" % (len(str(wire_count)))
         for i, e in enumerate(wires):
-            s.append("    %3d/%3d %s\n" % (i + 1, wire_count, str_wire(e)))
+            s.append(nfmt % (i + 1, wire_count, str_wire(e)))
     return "".join(s)
 
 
@@ -231,7 +269,8 @@ def str_solid(obj):
     face_count = len(faces)
     s.append("Solid (%dx Faces)\n" % (face_count))
     for i, e in enumerate(faces):
-        s.append("  %3d/%3d %s\n" % (i + 1, face_count, str_face(e)))
+        nfmt = "  %%3d/%%%dd %%s\n" % (len(str(face_count)))
+        s.append(nfmt % (i + 1, face_count, str_face(e)))
     return "".join(s)
 
 
@@ -245,8 +284,9 @@ def str_compound(obj):
         s.append(str_solid(solids[0]))
     else:
         s.append("Compound (%dx Solids)\n" % (solid_count))
+        nfmt = "%%3d/%%%dd %%s\n" % (len(str(solid_count)))
         for i, e in enumerate(solids):
-            s.append("%3d/%3d %s\n" % (i + 1, solid_count, str_solid(e)))
+            s.append(nfmt % (i + 1, solid_count, str_solid(e)))
     return "".join(s)
 
 
@@ -263,7 +303,9 @@ def obj_str(obj, show_type=False, no_colour=True):
         s.append(str_obj_type(obj))
         s.append(": ")
     multi = True
-    if isinstance(obj, Workplane):
+    if isinstance(obj, (Workplane, Sketch)):
+        if obj._tag is not None and isinstance(obj._tag, str):
+            s.append("'%s' " % (obj._tag))
         obj = obj.vals()
     if isinstance(obj, (list)):
         if len(obj) > 1:
@@ -277,14 +319,16 @@ def obj_str(obj, show_type=False, no_colour=True):
         objs = [obj]
         multi = False
     n_objs = len(objs)
-    if isinstance(objs[0], Edge):
-        objs = sorted_edges(objs)
-    elif isinstance(objs[0], Wire):
-        objs = sorted(objs, key=lambda x: wire_length(x))
-        objs = sorted(objs, key=lambda x: x.geomType())
+    if n_objs > 0:
+        if isinstance(objs[0], Edge):
+            objs = sorted_edges(objs)
+            objs = sorted(objs, key=lambda x: x.geomType())
+        elif isinstance(objs[0], Wire):
+            objs = sorted(objs, key=lambda x: wire_length(x))
+    nfmt = "%%3d/%%%dd " % (len(str(n_objs)))
     for i, o in enumerate(objs):
         if multi and n_objs > 1:
-            s.append("%3d/%3d " % (i + 1, n_objs))
+            s.append(nfmt % (i + 1, n_objs))
         if isinstance(o, (Vertex)):
             s.append(_str_coord(o.toTuple()))
         elif "geom.Vector" in str(type(o)):
@@ -310,6 +354,6 @@ def obj_str(obj, show_type=False, no_colour=True):
     return "".join(s)
 
 
-def pprint_obj(obj, show_type=False):
+def pprint_obj(obj, show_type=True):
     """Prints a pretty-ish representation of a CQ, OCC, or geometric object."""
     print(str(obj_str(obj, show_type=show_type, no_colour=False)))

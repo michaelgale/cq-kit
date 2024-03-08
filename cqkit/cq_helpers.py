@@ -25,6 +25,13 @@
 
 from math import cos, radians
 
+from OCP.BRepAlgoAPI import BRepAlgoAPI_Fuse, BRepAlgoAPI_Cut, BRepAlgoAPI_Common
+from OCP.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
+from OCP.TopTools import TopTools_ListOfShape
+from OCP.BOPAlgo import BOPAlgo_BOP
+from OCP.BOPAlgo import BOPAlgo_Operation
+from OCP.BOPAlgo import BOPAlgo_RemoveFeatures
+
 import cadquery as cq
 from cadquery import *
 
@@ -341,3 +348,49 @@ def recentre(obj, axes=None, to_pt=None):
     if to_pt is not None:
         obj = obj.translate(to_pt)
     return obj
+
+
+def cq_bop(a, b, tolerance=1e-5, op="fuse"):
+    if a.solids().size() > 0:
+        f2 = BOPAlgo_BOP()
+        l1 = TopTools_ListOfShape()
+        l1.Append(a.solids().val().wrapped)
+        l2 = TopTools_ListOfShape()
+        if isinstance(b, list):
+            for r in b:
+                l2.Append(r.solids().val().wrapped)
+        else:
+            for r in b.solids().vals():
+                l2.Append(r.wrapped)
+        f2.SetArguments(l1)
+        f2.SetTools(l2)
+        if op == "fuse":
+            bop = BOPAlgo_Operation.BOPAlgo_FUSE
+        elif op == "cut":
+            bop = BOPAlgo_Operation.BOPAlgo_CUT
+        else:
+            bop = BOPAlgo_Operation.BOPAlgo_COMMON
+        f2.SetOperation(bop)
+        f2.SetFuzzyValue(tolerance)
+        f2.Perform()
+        r = Shape.cast(f2.Shape())
+        upgrader = ShapeUpgrade_UnifySameDomain(r.wrapped, True, True, True)
+        upgrader.SetLinearTolerance(tolerance)
+        upgrader.Build()
+        rc = Shape.cast(upgrader.Shape())
+        r = cq.Workplane("XY").newObject([rc])
+        return r
+    else:
+        return a.union(b)
+
+
+def cq_bop_fuse(a, b, tolerance=1e-5):
+    return cq_bop(a, b, tolerance, op="fuse")
+
+
+def cq_bop_cut(a, b, tolerance=1e-5):
+    return cq_bop(a, b, tolerance, op="cut")
+
+
+def cq_bop_intersect(a, b, tolerance=1e-5):
+    cq_bop(a, b, tolerance, op="intersect")
