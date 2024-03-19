@@ -179,3 +179,27 @@ def test_composite():
     rc = composite_from_pts(r0, [(-10, 0, 3), (10, -2, 3)])
     (mx, my, mz), (px, py, pz) = bounds_3d(rc)
     assert _almost_same((mx, my, mz, px, py, pz), (-10.5, -3, 3, 10.5, 1, 6))
+
+
+def test_inverse_fillet():
+    r0 = cq.Workplane("XY").rect(1, 2).extrude(5).translate((0, 1, 20))
+    rz = inverse_fillet(r0, ">Z", 0.2)
+    assert _almost_same(size_3d(rz.faces(">Z")), (1.4, 2.4, 0))
+    assert _almost_same(size_3d(rz.faces("<Z")), (1, 2, 0))
+    rx = inverse_fillet(r0, ">X", 0.2)
+    assert _almost_same(size_3d(rx.faces(">X")), (0, 2.4, 5.4))
+    assert _almost_same(size_3d(rx.faces("<X")), (0, 2, 5))
+    ry = inverse_fillet(r0, ">Y", 0.2)
+    assert _almost_same(size_3d(ry.faces(">Y")), (1.4, 0, 5.4))
+    assert _almost_same(size_3d(ry.faces("<Y")), (1, 0, 5))
+
+
+def test_inverse_chamfer():
+    r0 = cq.Workplane("XY").rect(3, 4).extrude(7)
+    rz = inverse_chamfer(r0, ">Z", 0.2)
+    assert _almost_same(size_3d(rz.faces(">Z")), (3.4, 4.4, 0))
+    assert _almost_same(size_3d(rz.faces("<Z")), (3, 4, 0))
+
+    rz = inverse_chamfer(r0, ">Z", 0.2, EdgeLengthSelector(3))
+    assert _almost_same(size_3d(rz.faces(">Z")), (3, 4.4, 0))
+    assert _almost_same(size_3d(rz.faces("<Z")), (3, 4, 0))

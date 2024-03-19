@@ -6,3 +6,4 @@
 - v.0.5.0 - Update to support newer versions of CadQuery and OCP, minimum python 3.8+
 - v.0.5.1 - Update to fix setup.py issues
 - v.0.5.4 - Added new helper functions in cq_helpers. Added new object arrangers i cq_layout. New Makefile
+- v.0.5.6 - Added basic drafted solid builders (cq_basic.py). Solids can be hollow with different combinations of wall/floor/roof thicknesses. Added inverse_fillet and inverse_chamfer helpers

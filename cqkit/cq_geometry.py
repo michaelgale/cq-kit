@@ -26,7 +26,7 @@
 import copy
 import math
 from functools import reduce
-from math import atan, atan2, cos, degrees, radians, sin, sqrt
+from math import tan, atan2, cos, degrees, radians, sin, sqrt
 from numbers import Number
 
 
@@ -1595,3 +1595,13 @@ def sorted_edges(edges):
     )
     edges = sorted(edges, key=lambda x: x.geomType())
     return edges
+
+
+def draft_dim(dim, draft, height, symmetric=False):
+    """Returns a dimension with draft offset for a specified height.
+    symmetric=True returns a +/-dimension relative to the nominal dimension."""
+    if symmetric:
+        return tuple(
+            [dim + (h * tan(radians(draft))) for h in (-height / 2, height / 2)]
+        )
+    return dim + (height * tan(radians(draft)))

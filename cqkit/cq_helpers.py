@@ -35,7 +35,7 @@ from OCP.BOPAlgo import BOPAlgo_RemoveFeatures
 import cadquery as cq
 from cadquery import *
 
-from cqkit.cq_selectors import HasCoordinateSelector
+from cqkit.cq_selectors import HasCoordinateSelector, SharedVerticesWithObjectSelector
 
 
 def multi_extrude(obj, levels, face=">Z"):
@@ -394,3 +394,40 @@ def cq_bop_cut(a, b, tolerance=1e-5):
 
 def cq_bop_intersect(a, b, tolerance=1e-5):
     cq_bop(a, b, tolerance, op="intersect")
+
+
+def inverse_op(obj, face, radius, selector=None):
+    bb = size_3d(obj.faces(face))
+    # make a fake wall against this face
+    size = 2 * max(bb) + 4 * radius
+    fobj = (
+        obj.faces(face)
+        .workplane(centerOption="CenterOfBoundBox")
+        .rect(size, size)
+        .extrude(1)
+        .solids()
+    )
+    wall = fobj.cut(obj)
+    fobj = fobj.edges(
+        SharedVerticesWithObjectSelector(obj.faces(face).val(), min_points=2)
+    )
+    if selector is not None:
+        fobj = fobj.edges(selector)
+    return fobj, wall
+
+
+def inverse_fillet(obj, face, radius, selector=None):
+    """Fillets the desired face of an object inverted, i.e. as if it were placed against a wall.
+    Fillets curve away from the object rather than between adjacent orthogonal faces."""
+    fobj, wall = inverse_op(obj, face, radius, selector=selector)
+    fobj = fobj.fillet(radius)
+    return fobj.cut(wall)
+
+
+def inverse_chamfer(obj, face, radius, selector=None):
+    """Chamfers the desired face of an object inverted, i.e. as if it were placed against a wall.
+    Chamfers diverge away from the object rather than between adjacent orthogonal faces.
+    """
+    fobj, wall = inverse_op(obj, face, radius, selector=selector)
+    fobj = fobj.chamfer(radius)
+    return fobj.cut(wall)

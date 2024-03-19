@@ -4,7 +4,7 @@ import os
 
 # fmt: off
 __project__ = 'cqkit'
-__version__ = '0.5.5'
+__version__ = '0.5.6'
 # fmt: on
 
 VERSION = __project__ + "-" + __version__
@@ -48,6 +48,8 @@ from .cq_helpers import (
     cq_bop_cut,
     cq_bop_fuse,
     cq_bop_intersect,
+    inverse_fillet,
+    inverse_chamfer,
 )
 from .cq_fasteners import CQNut, CQWasher
 from .cq_files import (
@@ -58,7 +60,7 @@ from .cq_files import (
     import_iges_file,
     import_step_file,
 )
-from .cq_geometry import vertices_to_tuples
+from .cq_geometry import vertices_to_tuples, draft_dim
 from .cq_pprint import obj_str, pprint_obj
 from .cq_ribbon import Ribbon
 from .cq_selectors import *
@@ -69,5 +71,13 @@ from .cq_layout import (
     YLayoutArranger,
     ZLayoutArranger,
     GridLayoutArranger,
+)
+from .cq_basic import (
+    drafted_box,
+    drafted_cylinder,
+    drafted_hollow_box,
+    drafted_hollow_cylinder,
+    drafted_slot,
+    drafted_hollow_slot,
 )
 from .refdim import NUT_METRIC, NUT_US, WASHER_METRIC, WASHER_SAE, WASHER_USS

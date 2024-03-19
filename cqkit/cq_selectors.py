@@ -753,63 +753,6 @@ def get_box_selector_array(pts, dp=(1, 1, 1)):
     return bs
 
 
-def print_edges(e, summary=False):
-    """A utility function which pretty prints a list of edges sorted by length"""
-    i = 1
-    if not isinstance(e, list):
-        en = e.vals()
-    else:
-        en = e
-    ne = len(en)
-    if ne == 0:
-        return
-    lens = []
-    pt0 = []
-    pt1 = []
-    for edge in en:
-        p0 = Vector(edge.startPoint().toTuple())
-        p1 = Vector(edge.endPoint().toTuple())
-        l = abs(p1 - p0)
-        lens.append(l)
-        pt0.append(p0)
-        pt1.append(p1)
-
-    zipped = zip(pt0, pt1, lens)
-    alledges = sorted(zipped, key=lambda x: x[2])
-    nvert = 0
-    nhorz = 0
-    nfloor = 0
-    for edge in alledges:
-        p0 = edge[0]
-        p1 = edge[1]
-        l = edge[2]
-        if abs(p0.z - p1.z) > 0.1:
-            t = "^"
-            nvert += 1
-        elif abs(p0.z - p1.z) <= 0.1:
-            if abs(p0.z) < 0.1:
-                nfloor += 1
-            if abs(p0.x - p1.x) < 0.1:
-                t = "|"
-                nhorz += 1
-            elif abs(p0.y - p1.y) < 0.1:
-                t = "-"
-                nhorz += 1
-            else:
-                t = " "
-                nhorz += 1
-        else:
-            t = " "
-        if not summary:
-            print(
-                "    %3d/%3d: (%7.2f, %7.2f, %5.2f) - (%7.2f, %7.2f, %5.2f) %7.2f mm %s"
-                % (i, ne, p0.x, p0.y, p0.z, p1.x, p1.y, p1.z, l, t)
-            )
-        i += 1
-    if summary:
-        print("    %d edges: vert: %d horz: %d floor: %d" % (ne, nvert, nhorz, nfloor))
-
-
 # Parking area for some nifty selectors contributed by
 # https://github.com/jdthorpe
 # on CadQuery Issue 371
