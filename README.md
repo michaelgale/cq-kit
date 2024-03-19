@@ -520,6 +520,40 @@ r = extrude_xsection(rs, "z", 4, axis_offset=0.5, cut_only=True)
 # returns the same sliced cylinder without extruding the exposed cut face
 ```
 
+```python
+# Alternative boolean operators to CadQuery union, cut, intersect
+# methods.  These alternatives are helpful in situations where merging
+# complex geometries result in strange artifacts or a proliferation
+# of superfluous edges, faces, etc. The resulting solids are often
+# "cleaner" and consolidate extra faces, edges, etc.  The caveat is
+# a potential loss of accuracy; however, this can be tuned with the
+# tolerance parameter.
+
+r = cq_bop_fuse(obj1, obj2, tolerance=1e-5)
+# returns the union of obj1 and obj2 using the OpenCascade "fuzzy"
+# boolean operator algorithm with adjustable tolerance
+
+r = cq_bop_cut(obj1, obj2, tolerance=1e-5):
+# returns the cut of obj1 and obj2 using the OpenCascade "fuzzy"
+# boolean operator algorithm with adjustable tolerance
+
+r = cq_bop_intersect(obj1, obj2, tolerance=1e-5):
+# returns the intersection of obj1 and obj2 using the OpenCascade "fuzzy"
+# boolean operator algorithm with adjustable tolerance
+
+```
+
+```python
+r = inverse_fillet(obj, "<Z", 0.5)
+# returns obj with 0.5 mm fillets applied on its bottom Z face with the
+# fillets curving away from the object as if they were applied against
+# a virtual plane co-incident with the "<Z" face.
+
+r = inverse_chamfer(obj, "<Z", 0.5)
+# same as inverse_fillet, but with chamfers applied instead
+```
+
+
 ## To Do
 
 - More modules/functionality for the package extracted from previous work in different places
