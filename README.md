@@ -444,6 +444,8 @@ CQ-Kit has several small convenience functions for performing simple object tran
 r = rotate_x(obj, angle)
 r = rotate_y(obj, angle)
 r = rotate_z(obj, angle)
+# or with fluent interface:
+r = r.rotate_x(angle)
 ```
 
 ```python
@@ -457,6 +459,9 @@ r = recentre(obj, axes="XY")
 # to_pt optionally re-centres the object about another point instead
 # of the origin:
 r = recentre(obj, to_pt=(-5, 0, 10))
+
+# or with fluent interface:
+r = r.recentre(axes="YZ")
 ```
 
 ```python
@@ -551,6 +556,9 @@ r = inverse_fillet(obj, "<Z", 0.5)
 
 r = inverse_chamfer(obj, "<Z", 0.5)
 # same as inverse_fillet, but with chamfers applied instead
+
+# or with a fluent interface:
+r = r.inverse_fillet("<Z", 1.0)
 ```
 
 

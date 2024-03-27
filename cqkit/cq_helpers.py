@@ -260,14 +260,23 @@ def rotate_x(obj, angle):
     return obj.rotate((0, 0, 0), (1, 0, 0), angle)
 
 
+cq.Workplane.rotate_x = rotate_x
+
+
 def rotate_y(obj, angle):
     """Convenience function to perform a fixed rotation against the z-axis."""
     return obj.rotate((0, 0, 0), (0, 1, 0), angle)
 
 
+cq.Workplane.rotate_y = rotate_y
+
+
 def rotate_z(obj, angle):
     """Convenience function to perform a fixed rotation against the z-axis."""
     return obj.rotate((0, 0, 0), (0, 0, 1), angle)
+
+
+cq.Workplane.rotate_z = rotate_z
 
 
 def composite_from_pts(obj, pts, workplane="XY"):
@@ -350,6 +359,9 @@ def recentre(obj, axes=None, to_pt=None):
     return obj
 
 
+cq.Workplane.recentre = recentre
+
+
 def cq_bop(a, b, tolerance=1e-5, op="fuse"):
     if a.solids().size() > 0:
         f2 = BOPAlgo_BOP()
@@ -413,6 +425,7 @@ def inverse_op(obj, face, radius, selector=None):
     )
     if selector is not None:
         fobj = fobj.edges(selector)
+    # return common pre-selected edges and the fake wall
     return fobj, wall
 
 
@@ -424,6 +437,9 @@ def inverse_fillet(obj, face, radius, selector=None):
     return fobj.cut(wall)
 
 
+cq.Workplane.inverse_fillet = inverse_fillet
+
+
 def inverse_chamfer(obj, face, radius, selector=None):
     """Chamfers the desired face of an object inverted, i.e. as if it were placed against a wall.
     Chamfers diverge away from the object rather than between adjacent orthogonal faces.
@@ -431,3 +447,6 @@ def inverse_chamfer(obj, face, radius, selector=None):
     fobj, wall = inverse_op(obj, face, radius, selector=selector)
     fobj = fobj.chamfer(radius)
     return fobj.cut(wall)
+
+
+cq.Workplane.inverse_chamfer = inverse_chamfer

@@ -19,6 +19,10 @@ def test_rotations():
     rx = rotate_x(r, 90)
     (mx, my, mz), (px, py, pz) = bounds_3d(rx)
     assert _almost_same((mx, my, mz, px, py, pz), (-1.5, -4, -2.5, 1.5, 0, 2.5))
+    rxx = r.rotate_x(90)
+    (mx, my, mz), (px, py, pz) = bounds_3d(rxx)
+    assert _almost_same((mx, my, mz, px, py, pz), (-1.5, -4, -2.5, 1.5, 0, 2.5))
+
     ry = rotate_y(r, -90)
     (mx, my, mz), (px, py, pz) = bounds_3d(ry)
     assert _almost_same((mx, my, mz, px, py, pz), (-4, -2.5, -1.5, 0, 2.5, 1.5))
@@ -92,6 +96,11 @@ def test_recentre():
     assert _almost_same((mx, my, mz, px, py, pz), (-1.5, -2.5, -2.0, 1.5, 2.5, 2.0))
 
     rc = recentre(r, to_pt=(7, 8, 9))
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (5.5, 5.5, 7.0, 8.5, 10.5, 11.0))
+
+    r = cq.Workplane("XY").rect(3, 5).extrude(4).translate((0, -1, -0.5))
+    rc = r.recentre(to_pt=(7, 8, 9))
     (mx, my, mz), (px, py, pz) = bounds_3d(rc)
     assert _almost_same((mx, my, mz, px, py, pz), (5.5, 5.5, 7.0, 8.5, 10.5, 11.0))
 
@@ -192,6 +201,10 @@ def test_inverse_fillet():
     ry = inverse_fillet(r0, ">Y", 0.2)
     assert _almost_same(size_3d(ry.faces(">Y")), (1.4, 0, 5.4))
     assert _almost_same(size_3d(ry.faces("<Y")), (1, 0, 5))
+
+    ryy = r0.inverse_fillet(">Y", 0.2)
+    assert _almost_same(size_3d(ryy.faces(">Y")), (1.4, 0, 5.4))
+    assert _almost_same(size_3d(ryy.faces("<Y")), (1, 0, 5))
 
 
 def test_inverse_chamfer():

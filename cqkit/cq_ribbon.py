@@ -101,7 +101,7 @@ class Ribbon:
     @staticmethod
     def _token_val(token, s):
         vs = s.replace(token, "").replace(":", "")
-        return float("".join(c for c in vs if (c.isdigit() or c == ".")))
+        return float("".join(c for c in vs if (c.isdigit() or c == "." or c == "-")))
 
     @staticmethod
     def _token_tuple(s):
