@@ -99,9 +99,13 @@ class Ribbon:
             self.commands = commands
 
     @staticmethod
+    def _floatval(v):
+        return float("".join(c for c in v if (c.isdigit() or c == "." or c == "-")))
+
+    @staticmethod
     def _token_val(token, s):
         vs = s.replace(token, "").replace(":", "")
-        return float("".join(c for c in vs if (c.isdigit() or c == "." or c == "-")))
+        return Ribbon._floatval(vs)
 
     @staticmethod
     def _token_tuple(s):
@@ -110,9 +114,7 @@ class Ribbon:
             vs = s.split("/")
         else:
             vs = s.split(",")
-        return tuple(
-            float("".join(c for c in v if (c.isdigit() or c == "."))) for v in vs
-        )
+        return tuple(Ribbon._floatval(v) for v in vs)
 
     def commands_from_strdict(self, sd):
         """Interpret compact string description of commands/path."""
@@ -174,8 +176,7 @@ class Ribbon:
         :returns: rx, ry : x,y coordinates of the centre of rotation of the arc
         """
         direction = radians(direction_degrees)
-        turn = radians(turn_degrees)
-        if turn > 0:
+        if turn_degrees > 0:
             # turning left
             rx = vx - r * sin(direction)
             ry = vy + r * cos(direction)

@@ -35,8 +35,8 @@ def test_tri_mesh_solid():
     tri, vtx = triangle_mesh_solid(solid)
     assert len(tri) == 12
     assert len(vtx) == 8
-    assert [-0.5, -1.0, 0.0] in vtx
-    assert [0.5, 1.0, 3.0] in vtx
+    assert (-0.5, -1.0, 0.0) in vtx
+    assert (0.5, 1.0, 3.0) in vtx
 
 
 def test_discretize_all_edges():

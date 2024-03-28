@@ -29,11 +29,8 @@ try:
     from OCP.BRepLProp import BRepLProp_CLProps
     from OCP.BRepMesh import BRepMesh_IncrementalMesh
     from OCP.GCPnts import GCPnts_AbscissaPoint, GCPnts_QuasiUniformAbscissa
-    from OCP.gp import gp_Dir
-    from OCP.TopAbs import TopAbs_FACE, TopAbs_Orientation, TopAbs_VERTEX
-    from OCP.TopExp import TopExp_Explorer
+    from OCP.TopAbs import TopAbs_Orientation
     from OCP.TopLoc import TopLoc_Location
-    from OCP.TopoDS import TopoDS_Face, TopoDS_Iterator, TopoDS_Vertex
 
     BRep_Tool.Triangulation = BRep_Tool.Triangulation_s
     GCPnts_AbscissaPoint.Length = GCPnts_AbscissaPoint.Length_s
@@ -51,7 +48,6 @@ except:
     from OCC.Core.TopoDS import TopoDS_Face, TopoDS_Iterator, TopoDS_Vertex
 
 
-import cadquery as cq
 from cadquery import *
 
 
@@ -138,13 +134,13 @@ def triangle_mesh_solid(solid, lin_tol=1e-2, ang_tol=0.5):
             )
             for i in range(1, num_tri + 1):
                 idx = list(tri.Value(i).Get())
-                ci = [0, 2, 1] if rev else [0, 1, 2]
+                ci = (0, 2, 1) if rev else (0, 1, 2)
                 for j in ci:
-                    pt = [
+                    pt = (
                         vtx.Value(idx[j] - 1).Transformed(txf).X(),
                         vtx.Value(idx[j] - 1).Transformed(txf).Y(),
                         vtx.Value(idx[j] - 1).Transformed(txf).Z(),
-                    ]
+                    )
                     if pt not in vertices:
                         vertices.append(pt)
                     idx[j] = vertices.index(pt)

@@ -1,38 +1,7 @@
 # system modules
-from math import pi
 
 from cqkit import *
 from cqkit.cq_geometry import *
-
-# my modules
-
-
-#
-# Tests for the Point class
-#
-
-
-def test_point_length():
-    a = Point(3, 4)
-    assert a.length() == 5
-
-
-def test_point_func():
-    a = Point(5, 8)
-    (bx, by) = a.swapped()
-    assert a.x == by
-    assert a.y == bx
-    a.move_to(-3, 2)
-    assert a.x == -3
-    assert a.y == 2
-
-
-def test_point_rotate():
-    a = Point(1, 0)
-    b = a.rotate(pi / 2.0)
-    b.integerize()
-    assert b.x == 0
-    assert b.y == 1
 
 
 def test_grid_2d():
@@ -190,15 +159,15 @@ def test_rect_size():
     assert a.perimeter == 28
 
     a.bottom_up = True
-    a.move_to(Point(0, 0))
+    a.move_to((0, 0))
     assert a.top == -2
     assert a.bottom == 2
 
 
 def test_contains():
     a = Rect(5, 4)
-    b = Point(1, 1.5)
-    c = Point(-3, 10)
+    b = (1, 1.5)
+    c = (-3, 10)
     assert a.contains(b)
     assert a.contains(c) == False
 
@@ -207,13 +176,13 @@ def test_overlap():
     a = Rect(10, 5)
     b = Rect(2, 3)
     c = copy.copy(b)
-    c.move_to(Point(10, -7))
+    c.move_to((10, -7))
     assert a.overlaps(c) == False
 
 
 def test_move():
     a = Rect(4, 8)
-    a.move_top_left_to(Point(-10, -7))
+    a.move_top_left_to((-10, -7))
     assert a.left == -10
     assert a.top == -7
     assert a.right == -6

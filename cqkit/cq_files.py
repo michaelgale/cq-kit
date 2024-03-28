@@ -67,7 +67,7 @@ except:
 
     Interface_Static_SetIVal = Interface_Static.SetIVal_s
     Interface_Static_SetCVal = Interface_Static.SetCVal_s
-    OCCT_VERSION = "7.5"
+    OCCT_VERSION = str(OCP.__version__)
 
 
 class suppress_stdout_stderr(object):

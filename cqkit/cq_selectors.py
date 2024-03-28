@@ -29,9 +29,9 @@ from math import radians
 import cadquery as cq
 from cadquery import *
 
-from cqkit.cq_geometry import Point, Rect, Vector, edge_length, wire_length
+from cqkit.cq_geometry import Rect, Vector, edge_length, wire_length, end_points
 
-valid_objects = [
+valid_objects = (
     "LINE",
     "BSPLINE",
     "BSPLINECURVE",
@@ -40,7 +40,7 @@ valid_objects = [
     "HYPERBOLA",
     "PARABOLA",
     "ELLIPSE",
-]
+)
 
 
 def is_valid_edge(obj):
@@ -56,7 +56,7 @@ def is_valid_edge(obj):
                 return True
             return False
 
-    print("Invalid edge: %s %s %s" % (type(obj), repr(obj), obj.geomType()))
+    print("Object %s not an edge: %s" % (type(obj), repr(obj)))
     return False
 
 
@@ -141,22 +141,22 @@ def str_constraint(constraint, length, tolerance=0.1):
     return False
 
 
-def is_valid_length(length, length_constraints, tolerance):
-    """Validates a length value against one or more constraints.  The
+def is_desired_value(value, value_constraints, tolerance):
+    """Validates a value against one or more constraints.  The
     constraints are specified either as fixed values or with strings which
     specify more complex criteria such as ">2.0".  Multiple constraints are
     specified as a list such as [">0.0", "<15.0"]
     """
     is_valid = False
-    if not isinstance(length_constraints, list):
-        constraints = [length_constraints]
+    if not isinstance(value_constraints, list):
+        constraints = [value_constraints]
     else:
-        constraints = length_constraints
+        constraints = value_constraints
     for constraint in constraints:
         if isinstance(constraint, str):
-            if str_constraint(constraint, length, tolerance):
+            if str_constraint(constraint, value, tolerance):
                 is_valid = True
-        elif abs(length - constraint) < tolerance:
+        elif abs(value - constraint) < tolerance:
             is_valid = True
     return is_valid
 
@@ -202,15 +202,18 @@ class HasCoordinateSelector(Selector):
     def count_matching_vertices(self, vertices, coord):
         if coord.upper() == "X":
             return sum(
-                int(is_valid_length(v.X, self.coords, self.tolerance)) for v in vertices
+                int(is_desired_value(v.X, self.coords, self.tolerance))
+                for v in vertices
             )
         elif coord.upper() == "Y":
             return sum(
-                int(is_valid_length(v.Y, self.coords, self.tolerance)) for v in vertices
+                int(is_desired_value(v.Y, self.coords, self.tolerance))
+                for v in vertices
             )
         else:
             return sum(
-                int(is_valid_length(v.Z, self.coords, self.tolerance)) for v in vertices
+                int(is_desired_value(v.Z, self.coords, self.tolerance))
+                for v in vertices
             )
 
     def good_vertex_count(self, vertices, coord):
@@ -320,7 +323,7 @@ class EdgeLengthSelector(LengthSelector):
     def filter(self, objectList):
         r = []
         for o, length in object_edges_lengths(objectList):
-            if is_valid_length(length, self.lengths, self.tolerance):
+            if is_desired_value(length, self.lengths, self.tolerance):
                 r.append(o)
         return r
 
@@ -334,7 +337,7 @@ class WireLengthSelector(LengthSelector):
     def filter(self, objectList):
         r = []
         for o, length in object_wires_lengths(objectList):
-            if is_valid_length(length, self.lengths, self.tolerance):
+            if is_desired_value(length, self.lengths, self.tolerance):
                 r.append(o)
         return r
 
@@ -348,7 +351,7 @@ class RadiusSelector(LengthSelector):
     def filter(self, objectList):
         r = []
         for o, radius in object_edges_radius(objectList):
-            if is_valid_length(radius, self.lengths, self.tolerance):
+            if is_desired_value(radius, self.lengths, self.tolerance):
                 r.append(o)
         return r
 
@@ -362,7 +365,7 @@ class DiameterSelector(LengthSelector):
     def filter(self, objectList):
         r = []
         for o, radius in object_edges_radius(objectList):
-            if is_valid_length(2 * radius, self.lengths, self.tolerance):
+            if is_desired_value(2 * radius, self.lengths, self.tolerance):
                 r.append(o)
         return r
 
@@ -389,7 +392,7 @@ class VertexCountSelector(ObjectCountSelector):
     def filter(self, objectList):
         r = []
         for o, vertices in object_vertices(objectList):
-            if is_valid_length(len(vertices), self.counts, tolerance=0.1):
+            if is_desired_value(len(vertices), self.counts, tolerance=0.1):
                 r.append(o)
         return r
 
@@ -404,7 +407,7 @@ class EdgeCountSelector(ObjectCountSelector):
         r = []
         for o in objectList:
             edges = o.Edges()
-            if is_valid_length(len(edges), self.counts, tolerance=0.1):
+            if is_desired_value(len(edges), self.counts, tolerance=0.1):
                 r.append(o)
         return r
 
@@ -419,7 +422,7 @@ class WireCountSelector(ObjectCountSelector):
         r = []
         for o in objectList:
             wires = o.Wires()
-            if is_valid_length(len(wires), self.counts, tolerance=0.1):
+            if is_desired_value(len(wires), self.counts, tolerance=0.1):
                 r.append(o)
         return r
 
@@ -434,7 +437,7 @@ class FaceCountSelector(ObjectCountSelector):
         r = []
         for o in objectList:
             faces = o.Faces()
-            if is_valid_length(len(faces), self.counts, tolerance=0.1):
+            if is_desired_value(len(faces), self.counts, tolerance=0.1):
                 r.append(o)
         return r
 
@@ -478,7 +481,7 @@ class VerticalSelector(Selector):
                 if self.heights is None:
                     r.append(o)
                 else:
-                    if is_valid_length(vert_range, self.heights, self.tolerance):
+                    if is_desired_value(vert_range, self.heights, self.tolerance):
                         r.append(o)
         return r
 
@@ -538,7 +541,7 @@ class FlatSelector(Selector):
                 if self.at_heights is None:
                     r.append(o)
                 else:
-                    if is_valid_length(avg_z, self.at_heights, self.tolerance):
+                    if is_desired_value(avg_z, self.at_heights, self.tolerance):
                         r.append(o)
         return r
 
@@ -710,8 +713,8 @@ class RotatedBoxSelector(Selector):
         for o, vertices in object_vertices(objectList):
             is_valid = True
             for v in vertices:
-                p = Point(v.X, v.Y)
-                p.slide_xy(-self.pos[0], -self.pos[1])
+                p = Vector(v.X, v.Y, 0)
+                p.offset_xy(-self.pos[0], -self.pos[1])
                 p = p.rotate(radians(-self.angle))
                 if not self.rect.contains(p):
                     is_valid = False

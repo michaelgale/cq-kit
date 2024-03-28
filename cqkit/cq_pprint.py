@@ -139,9 +139,9 @@ def str_obj_type(obj):
     if isinstance(obj, (Vertex)):
         return "Vertex"
     elif "geom.Vector" in str(type(obj)):
-        return "Vector"
+        return "cq.Vector"
     elif "cq_geometry.Vector" in str(type(obj)):
-        return "Vector"
+        return "cqkit.Vector"
     elif isinstance(obj, list):
         return "list"
     elif isinstance(obj, tuple):
@@ -336,7 +336,7 @@ def obj_str(obj, show_type=False, no_colour=True):
         elif "cq_geometry.Vector" in str(type(o)):
             s.append(_str_coord(o.as_tuple()))
         elif isinstance(o, (gp_Vec, gp_Pnt, gp_Dir, gp_XYZ)):
-            s.append(_str_coord(Vector(o).toTuple()))
+            s.append(_str_coord(cq.Vector(o).toTuple()))
         elif isinstance(o, (tuple, list)):
             s.append(_str_coord(o))
         elif isinstance(o, Edge):

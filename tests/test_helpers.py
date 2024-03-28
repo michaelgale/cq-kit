@@ -1,13 +1,9 @@
 # XSection tests
 
-# system modules
-from math import pi
-
 # my modules
 from cadquery import *
 
 from cqkit import *
-from cqkit.cq_helpers import size_3d
 
 
 def _almost_same(x, y):

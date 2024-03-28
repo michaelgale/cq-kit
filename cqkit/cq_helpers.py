@@ -25,12 +25,10 @@
 
 from math import cos, radians
 
-from OCP.BRepAlgoAPI import BRepAlgoAPI_Fuse, BRepAlgoAPI_Cut, BRepAlgoAPI_Common
 from OCP.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from OCP.TopTools import TopTools_ListOfShape
 from OCP.BOPAlgo import BOPAlgo_BOP
 from OCP.BOPAlgo import BOPAlgo_Operation
-from OCP.BOPAlgo import BOPAlgo_RemoveFeatures
 
 import cadquery as cq
 from cadquery import *
@@ -390,8 +388,7 @@ def cq_bop(a, b, tolerance=1e-5, op="fuse"):
         upgrader.SetLinearTolerance(tolerance)
         upgrader.Build()
         rc = Shape.cast(upgrader.Shape())
-        r = cq.Workplane("XY").newObject([rc])
-        return r
+        return cq.Workplane("XY").newObject([rc])
     else:
         return a.union(b)
 
