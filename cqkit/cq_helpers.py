@@ -35,6 +35,16 @@ from cadquery import *
 
 from cqkit.cq_selectors import HasCoordinateSelector, SharedVerticesWithObjectSelector
 
+# Special test to see which version of CadQuery is installed and
+# therefore if any compensation is required for extruded zlen
+# CQ versions < 2.4.0 typically require zlen correction, i.e.
+# scaling the vertical extrusion extent by 1/cos(taper)
+ZLEN_OK = False
+_r = cq.Workplane("XY").rect(2, 2).extrude(1, taper=45)
+_bb = _r.vals()[0].BoundingBox()
+if abs(_bb.zlen - 1.0) < 1e-3:
+    ZLEN_OK = True
+
 
 def multi_extrude(obj, levels, face=">Z"):
     """Extrudes successive layers of a base solid from a reference face.
@@ -42,7 +52,7 @@ def multi_extrude(obj, levels, face=">Z"):
     a tuple of offset and taper angle."""
     for level in levels:
         if isinstance(level, (tuple, list)):
-            cl = level[0] / cos(radians(level[1]))
+            cl = level[0] if ZLEN_OK else level[0] / cos(radians(level[1]))
             obj = obj.faces(face).wires().toPending().extrude(cl, taper=level[1])
         else:
             obj = obj.faces(face).wires().toPending().extrude(level)

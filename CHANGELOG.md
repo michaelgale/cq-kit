@@ -7,3 +7,4 @@
 - v.0.5.1 - Update to fix setup.py issues
 - v.0.5.4 - Added new helper functions in cq_helpers. Added new object arrangers i cq_layout. New Makefile
 - v.0.5.6 - Added basic drafted solid builders (cq_basic.py). Solids can be hollow with different combinations of wall/floor/roof thicknesses. Added inverse_fillet and inverse_chamfer helpers
+- v.0.5.8 - Added automatic compensation for height of tapered extrusions depending on CadQuery version
