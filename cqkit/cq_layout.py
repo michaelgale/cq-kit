@@ -1541,7 +1541,7 @@ class GridLayoutArranger(ShapeLayoutArranger):
         return new_rects
 
     def coords_from_rects(self, rects, plane=None):
-        """Returns a list of  3D coordinates from a list of Rect objects.
+        """Returns a list of 3D coordinates from a list of Rect objects.
         Only 2 of the 3 coordinates are populated based on plane, the remaining
         coordinate is set to None."""
         self.plane = plane if plane is not None else self.plane

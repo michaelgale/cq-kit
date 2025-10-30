@@ -178,3 +178,47 @@ def test_xsection_solid():
     assert _pts_contains((-1, 0, 0), tpts)
     assert _pts_contains((-1, 7, 0), tpts)
     assert _pts_contains((0, 7, 3), tpts)
+
+
+def test_xsection_presets():
+    xc = XSection.xs2020("XY")
+    r = xc.render().extrude(400)
+    bb = size_3d(r)
+    assert _almost_same(bb, (20, 20, 400))
+
+    xc = XSection.xs3030("XY")
+    r = xc.render().extrude(350)
+    bb = size_3d(r)
+    assert _almost_same(bb, (30, 30, 350))
+
+    xc = XSection.xs4040("XY")
+    r = xc.render().extrude(300)
+    bb = size_3d(r)
+    assert _almost_same(bb, (40, 40, 300))
+
+    xc = XSection.xs3060("XZ")
+    r = xc.render().extrude(250)
+    bb = size_3d(r)
+    assert _almost_same(bb, (30, 250, 60))
+
+    xc = XSection.xs2040("ZY")
+    r = xc.render().extrude(200)
+    bb = size_3d(r)
+    assert _almost_same(bb, (200, 40, 20))
+
+    xc = XSection.xs2040()
+    r = xc.extruded(100)
+    bb = size_3d(r)
+    assert _almost_same(bb, (20, 40, 100))
+
+    r = xc.extruded(200, "x")
+    bb = size_3d(r)
+    assert _almost_same(bb, (200, 20, 40))
+
+    r = xc.extruded(300, "y")
+    bb = size_3d(r)
+    assert _almost_same(bb, (20, 300, 40))
+
+    r = xc.extruded(400, "z")
+    bb = size_3d(r)
+    assert _almost_same(bb, (20, 40, 400))

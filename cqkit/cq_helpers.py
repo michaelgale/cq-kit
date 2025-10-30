@@ -347,27 +347,86 @@ def centre_3d(obj):
     return mx + sx / 2, my + sy / 2, mz + sz / 2
 
 
-def recentre(obj, axes=None, to_pt=None):
+def recentre(obj, axes=None, to_pt=None, to_obj=None):
     """Returns a Workplane object translated so that it is centred about
     the origin in any combination of x, y, or z axes. Optionally,
     the object can be centred to a new origin point with 'to_pt'.
+    Similarly, the object can be centred to the origin of another
+    object's centre specified in 'to_obj'.
     axes can be specified as a string combination of "xyz" with a
     default of all axes as None."""
     cx, cy, cz = centre_3d(obj)
+    ox, oy, oz = (1, 1, 1)
     if axes is not None:
         if not "x" in axes.lower():
-            cx = 0
+            cx, ox = 0, 0
         if not "y" in axes.lower():
-            cy = 0
+            cy, oy = 0, 0
         if not "z" in axes.lower():
-            cz = 0
+            cz, oz = 0, 0
     obj = obj.translate((-cx, -cy, -cz))
     if to_pt is not None:
         obj = obj.translate(to_pt)
+    if to_obj is not None:
+        pt = centre_3d(to_obj)
+        other_ctr = (ox * pt[0], oy * pt[1], oz * pt[2])
+        obj = obj.translate(other_ctr)
     return obj
 
 
 cq.Workplane.recentre = recentre
+
+
+def realign(obj, to_obj, axes):
+    """Repositions an object to another object's bounding box with any
+    combination of axes specification. Using < or > aligns obj within
+    the bounding box of to_obj.  Using << or >> aligns obj to the
+    outside of to_obj bounding box.
+    r = realign(obj, other, '<X Z >Y')"""
+    sx, sy, sz = size_3d(obj)
+    osx, osy, osz = size_3d(to_obj)
+    dx, dy, dz = (osx - sx) / 2, (osy - sy) / 2, (osz - sz) / 2
+    for spec in axes.split():
+        if "x" in spec.lower():
+            obj = recentre(obj, "x", to_obj=to_obj)
+            if "<" in spec:
+                obj = obj.translate((-dx, 0, 0))
+            elif ">" in spec:
+                obj = obj.translate((dx, 0, 0))
+
+            if "<<" in spec:
+                obj = obj.translate((-sx, 0, 0))
+            elif ">>" in spec:
+                obj = obj.translate((sx, 0, 0))
+
+        if "y" in spec.lower():
+            obj = recentre(obj, "y", to_obj=to_obj)
+            if "<" in spec:
+                obj = obj.translate((0, -dy, 0))
+            elif ">" in spec:
+                obj = obj.translate((0, dy, 0))
+
+            if "<<" in spec:
+                obj = obj.translate((0, -sy, 0))
+            elif ">>" in spec:
+                obj = obj.translate((0, sy, 0))
+
+        if "z" in spec.lower():
+            obj = recentre(obj, "z", to_obj=to_obj)
+            if "<" in spec:
+                obj = obj.translate((0, 0, -dz))
+            elif ">" in spec:
+                obj = obj.translate((0, 0, dz))
+
+            if "<<" in spec:
+                obj = obj.translate((0, 0, -sz))
+            elif ">>" in spec:
+                obj = obj.translate((0, 0, sz))
+
+    return obj
+
+
+cq.Workplane.realign = realign
 
 
 def cq_bop(a, b, tolerance=1e-5, op="fuse"):
@@ -415,7 +474,7 @@ def cq_bop_intersect(a, b, tolerance=1e-5):
     cq_bop(a, b, tolerance, op="intersect")
 
 
-def inverse_op(obj, face, radius, selector=None):
+def inverse_op(obj, face, radius, selector=None, min_points=2):
     bb = size_3d(obj.faces(face))
     # make a fake wall against this face
     size = 2 * max(bb) + 4 * radius
@@ -428,7 +487,7 @@ def inverse_op(obj, face, radius, selector=None):
     )
     wall = fobj.cut(obj)
     fobj = fobj.edges(
-        SharedVerticesWithObjectSelector(obj.faces(face).val(), min_points=2)
+        SharedVerticesWithObjectSelector(obj.faces(face).val(), min_points=min_points)
     )
     if selector is not None:
         fobj = fobj.edges(selector)
@@ -436,10 +495,10 @@ def inverse_op(obj, face, radius, selector=None):
     return fobj, wall
 
 
-def inverse_fillet(obj, face, radius, selector=None):
+def inverse_fillet(obj, face, radius, selector=None, min_points=2):
     """Fillets the desired face of an object inverted, i.e. as if it were placed against a wall.
     Fillets curve away from the object rather than between adjacent orthogonal faces."""
-    fobj, wall = inverse_op(obj, face, radius, selector=selector)
+    fobj, wall = inverse_op(obj, face, radius, selector=selector, min_points=min_points)
     fobj = fobj.fillet(radius)
     return fobj.cut(wall)
 
@@ -447,11 +506,11 @@ def inverse_fillet(obj, face, radius, selector=None):
 cq.Workplane.inverse_fillet = inverse_fillet
 
 
-def inverse_chamfer(obj, face, radius, selector=None):
+def inverse_chamfer(obj, face, radius, selector=None, min_points=2):
     """Chamfers the desired face of an object inverted, i.e. as if it were placed against a wall.
     Chamfers diverge away from the object rather than between adjacent orthogonal faces.
     """
-    fobj, wall = inverse_op(obj, face, radius, selector=selector)
+    fobj, wall = inverse_op(obj, face, radius, selector=selector, min_points=min_points)
     fobj = fobj.chamfer(radius)
     return fobj.cut(wall)
 

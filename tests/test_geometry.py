@@ -163,6 +163,16 @@ def test_rect_size():
     assert a.top == -2
     assert a.bottom == 2
 
+    r1 = Rect.corner_points(8, 5)
+    assert len(r1) == 4
+    assert (-4, 2.5) in r1
+    assert (4, -2.5) in r1
+
+    r2 = Rect.corner_points(10, 6, 2)
+    assert len(r2) == 4
+    assert (-5, 3, 2) in r2
+    assert (5, -3, 2) in r2
+
 
 def test_contains():
     a = Rect(5, 4)

@@ -100,6 +100,66 @@ def test_recentre():
     (mx, my, mz), (px, py, pz) = bounds_3d(rc)
     assert _almost_same((mx, my, mz, px, py, pz), (5.5, 5.5, 7.0, 8.5, 10.5, 11.0))
 
+    r = cq.Workplane("XY").rect(3, 5).extrude(4)
+    r2 = cq.Workplane("XY").rect(20, 30).extrude(50).translate((10, -10, 0))
+    rc = r.recentre(to_obj=r2)
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (8.5, -12.5, 23, 11.5, -7.5, 27))
+
+    rc = r.recentre("xy", to_obj=r2)
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (8.5, -12.5, 0, 11.5, -7.5, 4))
+
+
+def test_realign():
+    r = cq.Workplane("XY").rect(3, 5).extrude(4)
+    r2 = cq.Workplane("XY").rect(20, 30).extrude(50).translate((10, -10, 0))
+
+    rc = r.realign(r2, "<X")
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+
+    rc = r.realign(r2, ">X")
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (17, -2.5, 0, 20, 2.5, 4))
+    rc = r.realign(r2, "<X")
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (0, -2.5, 0, 3, 2.5, 4))
+
+    rc = r.realign(r2, ">Y")
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (-1.5, 0, 0, 1.5, 5, 4))
+    rc = r.realign(r2, "<Y")
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (-1.5, -25, 0, 1.5, -20, 4))
+
+    rc = r.realign(r2, ">Z")
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (-1.5, -2.5, 46, 1.5, 2.5, 50))
+    rc = r.realign(r2, "<Z")
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (-1.5, -2.5, 0, 1.5, 2.5, 4))
+
+    rc = r.realign(r2, ">X >Y >Z")
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (17, 0, 46, 20, 5, 50))
+    rc = r.realign(r2, "X Y >Z")
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (8.5, -12.5, 46, 11.5, -7.5, 50))
+
+    rc = r.realign(r2, "<<X")
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (-3, -2.5, 0, 0, 2.5, 4))
+    rc = r.realign(r2, ">>X")
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (20, -2.5, 0, 23, 2.5, 4))
+
+    rc = r.realign(r2, ">>Y")
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (-1.5, 5, 0, 1.5, 10, 4))
+    rc = r.realign(r2, "<<Y")
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (-1.5, -30, 0, 1.5, -25, 4))
+
 
 def test_multi_extrude():
     rc = cq.Workplane("XY").rect(10, 12).extrude(2)

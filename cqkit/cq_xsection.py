@@ -27,6 +27,8 @@ import cadquery as cq
 from cadquery import *
 
 from cqkit.cq_geometry import Rect
+from .refdim import XC2020, XC3030, XC4040
+from .cq_helpers import recentre, rotate_x, rotate_y, rotate_z
 
 
 class XSection(object):
@@ -100,37 +102,55 @@ class XSection(object):
             s.append("%d (%s, %s)" % (i, pt[0], pt[1]))
         return "\n".join(s)
 
-    def _pt_tuple(self, pt, scale=(1, 1), offset=(0, 0)):
+    def _pt_tuple(self, pt, scale=(1, 1), offset=(0, 0), swap=False):
         """Extracts a tuple point from a dictionary or tuple point"""
         if isinstance(pt, dict):
             if "radiusArc" in pt:
-                xp = (
-                    pt["radiusArc"][0][0] * scale[0] + offset[0],
-                    pt["radiusArc"][0][1] * scale[1] + offset[1],
-                )
+                if swap:
+                    xp = (
+                        pt["radiusArc"][0][1] * scale[0] + offset[0],
+                        pt["radiusArc"][0][0] * scale[1] + offset[1],
+                    )
+                else:
+                    xp = (
+                        pt["radiusArc"][0][0] * scale[0] + offset[0],
+                        pt["radiusArc"][0][1] * scale[1] + offset[1],
+                    )
                 return xp
             elif "tangentArc" in pt:
-                xp = (
-                    pt["tangentArc"][0] * scale[0] + offset[0],
-                    pt["tangentArc"][1] * scale[1] + offset[1],
-                )
+                if swap:
+                    xp = (
+                        pt["tangentArc"][1] * scale[0] + offset[0],
+                        pt["tangentArc"][0] * scale[1] + offset[1],
+                    )
+                else:
+                    xp = (
+                        pt["tangentArc"][0] * scale[0] + offset[0],
+                        pt["tangentArc"][1] * scale[1] + offset[1],
+                    )
                 return xp
         else:
-            return (pt[0] * scale[0] + offset[0], pt[1] * scale[1] + offset[1])
+            if swap:
+                return (pt[1] * scale[0] + offset[0], pt[0] * scale[1] + offset[1])
+            else:
+                return (pt[0] * scale[0] + offset[0], pt[1] * scale[1] + offset[1])
 
-    def _transform_pt(self, pt, scale, offset=(0, 0), flip=False):
+    def _transform_pt(self, pt, scale=(1, 1), offset=(0, 0), flip=False, swap=False):
         """Converts a dictionary described point or tuple point to a tuple point."""
         if isinstance(pt, dict):
             if "radiusArc" in pt:
                 radius = pt["radiusArc"][1]
                 if flip:
                     radius *= -1
-                xp = (self._pt_tuple(pt, scale, offset), radius)
+                xp = (self._pt_tuple(pt, scale, offset, swap=swap), radius)
                 return {"radiusArc": xp}
             elif "tangentArc" in pt:
-                return {"tangentArc": self._pt_tuple(pt, scale, offset)}
+                return {"tangentArc": self._pt_tuple(pt, scale, offset, swap=swap)}
         else:
-            return (pt[0] * scale[0] + offset[0], pt[1] * scale[1] + offset[1])
+            if swap:
+                return (pt[1] * scale[0] + offset[0], pt[0] * scale[1] + offset[1])
+            else:
+                return (pt[0] * scale[0] + offset[0], pt[1] * scale[1] + offset[1])
 
     def _replace_tuple(self, pt, pt_tuple):
         """Replaces a point tuple in a dictionary or point tuple."""
@@ -246,3 +266,91 @@ class XSection(object):
             .close()
         )
         return r
+
+    def extruded(self, length, along=None):
+        """Convenience function to return an extruded cross section.
+        The extruded solid can be forced to extrude along a
+        specified axis independent of this object's workplane."""
+        if along is not None:
+            wp = self.workplane
+            self.workplane = "XY"
+            r = self.render().extrude(length)
+            if along.lower() == "x":
+                r = recentre(rotate_y(rotate_z(r, 90), 90))
+            elif along.lower() == "y":
+                r = recentre(rotate_x(r, 90))
+            elif along.lower() == "z":
+                r = recentre(r)
+            self.workplane = wp
+            return r
+        else:
+            return self.render().extrude(length)
+
+    @staticmethod
+    def mirror_quad(pts):
+        """Takes a quadrant of points and 4-way mirrors the remaining quandrants."""
+        xpts = [pt for pt in pts]
+        xpts.extend([(-y, -x) for x, y in pts[-3:0:-1]])
+        qpts = [pt for pt in xpts]
+        for pt in xpts:
+            if isinstance(pt, (tuple, list)):
+                qpts.append((-pt[1], pt[0]))
+            elif isinstance(pt, dict):
+                if "radiusArc" in pt:
+                    radius = pt["radiusArc"][1]
+                    xp = pt["radiusArc"][0]
+                    qpts.append({"radiusArc": ((-xp[1], xp[0]), radius)})
+                elif "tangentArc" in pt:
+                    qpts.append({"tangentArc": (-xp[1], xp[0])})
+        return qpts
+
+    @staticmethod
+    def mirror_ext_quad(pts):
+        xc = XSection(workplane="XY", symmetric=True, mirror_axis="X")
+        size = max(abs(y) for _, y in pts[:-1])
+        xpts = [pt for pt in pts]
+        xpts.extend([(-y, -x) for x, y in pts[-3:0:-1]])
+        xpts.extend([(-y, x) for x, y in pts[:-1]])
+        spts = [xc._transform_pt(pt=pt, offset=(0, -size)) for pt in xpts]
+        mpts = []
+        for i, pt in enumerate(spts[-1:0:-1]):
+            new_pt = xc._mirror_pt(pt)
+            if i == 0 and not new_pt == pt:
+                mpts.append(new_pt)
+            mpts.append(new_pt)
+        for i, pt in enumerate(mpts):
+            if i < len(mpts) - 1:
+                next_pt = xc._pt_tuple(mpts[i + 1])
+                new_pt = xc._replace_tuple(pt, next_pt)
+                spts.append(new_pt)
+        return spts
+
+    @staticmethod
+    def xs2020(workplane="XY"):
+        """Returns a XSection instance with an Aluminum 2020 profile"""
+        qpts = XSection.mirror_quad(XC2020)
+        return XSection(pts=qpts, workplane=workplane, symmetric=True)
+
+    @staticmethod
+    def xs2040(workplane="XY"):
+        """Returns a XSection instance with an Aluminum 2040 profile"""
+        qpts = XSection.mirror_ext_quad(XC2020)
+        return XSection(pts=qpts, workplane=workplane, symmetric=True)
+
+    @staticmethod
+    def xs3030(workplane="XY"):
+        """Returns a XSection instance with an Aluminum 3030 profile"""
+        qpts = XSection.mirror_quad(XC3030)
+        return XSection(pts=qpts, workplane=workplane, symmetric=True)
+
+    @staticmethod
+    def xs3060(workplane="XY"):
+        """Returns a XSection instance with an Aluminum 3060 profile"""
+        qpts = XSection.mirror_ext_quad(XC3030)
+        return XSection(pts=qpts, workplane=workplane, symmetric=True)
+
+    @staticmethod
+    def xs4040(workplane="XY"):
+        """Returns a XSection instance with an Aluminum 4040 profile"""
+        qpts = XSection.mirror_quad(XC4040)
+        return XSection(pts=qpts, workplane=workplane, symmetric=True)

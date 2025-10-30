@@ -4,7 +4,7 @@ import os
 
 # fmt: off
 __project__ = 'cqkit'
-__version__ = '0.5.8'
+__version__ = '0.5.9'
 # fmt: on
 
 VERSION = __project__ + "-" + __version__
@@ -45,6 +45,7 @@ from .cq_helpers import (
     rotate_y,
     rotate_z,
     recentre,
+    realign,
     cq_bop_cut,
     cq_bop_fuse,
     cq_bop_intersect,

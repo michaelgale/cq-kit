@@ -795,6 +795,14 @@ class Rect:
             pts = Rect._flip_y(pts, h)
         return Rect._pts_to_rects(pts, offset=offset, bottom_up=bottom_up)
 
+    @staticmethod
+    def corner_points(width, height, at_z=None):
+        """Returns corner vertices of a rectangle width x height."""
+        r = Rect(width, height)
+        if at_z is not None:
+            return r.get_pts_3d(height=at_z)
+        return r.get_pts()
+
 
 class RectCell(Rect):
     """A subclass of Rect which has extra meta information.
@@ -1203,9 +1211,11 @@ def vertices_to_tuples(vpts):
 def sorted_edges(edges):
     edges = sorted(
         edges,
-        key=lambda x: edge_length(x)
-        if not x.geomType() == "CIRCLE"
-        else x._geomAdaptor().Circle().Radius(),
+        key=lambda x: (
+            edge_length(x)
+            if not x.geomType() == "CIRCLE"
+            else x._geomAdaptor().Circle().Radius()
+        ),
     )
     edges = sorted(edges, key=lambda x: x.geomType())
     return edges
