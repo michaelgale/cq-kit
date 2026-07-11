@@ -6,8 +6,8 @@ from cadquery import *
 from cqkit import *
 
 
-def _almost_same(x, y):
-    return all(abs(x[i] - y[i]) < 1e-3 for i in range(len(x)))
+def _almost_same(x, y, tol=1e-3):
+    return all(abs(x[i] - y[i]) < tol for i in range(len(x)))
 
 
 def test_rotations():
@@ -160,6 +160,41 @@ def test_realign():
     (mx, my, mz), (px, py, pz) = bounds_3d(rc)
     assert _almost_same((mx, my, mz, px, py, pz), (-1.5, -30, 0, 1.5, -25, 4))
 
+    rc = r.realign(r2, ">>X", offset=(10, -5, 3))
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (30, -7.5, 3, 33, -2.5, 7))
+
+    rc = r.realign(r2, ">X >Y >Z", offset=(-1, 0, -7))
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (16, 0, 39, 19, 5, 43))
+
+    rc = r.realign(r2, ">X >Z @Y-10 @Z0", offset=(-1, 0, 0))
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (16, -12.5, -2, 19, -7.5, 2))
+
+    rc = r.realign(r2, ">X >Z @Y-10 @Z10")
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (17, -12.5, 8, 20, -7.5, 12))
+
+    rbb = cq.Workplane("XY").rect(10, 20).extrude(30)
+    bb = rbb.vals()[0].BoundingBox()
+    rc = r.realign(bb, ">X")
+    (mx, my, mz), (px, py, pz) = bounds_3d(rc)
+    assert _almost_same((mx, my, mz, px, py, pz), (2, -2.5, 0, 5, 2.5, 4))
+
+
+def test_boundbox():
+    bb = new_BoundBox((1, 2, 3), (10, 20, 30))
+    assert bb.xlen == 10
+    assert bb.xmax == 6
+    assert bb.xmin == -4
+    assert bb.ylen == 20
+    assert bb.ymax == 12
+    assert bb.ymin == -8
+    assert bb.zlen == 30
+    assert bb.zmax == 18
+    assert bb.zmin == -12
+
 
 def test_multi_extrude():
     rc = cq.Workplane("XY").rect(10, 12).extrude(2)
@@ -272,3 +307,13 @@ def test_inverse_chamfer():
     rz = inverse_chamfer(r0, ">Z", 0.2, EdgeLengthSelector(3))
     assert _almost_same(size_3d(rz.faces(">Z")), (3, 4.4, 0))
     assert _almost_same(size_3d(rz.faces("<Z")), (3, 4, 0))
+
+    r1 = cq.Workplane().circle(4).extrude(5)
+    rz = inverse_chamfer(r1, "<Z", 0.3)
+    assert _almost_same(size_3d(rz.faces(">Z")), (8, 8, 0))
+    assert _almost_same(size_3d(rz.faces("<Z")), (8.6, 8.6, 0))
+
+    r1 = cq.Workplane("YZ").circle(4).extrude(5)
+    rz = inverse_chamfer(r1, ">X", 0.3)
+    assert _almost_same(size_3d(rz.faces(">X")), (0, 8.6, 8.6))
+    assert _almost_same(size_3d(rz.faces("<X")), (0, 8, 8))

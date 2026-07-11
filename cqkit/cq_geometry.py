@@ -1229,3 +1229,9 @@ def draft_dim(dim, draft, height, symmetric=False):
             [dim + (h * tan(radians(draft))) for h in (-height / 2, height / 2)]
         )
     return dim + (height * tan(radians(draft)))
+
+
+def rect_corners(xl, yl, at_z=None):
+    if at_z is not None:
+        return [(x * xl, y * yl, at_z) for x in (-1, 1) for y in (-1, 1)]
+    return [(x * xl, y * yl) for x in (-1, 1) for y in (-1, 1)]

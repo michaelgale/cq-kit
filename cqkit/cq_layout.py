@@ -29,7 +29,9 @@ from cadquery import *
 from cqkit.cq_helpers import (
     size_3d,
     recentre,
+    realign,
     empty_BoundBox,
+    new_BoundBox,
     rotate_x,
     rotate_y,
     rotate_z,
@@ -840,9 +842,16 @@ class ShapeLayoutArranger:
     placement in Y and Z will depend on the size of inset Y and Z dimensions
     and y_align and z_align attributes.  The objects can be forced to a fixed
     Y and Z dimension with the at_y and at_z arguments to layout_x_wise.
-    - SolidLayoutArranger.layout_x_wise() uses inset limits
-    - SolidLayoutArranger.layout_x_wise(at_y=0) forces Y only
-    - SolidLayoutArranger.layout_x_wise(at_y=0, at_z=5) forces Y and Z
+    - ShapeLayoutArranger.layout_x_wise() uses inset limits
+    - ShapeLayoutArranger.layout_x_wise(at_y=0) forces Y only
+    - ShapeLayoutArranger.layout_x_wise(at_y=0, at_z=5) forces Y and Z
+
+    Options to pass to the layout methods include:
+    - pre-sort solids by a dimension: sort_dim="X" or sort_dim="-X"
+    - pre-sort solids by area: sort_area="YZ"
+    - pre-sort solids by volume: sort_vol
+    - alternate an offset every other object: alt_stagger_x, alt_stagger_y, alt_stagger_z=5
+    - alternate a rotation every other object: alt_rotate="X 90"
     """
 
     def __init__(self, solids, bounds=None, **kwargs):
@@ -1414,6 +1423,28 @@ class ShapeLayoutArranger:
             return r
         return bb
 
+    def generate_labels(
+        self, labels, alignment, offset=None, font=None, size=8, height=0.4
+    ):
+        """Generate label objects corresponding to the arranged solids. Placement
+        of the labels is specified with 'alignment' and behaves the same way as
+        the 'realign' helper method. e.g. 'X <<Y >Z' or '<<X Y @Z3'"""
+        font = font if font is not None else "Arial"
+        r = None
+        if not len(labels) == len(self._coords):
+            raise ValueError(
+                "The list of %d labels must be the same size as %d arranged objects"
+                % (len(labels), len(self._sizes))
+            )
+        for label, pos, sz in zip(labels, self._coords, self._sizes):
+            rt = Workplane().text(label, fontsize=size, distance=height, font=font)
+            rt = realign(rt, new_BoundBox(pos, sz), alignment, offset=offset)
+            if r is None:
+                r = rt
+            else:
+                r = r.union(rt)
+        return r
+
 
 class XLayoutArranger(ShapeLayoutArranger):
     """Arranges objects along X axis"""
@@ -1446,7 +1477,26 @@ class ZLayoutArranger(ShapeLayoutArranger):
 
 
 class GridLayoutArranger(ShapeLayoutArranger):
-    """Arranges objects gridwise in two axis dimensions."""
+    """Arranges objects gridwise in two axis dimensions.
+    ly = GridLayoutArranger(
+        solids=solids,
+        bounds=bb,
+        x_align="centre",
+        y_align="top",
+        z_align="top",
+        x_padding=0.5,
+        y_padding=1,
+        global_y_align="centre",
+        global_x_align="centre",
+    )
+    - returns compound shape with arranged solids:
+
+      r = ly.layout(as_compound=True)
+
+    - returns objects, centres, and sizes:
+
+      objs, centres, sizes = ly.layout(plane="XY")
+    """
 
     def __init__(self, solids, bounds=None, **kwargs):
         self.x_padding = 0

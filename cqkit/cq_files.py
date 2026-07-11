@@ -360,7 +360,9 @@ class StepFileExporter:
                 lines.append("FILE_DESCRIPTION(")
                 lines.append("/* description */ ('Model of " + str(self.title) + "'),")
                 descstr = (
-                    pyparsing.nestedExpr("/*", "*/").suppress().transformString(descstr)
+                    pyparsing.nested_expr("/*", "*/")
+                    .suppress()
+                    .transform_string(descstr)
                 )
                 lines.append("/* implementation_level */ " + "'2;1');")
                 lines.append("")
@@ -396,9 +398,9 @@ class StepFileExporter:
                 schemastr += self._flines[i].strip()
             if i == (self._filemap[LineToken.ENDSEC] - 1):
                 schemastr = (
-                    pyparsing.nestedExpr("/*", "*/")
+                    pyparsing.nested_expr("/*", "*/")
                     .suppress()
-                    .transformString(schemastr)
+                    .transform_string(schemastr)
                 )
                 for item in schemastr.split(";")[:-1]:
                     lines.append(item + ";")

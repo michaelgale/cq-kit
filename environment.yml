@@ -18,7 +18,6 @@ dependencies:
   - pre-commit
   - pytest
   - pytest-cov
-  - ezdxf
   - ipython
   - typing_extensions
   - nptyping=2.0.1

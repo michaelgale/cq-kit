@@ -4,7 +4,7 @@ import os
 
 # fmt: off
 __project__ = 'cqkit'
-__version__ = '0.5.9'
+__version__ = '0.6.0'
 # fmt: on
 
 VERSION = __project__ + "-" + __version__
@@ -40,6 +40,7 @@ from .cq_helpers import (
     bounds_2d,
     bounds_3d,
     empty_BoundBox,
+    new_BoundBox,
     centre_3d,
     rotate_x,
     rotate_y,
@@ -61,7 +62,7 @@ from .cq_files import (
     import_iges_file,
     import_step_file,
 )
-from .cq_geometry import vertices_to_tuples, draft_dim
+from .cq_geometry import vertices_to_tuples, draft_dim, rect_corners
 from .cq_pprint import obj_str, pprint_obj
 from .cq_ribbon import Ribbon
 from .cq_selectors import *
@@ -80,5 +81,6 @@ from .cq_basic import (
     drafted_hollow_cylinder,
     drafted_slot,
     drafted_hollow_slot,
+    box,
 )
 from .refdim import NUT_METRIC, NUT_US, WASHER_METRIC, WASHER_SAE, WASHER_USS

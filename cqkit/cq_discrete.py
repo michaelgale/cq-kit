@@ -31,6 +31,7 @@ try:
     from OCP.GCPnts import GCPnts_AbscissaPoint, GCPnts_QuasiUniformAbscissa
     from OCP.TopAbs import TopAbs_Orientation
     from OCP.TopLoc import TopLoc_Location
+    from OCP.Poly import Poly_Array1OfTriangle
 
     BRep_Tool.Triangulation = BRep_Tool.Triangulation_s
     GCPnts_AbscissaPoint.Length = GCPnts_AbscissaPoint.Length_s
@@ -123,7 +124,6 @@ def triangle_mesh_solid(solid, lin_tol=1e-2, ang_tol=0.5):
             face = mesh_face.wrapped
             location = TopLoc_Location()
             facing = bt.Triangulation(face, location)
-            tri = facing.InternalTriangles()
             num_tri = facing.NbTriangles()
             vtx = facing.InternalNodes()
             txf = face.Location().Transformation()
@@ -133,7 +133,7 @@ def triangle_mesh_solid(solid, lin_tol=1e-2, ang_tol=0.5):
                 else False
             )
             for i in range(1, num_tri + 1):
-                idx = list(tri.Value(i).Get())
+                idx = [facing.Triangle(i).Value(x) for x in (1, 2, 3)]
                 ci = (0, 2, 1) if rev else (0, 1, 2)
                 for j in ci:
                     pt = (

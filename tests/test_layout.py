@@ -10,10 +10,10 @@ from cqkit import *
 from rich import inspect, print
 
 
-def _almost_same(x, y):
+def _almost_same(x, y, tol=1e-3):
     if isinstance(x, (tuple, list)):
-        return all(abs(x[i] - y[i]) < 1e-3 for i in range(len(x)))
-    return abs(x - y) < 1e-3
+        return all(abs(x[i] - y[i]) < tol for i in range(len(x)))
+    return abs(x - y) < tol
 
 
 def _make_objs():
@@ -261,6 +261,14 @@ def test_layout_coords():
     assert s0.enough_space("X")
     assert s0.enough_space("Y")
     assert not s0.enough_space("Z")
+
+    rs = s0.layout_x_wise(at_y=0, as_compound=True)
+    labels = ["L1", "L2", "L3", "L4", "L5"]
+    rl = s0.generate_labels(labels, "X <<Y @Z0", offset=(0, -10, 0))
+    (mx, my, mz), (px, py, pz) = bounds_3d(rl)
+    assert _almost_same(
+        (mx, my, mz, px, py, pz), (-2.922, -15.852, -0.2, 51.996, -10, 0.2), tol=0.1
+    )
 
     ol, cl, sl = s0.layout_x_wise()
     assert s0.enough_space("Y")

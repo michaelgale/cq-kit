@@ -33,7 +33,13 @@ from OCP.BOPAlgo import BOPAlgo_Operation
 import cadquery as cq
 from cadquery import *
 
-from cqkit.cq_selectors import HasCoordinateSelector, SharedVerticesWithObjectSelector
+from cqkit.cq_selectors import (
+    HasCoordinateSelector,
+    SharedVerticesWithObjectSelector,
+    HasXCoordinateSelector,
+    HasYCoordinateSelector,
+    HasZCoordinateSelector,
+)
 
 # Special test to see which version of CadQuery is installed and
 # therefore if any compensation is required for extruded zlen
@@ -311,6 +317,8 @@ def bounds_2d(obj):
 
 def bounds_3d(obj):
     """Returns the bounds of an Workplane object as min x,y,z max x,y,z tuples"""
+    if isinstance(obj, BoundBox):
+        return (obj.xmin, obj.ymin, obj.zmin), (obj.xmax, obj.ymax, obj.zmax)
     s = obj.vals()[0]
     bb = s.BoundingBox()
     return (bb.xmin, bb.ymin, bb.zmin), (bb.xmax, bb.ymax, bb.zmax)
@@ -328,6 +336,18 @@ def empty_BoundBox():
     return b
 
 
+def new_BoundBox(at_pos, size):
+    """Generates a CQ BoundBox instance with a specified centre coordinate and size."""
+    x0, x1 = at_pos[0] - size[0] / 2, at_pos[0] + size[0] / 2
+    y0, y1 = at_pos[1] - size[1] / 2, at_pos[1] + size[1] / 2
+    z0, z1 = at_pos[2] - size[2] / 2, at_pos[2] + size[2] / 2
+    b = empty_BoundBox()
+    b.xmin, b.xmax, b.xlen = x0, x1, size[0]
+    b.ymin, b.ymax, b.ylen = y0, y1, size[1]
+    b.zmin, b.zmax, b.zlen = z0, z1, size[2]
+    return b
+
+
 def size_2d(obj):
     """Returns the size of a Workplane object in X, Y"""
     (mx, my), (px, py) = bounds_2d(obj)
@@ -336,6 +356,8 @@ def size_2d(obj):
 
 def size_3d(obj):
     """Returns the size of a Workplane object in X, Y, Z"""
+    if isinstance(obj, BoundBox):
+        return obj.xlen, obj.ylen, obj.zlen
     (mx, my, mz), (px, py, pz) = bounds_3d(obj)
     return px - mx, py - my, pz - mz
 
@@ -377,52 +399,87 @@ def recentre(obj, axes=None, to_pt=None, to_obj=None):
 cq.Workplane.recentre = recentre
 
 
-def realign(obj, to_obj, axes):
+def realign(obj, to_obj, axes, offset=None):
     """Repositions an object to another object's bounding box with any
     combination of axes specification. Using < or > aligns obj within
     the bounding box of to_obj.  Using << or >> aligns obj to the
-    outside of to_obj bounding box.
-    r = realign(obj, other, '<X Z >Y')"""
+    outside of to_obj bounding box. Optional @ specification asserts
+    a fixed value for the associated coordinate.
+    The 'offset' parameter allows an optional offset to apply to the
+    object after realignment provided as a 3-tuple.
+    r = realign(obj, other, '<X Z >Y', offset=(-1, 0, 5))
+    r = realign(obj, other, '<X @Y-5 Z')
+    """
+
+    def _strip_val(s):
+        vs = s.lower()
+        for c in "x y z + @".split():
+            vs = vs.replace(c, "")
+        return float(vs)
+
+    def _extract_tokens(s, tokens=None, not_tokens=None):
+        if tokens is not None:
+            ts = [e for t in tokens.split() for e in s.split() if e.startswith(t)]
+        if not_tokens is not None:
+            ts = [e for e in s.split() if not any(t in e for t in not_tokens.split())]
+        return " ".join(ts)
+
+    def _extract_coord(specs, c):
+        for spec in specs.split():
+            v = _strip_val(spec)
+            if "x" in spec.lower():
+                c[0] = v
+            elif "y" in spec.lower():
+                c[1] = v
+            elif "z" in spec.lower():
+                c[2] = v
+        return c
+
+    aspec = _extract_tokens(axes, not_tokens="@")
+    tspec = _extract_tokens(axes, tokens="@")
+
     sx, sy, sz = size_3d(obj)
     osx, osy, osz = size_3d(to_obj)
     dx, dy, dz = (osx - sx) / 2, (osy - sy) / 2, (osz - sz) / 2
-    for spec in axes.split():
+    for spec in aspec.split():
         if "x" in spec.lower():
             obj = recentre(obj, "x", to_obj=to_obj)
             if "<" in spec:
                 obj = obj.translate((-dx, 0, 0))
             elif ">" in spec:
                 obj = obj.translate((dx, 0, 0))
-
             if "<<" in spec:
                 obj = obj.translate((-sx, 0, 0))
             elif ">>" in spec:
                 obj = obj.translate((sx, 0, 0))
-
         if "y" in spec.lower():
             obj = recentre(obj, "y", to_obj=to_obj)
             if "<" in spec:
                 obj = obj.translate((0, -dy, 0))
             elif ">" in spec:
                 obj = obj.translate((0, dy, 0))
-
             if "<<" in spec:
                 obj = obj.translate((0, -sy, 0))
             elif ">>" in spec:
                 obj = obj.translate((0, sy, 0))
-
         if "z" in spec.lower():
             obj = recentre(obj, "z", to_obj=to_obj)
             if "<" in spec:
                 obj = obj.translate((0, 0, -dz))
             elif ">" in spec:
                 obj = obj.translate((0, 0, dz))
-
             if "<<" in spec:
                 obj = obj.translate((0, 0, -sz))
             elif ">>" in spec:
                 obj = obj.translate((0, 0, sz))
 
+    if offset is not None:
+        obj = obj.translate(offset)
+    if len(tspec):
+        loc = tuple(_extract_coord(tspec, [None, None, None]))
+        opos = centre_3d(obj)
+        d = tuple(loc[i] - opos[i] if loc[i] is not None else 0 for i in range(3))
+        obj = obj.translate(d)
     return obj
 
 
@@ -486,9 +543,16 @@ def inverse_op(obj, face, radius, selector=None, min_points=2):
         .solids()
     )
     wall = fobj.cut(obj)
-    fobj = fobj.edges(
-        SharedVerticesWithObjectSelector(obj.faces(face).val(), min_points=min_points)
-    )
+    bs = SharedVerticesWithObjectSelector(obj.faces(face).val(), min_points=min_points)
+    # ensure we pickup circles on the face which only have one centre vertex
+    v = obj.faces(face).vertices().val()
+    if "z" in face.lower():
+        bs = bs + (StringSyntaxSelector("%CIRCLE") & HasZCoordinateSelector(v.Z))
+    elif "y" in face.lower():
+        bs = bs + (StringSyntaxSelector("%CIRCLE") & HasYCoordinateSelector(v.Y))
+    elif "x" in face.lower():
+        bs = bs + (StringSyntaxSelector("%CIRCLE") & HasXCoordinateSelector(v.X))
+    fobj = fobj.edges(bs)
     if selector is not None:
         fobj = fobj.edges(selector)
     # return common pre-selected edges and the fake wall

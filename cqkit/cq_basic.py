@@ -220,3 +220,12 @@ def drafted_hollow_slot(
     if has_floor:
         interior = interior.translate(interior.plane.zDir * floor)
     return exterior.cut(interior)
+
+
+def box(length, width, height, edge_radius=0, workplane="XY"):
+    """Convience function to make a simple extruded rectangular box."""
+    r = cq.Workplane(workplane).rect(length, width).extrude(height)
+    if edge_radius:
+        edge = {"XY": "|Z", "XZ": "|Y", "YZ": "|X"}[workplane]
+        r = r.edges(edge).fillet(edge_radius)
+    return r
